@@ -1,4 +1,4 @@
 TCPGame
 =======
 
-Such connect, many angband
+Such connect, many angbands
