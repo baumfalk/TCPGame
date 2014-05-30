@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Drawing;
 
-namespace TCPGameClient.Model
+namespace TCPGameClient.Server
 {
     public class Creature
     {

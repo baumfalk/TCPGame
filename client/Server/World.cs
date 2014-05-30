@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Timers;
 
-// we gebruiken even de tiles enzo uit het model, want stiekem is er helemaal geen server
-using TCPGameClient.Model;
+using System.Diagnostics;
+
 using TCPGameClient.Control;
 
 namespace TCPGameClient.Server
@@ -22,6 +22,8 @@ namespace TCPGameClient.Server
         private Controller user;
 
         private Tile[,] tiles = new Tile[10, 8];
+
+        private int numCommand;
 
         public World() {
             for (int x = 0; x < 10; x++)
@@ -46,7 +48,7 @@ namespace TCPGameClient.Server
                 }
             }
 
-            thePlayer = new Player(null);
+            thePlayer = new Player("player");
             
             tiles[4, 3].setOccupant(thePlayer);
 
@@ -56,12 +58,18 @@ namespace TCPGameClient.Server
 
         void tmTick_Elapsed(object sender, ElapsedEventArgs e)
         {
+            numCommand = 0;
+
             // vraag input;
             List<String> outputData = handleInput(user.getInput());
+
+            // sorteer. Zou goed moeten zijn, maar better safe dan sorry.
+            outputData.Sort();
 
             // geef output;
             user.doUpdate(outputData);
         }
+
 
         private List<String> handleInput(List<String> userInput)
         {
@@ -88,6 +96,8 @@ namespace TCPGameClient.Server
                 }
             }
 
+            if (playerHasMoved) addPlayerLocation(outputData);
+
             getSurroundingTiles(outputData, 5);
 
             return outputData;
@@ -105,77 +115,65 @@ namespace TCPGameClient.Server
                 {
                     playerPosition.vacate();
                     thePlayer.setPosition(neighbor);
-
-                    addPlayerLocation(outputData);
-
                     return true;
                 }
             }
             return false;
         }
 
+        
         private List<String> getInitData()
         {
-            List<String> initData = new List<String>();
+            List<String> outputData = new List<String>();
 
-            addPlayerLocation(initData);
+            addPlayerLocation(outputData);
 
-            getSurroundingTiles(initData, 5);
+            getSurroundingTiles(outputData, 5);
 
-            return initData;
+            return outputData;
         }
 
         private void addPlayerLocation(List<String> outputData)
         {
-            outputData.Add("Player,Position," + thePlayer.getPosition().getX() + "," + thePlayer.getPosition().getY());
+            outputData.Add(numCommand++ + ",Player,Position," + thePlayer.getPosition().getX() + "," + thePlayer.getPosition().getY());
         }
 
         private void getSurroundingTiles(List<String> outputData, int depth)
         {
             List<Tile> tilesToSend = new List<Tile>();
 
-            IterativeDeepeningTiles(thePlayer.getPosition(), depth, tilesToSend);
+            thePlayer.getPosition().setColor(5);
+
+            IterativeDeepeningTiles(thePlayer.getPosition(), tilesToSend);
 
             foreach (Tile tile in tilesToSend)
             {
                 // set color back to unexplored status
                 tile.setColor(0);
+
+                // add tile to output
+                outputData.Add(numCommand++ + ",Tile,Detected," + tile.getX() + "," + tile.getY() + "," + tile.getRepresentation());
+
+                // je kan hier ook naar occupants kijken. Doe ik nog niet.
             }
         }
 
-        private void IterativeDeepeningTiles(Tile startingTile, int depth, List<Tile> tilesToSend)
+        private void IterativeDeepeningTiles(Tile startingTile, List<Tile> tilesToSend)
         {
-            // if the tile has been explored, don't do it again
-            if (startingTile.getColor() == 1) return;
-
-            // this tile has been explored
-            startingTile.setColor(1);
-
-            // this tile should be sent
-            tilesToSend.Add(startingTile);
-
-            // don't continue if we have no depth left
-            if (depth == 0) return;
-
-            // check if there's a neighbor in each direction, and recursively call this method
-            for (int direction = 0; direction < 4; direction++)
-            {
-                if (startingTile.hasNeighbor(direction))
-                {
-                    IterativeDeepeningTiles(startingTile.getNeighbor(direction), depth - 1, tilesToSend);
-                }
-            }
+            // add tiles that should be displayed here and it works
         }
 
         public void registerUser(Controller user)
         {
+            Debug.Print("user registered");
+
             this.user = user;
 
             List<String> initData = getInitData();
 
             user.doUpdate(initData);
 
-            tmTick.Start();
+            //tmTick.Start();
         }
 
         public void removeUser(Controller user)
