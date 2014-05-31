@@ -37,7 +37,7 @@ namespace TCPGameClient.Server
                     {
                         type = "wall";
                     }
-                    else if (x == 1 && y == 1)
+                    else if ((x == 1 && y == 1) || (x == 8 && y == 6))
                     {
                         type = "stairs";
                     } 
@@ -63,6 +63,7 @@ namespace TCPGameClient.Server
             }
 
             tiles[1, 1, 0].link(Directions.UP, tiles[1, 1, 1]);
+            tiles[8, 6, 0].link(Directions.UP, tiles[8, 6, 1]);
 
             body = new Creature("player");
             
