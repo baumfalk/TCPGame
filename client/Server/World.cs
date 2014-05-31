@@ -22,36 +22,51 @@ namespace TCPGameClient.Server
 
         private Controller user;
 
-        private Tile[,] tiles = new Tile[40, 8];
+        private Tile[,,] tiles = new Tile[40, 8, 2];
 
         private int numCommand;
 
         public World() {
-            for (int x = 0; x < 40; x++)
+            for (int x = 0; x < 10; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
                     String type;
 
-                    if (x == 0 || x == 39 || y == 0 || y == 7)
+                    if (x == 0 || x == 9 || y == 0 || y == 7)
                     {
                         type = "wall";
                     }
+                    else if (x == 1 && y == 1)
+                    {
+                        type = "stairs";
+                    } 
                     else
                     {
                         type = "floor";
                     }
 
-                    tiles[x, y] = new Tile(type, type, x, y, 0);
+                    tiles[x, y, 0] = new Tile(type, type, x, y, 0);
+                    tiles[x, y, 1] = new Tile(type, type, x, y, 1);
 
-                    if (x != 0) tiles[x, y].link(Directions.WEST, tiles[x - 1, y]);
-                    if (y != 0) tiles[x, y].link(Directions.NORTH, tiles[x, y - 1]);
+                    if (x != 0)
+                    {
+                        tiles[x, y, 0].link(Directions.WEST, tiles[x - 1, y, 0]);
+                        tiles[x, y, 1].link(Directions.WEST, tiles[x - 1, y, 1]);
+                    }
+                    if (y != 0)
+                    {
+                        tiles[x, y, 0].link(Directions.NORTH, tiles[x, y - 1, 0]);
+                        tiles[x, y, 1].link(Directions.NORTH, tiles[x, y - 1, 1]);
+                    }
                 }
             }
 
+            tiles[1, 1, 0].link(Directions.UP, tiles[1, 1, 1]);
+
             body = new Creature("player");
             
-            tiles[4, 3].setOccupant(body);
+            tiles[4, 3, 0].setOccupant(body);
 
             tmTick = new Timer(100);
             tmTick.Elapsed += tmTick_Elapsed;
@@ -128,7 +143,9 @@ namespace TCPGameClient.Server
 
         private void addPlayerLocation(List<String> outputData)
         {
-            outputData.Add(numCommand++ + ",Player,Position," + thePlayer.getBody().getPosition().getX() + "," + thePlayer.getBody().getPosition().getY());
+            Tile playerPosition = thePlayer.getBody().getPosition();
+
+            outputData.Add(numCommand++ + ",Player,Position," + playerPosition.getX() + "," + playerPosition.getY() + "," + playerPosition.getZ());
         }
 
         private void getSurroundingTiles(List<String> outputData, int depth)

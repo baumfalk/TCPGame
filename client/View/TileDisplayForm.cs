@@ -69,23 +69,31 @@ namespace TCPGameClient.View
             Graphics g = Graphics.FromImage(drawBuffer);
 
             // make the buffer solid black
-            g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(10, 10, pictureBox1.Width, pictureBox1.Height));
+            g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
 
             // centerx/centery indicate the center of the drawing area
             int centerX = pictureBox1.Width / 2;
             int centerY = pictureBox1.Height / 2;
 
-            // draws an 11x11 grid around the player
-            // TODO: make this are more sensible, matching the size of the picturebox
-            for (int x = -5; x < 6; x++)
+            // number of tiles to draw. Intentionally overestimates the amount needed to make sure the space
+            // gets filled
+            int tilesX = pictureBox1.Width / 64 + 2;
+            int tilesY = pictureBox1.Height / 64 + 2;
+
+            int positionX = theModel.getGridSizeX() / 2 + 1;
+            int positionY = theModel.getGridSizeY() / 2 + 1;
+            int positionZ = theModel.getGridSizeZ() / 2 + 1;
+
+            // draws a 2D grid around the player.
+            for (int x = -tilesX / 2; x < tilesX / 2; x++)
             {
-                for (int y = -5; y < 6; y++)
+                for (int y = -tilesY / 2; y < tilesY / 2; y++)
                 {
                     // check if a field exists to draw
-                    if (theModel.hasFieldAtPosition(11 + x, 11 + y))
+                    if (theModel.hasFieldAtPosition(positionX + x, positionY + y, positionZ))
                     {
                         // get that field
-                        Field fieldToDraw = theModel.getFieldAtPosition(11 + x, 11 + y);
+                        Field fieldToDraw = theModel.getFieldAtPosition(positionX + x, positionY + y, positionZ);
 
                         // get the internal name of it's image
                         String fieldRepresentation = fieldToDraw.getRepresentation();

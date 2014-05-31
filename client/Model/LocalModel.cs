@@ -13,22 +13,41 @@ namespace TCPGameClient.Model
         // current location of the player
         private int currentX;
         private int currentY;
+        private int currentZ;
 
         // size of the display grid
         private int gridSizeX;
         private int gridSizeY;
+        private int gridSizeZ;
 
         // display grid
-        public Field[,] map;
+        public Field[,,] map;
 
         // constructor allows the controller to give a grid size, which is
         // the area that will be "remembered"
-        public LocalModel(int gridSizeX, int gridSizeY)
+        public LocalModel(int gridSizeX, int gridSizeY, int gridSizeZ)
         {
             this.gridSizeX = gridSizeX;
             this.gridSizeY = gridSizeY;
+            this.gridSizeZ = gridSizeZ;
 
-            map = new Field[gridSizeX, gridSizeY];
+            map = new Field[gridSizeX, gridSizeY, gridSizeZ];
+        }
+
+        // view needs to know how big the grid is to properly center it
+        public int getGridSizeX()
+        {
+            return gridSizeX;
+        }
+
+        public int getGridSizeY()
+        {
+            return gridSizeY;
+        }
+
+        public int getGridSizeZ()
+        {
+            return gridSizeZ;
         }
         
         // updates based on strings sent to the controller by the server. Is not very
@@ -63,16 +82,22 @@ namespace TCPGameClient.Model
             }
         }
 
-        // checks if a field exists
-        public bool hasFieldAtPosition(int x, int y)
+        // checks if a field position is in bounds
+        private bool isInBounds(int x, int y, int z)
         {
-            return (map[x, y] != null);
+            return (x >= 0 && y >= 0 && z >= 0 && x < gridSizeX && y < gridSizeY && z < gridSizeZ);
+        }
+
+        // checks if a field exists
+        public bool hasFieldAtPosition(int x, int y, int z)
+        {
+            return (isInBounds(x, y, z) && map[x, y, z] != null);
         }
 
         // returns field at a position
-        public Field getFieldAtPosition(int x, int y)
+        public Field getFieldAtPosition(int x, int y, int z)
         {
-            return map[x, y];
+            return map[x, y, z];
         }
 
         // handles player-type updates. Only "position" update exists at the moment.
@@ -83,44 +108,42 @@ namespace TCPGameClient.Model
             {
                 int newX = int.Parse(inputPart[3]);
                 int newY = int.Parse(inputPart[4]);
+                int newZ = int.Parse(inputPart[5]);
 
                 // if we have moved, we should shift our map (which is player-centered)
-                if (newX != currentX || newY != currentY) shiftMap(newX, newY);
+                if (newX != currentX || newY != currentY || newZ != currentZ) shiftMap(newX, newY, newZ);
             }
         }
 
         // shift the map. This is needed when the player moves, since the map is centered
         // on the player.
-        private void shiftMap(int newX, int newY)
+        private void shiftMap(int newX, int newY, int newZ)
         {
             // the shift we need to make is the difference of the old (current) position 
             // with the new one
             int shiftX = currentX - newX;
             int shiftY = currentY - newY;
+            int shiftZ = currentZ - newZ;
 
             // create a new grid
-            Field[,] newMap = new Field[gridSizeX, gridSizeY];
+            Field[,,] newMap = new Field[gridSizeX, gridSizeY, gridSizeZ];
 
             // loop over the old grid
             for (int x = 0; x < gridSizeX; x++)
             {
                 for (int y = 0; y < gridSizeY; y++)
                 {
-                    // check if a field already exists on the old map
-                    if (x - shiftX < 0 || x - shiftX > gridSizeX -1 ||
-                        y - shiftY < 0 || y - shiftY > gridSizeY -1)
+                    for (int z = 0; z < gridSizeZ; z++)
                     {
-                        // this doesn't actually do anything, but we may want to do
-                        // something different here at some point, and it's nice to see
-                        // that a "new" field is null at the start.
-
-                        newMap[x, y] = null;
-                    }
-                    else
-                    {
-                        // if the field did exist, copy it from the right position on
-                        // the old map
-                        newMap[x, y] = map[x - shiftX, y - shiftY];
+                        // check if a field already exists on the old map
+                        if (isInBounds(x - shiftX, y - shiftY, z - shiftZ))
+                        {
+                            newMap[x, y, z] = map[x - shiftX, y - shiftY, z - shiftZ];
+                        }
+                        else
+                        {
+                            newMap[x, y, z] = null;
+                        }
                     }
                 }
             }
@@ -129,6 +152,7 @@ namespace TCPGameClient.Model
             map = newMap;
             currentX = newX;
             currentY = newY;
+            currentZ = newZ;
         }
 
         // handles "tile" type updates. Only "detection" updates exist at the moment.
@@ -144,10 +168,11 @@ namespace TCPGameClient.Model
 
                 // calculate position relative to the player
                 int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);
-                int mapPosY = gridSizeX / 2 + 1 + (yPos - currentY);
+                int mapPosY = gridSizeY / 2 + 1 + (yPos - currentY);
+                int mapPosZ = gridSizeZ / 2 + 1 + (zPos - currentZ);
 
                 // add tile to the grid
-                map[mapPosX, mapPosY] = new Field(representation);
+                map[mapPosX, mapPosY, mapPosZ] = new Field(representation);
             }
         }
     }

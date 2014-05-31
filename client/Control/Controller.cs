@@ -27,7 +27,7 @@ namespace TCPGameClient.Control
             this.tdView = tdView;
 
             // we need to locally model the world to display it
-            worldModel = new LocalModel(21,21);
+            worldModel = new LocalModel(101,101,101);
 
             // "connect" to the world-server
             World theWorld = new World();
