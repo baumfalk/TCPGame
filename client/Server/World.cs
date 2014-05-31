@@ -42,10 +42,10 @@ namespace TCPGameClient.Server
                         type = "floor";
                     }
 
-                    tiles[x, y] = new Tile(type, type, x, y);
+                    tiles[x, y] = new Tile(type, type, x, y, 0);
 
-                    if (x != 0) tiles[x, y].link(3, tiles[x - 1, y]);
-                    if (y != 0) tiles[x, y].link(0, tiles[x, y - 1]);
+                    if (x != 0) tiles[x, y].link(Directions.WEST, tiles[x - 1, y]);
+                    if (y != 0) tiles[x, y].link(Directions.NORTH, tiles[x, y - 1]);
                 }
             }
 
@@ -82,21 +82,7 @@ namespace TCPGameClient.Server
             {
                 Debug.Print("input: ." + input + ".");
 
-                switch (input)
-                {
-                    case "n":
-                        playerHasMoved = movePlayer(0, outputData);
-                        break;
-                    case "e":
-                        playerHasMoved = movePlayer(1, outputData);
-                        break;
-                    case "s":
-                        playerHasMoved = movePlayer(2, outputData);
-                        break;
-                    case "w":
-                        playerHasMoved = movePlayer(3, outputData);
-                        break;
-                }
+                playerHasMoved = movePlayer(Directions.fromShortString(input), outputData);
             }
 
             if (playerHasMoved) addPlayerLocation(outputData);
@@ -146,11 +132,12 @@ namespace TCPGameClient.Server
         private void getSurroundingTiles(List<String> outputData, int depth)
         {
             List<Tile> tilesToSend = new List<Tile>();
-
-            thePlayer.getBody().getPosition().setColor(depth);
+            Tile playerPosition = thePlayer.getBody().getPosition();
+            
+            playerPosition.setColor(depth);
 
             Queue<Tile> tileQueue = new Queue<Tile>();
-            tileQueue.Enqueue(thePlayer.getBody().getPosition());
+            tileQueue.Enqueue(playerPosition);
 
             BFS_To_Depth(tileQueue, tilesToSend);
 
@@ -160,7 +147,7 @@ namespace TCPGameClient.Server
                 tile.setColor(0);
 
                 // add tile to output
-                outputData.Add(numCommand++ + ",Tile,Detected," + tile.getX() + "," + tile.getY() + "," + tile.getRepresentation());
+                outputData.Add(numCommand++ + ",Tile,Detected," + tile.getX() + "," + tile.getY() + "," + tile.getZ() + "," + tile.getRepresentation());
 
                 // je kan hier ook naar occupants kijken. Doe ik nog niet.
             }
@@ -173,11 +160,11 @@ namespace TCPGameClient.Server
                 Tile activeTile = tileQueue.Dequeue();
                 int depth = activeTile.getColor();
 
-                tilesToSend.Add(activeTile);
-
                 if (depth == 0) return;
 
-                for (int direction = 0; direction < 4; direction++)
+                tilesToSend.Add(activeTile);
+
+                for (int direction = 0; direction < 6; direction++)
                 {
                     if (activeTile.hasNeighbor(direction))
                     {

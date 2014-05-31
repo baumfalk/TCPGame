@@ -139,7 +139,8 @@ namespace TCPGameClient.Model
                 // get position and representation from the input
                 int xPos = int.Parse(inputPart[3]);
                 int yPos = int.Parse(inputPart[4]);
-                String representation = inputPart[5];
+                int zPos = int.Parse(inputPart[5]);
+                String representation = inputPart[6];
 
                 // calculate position relative to the player
                 int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);

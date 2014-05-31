@@ -48,8 +48,7 @@ namespace TCPGameClient.Server
         public void link(int direction, Tile neighbor)
         {
             neighbors[direction] = neighbor;
-            // inverse direction
-            neighbor.backLink((direction + 3) % 6, this);
+            neighbor.backLink(Directions.inverse(direction), this);
         }
 
         protected void backLink(int direction, Tile neighbor)
@@ -86,6 +85,11 @@ namespace TCPGameClient.Server
         public int getY()
         {
             return y;
+        }
+
+        public int getZ()
+        {
+            return z;
         }
 
         //0 = north, 1 = east, 2 = up, 3 = south, 4 = west, 5 = down

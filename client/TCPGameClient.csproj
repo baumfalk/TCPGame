@@ -47,6 +47,7 @@
     <Compile Include="Control\Controller.cs" />
     <Compile Include="Server\Creature.cs" />
     <Compile Include="Model\Field.cs" />
+    <Compile Include="Server\Directions.cs" />
     <Compile Include="View\ImageBuffer.cs" />
     <Compile Include="Model\LocalModel.cs" />
     <Compile Include="Server\Player.cs" />
