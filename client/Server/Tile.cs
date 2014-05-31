@@ -8,6 +8,7 @@ using System.Drawing;
 
 namespace TCPGameClient.Server
 {
+    // 
     public class Tile
     {
         private Tile[] neighbors;
@@ -18,19 +19,20 @@ namespace TCPGameClient.Server
 
         private int x;
         private int y;
+        private int z;
 
-        // 0 = wit, 1 = grijs
         private int color;
 
-        public Tile(String type, String representation, int x, int y)
+        public Tile(String type, String representation, int x, int y, int z)
         {
             this.type = type;
             this.representation = representation;
 
             this.x = x;
             this.y = y;
+            this.z = z;
 
-            neighbors = new Tile[4];
+            neighbors = new Tile[6];
         }
 
         public void setColor(int color)
@@ -47,7 +49,7 @@ namespace TCPGameClient.Server
         {
             neighbors[direction] = neighbor;
             // inverse direction
-            neighbor.backLink((direction + 2) % 4, this);
+            neighbor.backLink((direction + 3) % 6, this);
         }
 
         protected void backLink(int direction, Tile neighbor)
@@ -86,7 +88,7 @@ namespace TCPGameClient.Server
             return y;
         }
 
-        //0 = north, 1 = east, 2 = south, 3 = west
+        //0 = north, 1 = east, 2 = up, 3 = south, 4 = west, 5 = down
         public bool hasNeighbor(int direction)
         {
             return (neighbors[direction] != null);

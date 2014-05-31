@@ -14,7 +14,7 @@ using TCPGameClient.Server;
 
 namespace TCPGameClient.Control
 {
-    class Controller
+    public class Controller
     {
         // view is the display form
         private TileDisplayForm tdView;

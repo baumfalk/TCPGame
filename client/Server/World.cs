@@ -17,6 +17,7 @@ namespace TCPGameClient.Server
     {
         private Timer tmTick;
 
+        private Creature body;
         private Player thePlayer;
 
         private Controller user;
@@ -48,9 +49,9 @@ namespace TCPGameClient.Server
                 }
             }
 
-            thePlayer = new Player("player");
+            body = new Creature("player");
             
-            tiles[4, 3].setOccupant(thePlayer);
+            tiles[4, 3].setOccupant(body);
 
             tmTick = new Timer(100);
             tmTick.Elapsed += tmTick_Elapsed;
@@ -109,7 +110,7 @@ namespace TCPGameClient.Server
         {
             Debug.Print("move player");
 
-            Tile playerPosition = thePlayer.getPosition();
+            Tile playerPosition = thePlayer.getBody().getPosition();
 
             if (playerPosition.hasNeighbor(direction))
             {
@@ -118,7 +119,7 @@ namespace TCPGameClient.Server
                 if (neighbor.isPassable() && !neighbor.hasOccupant())
                 {
                     playerPosition.vacate();
-                    thePlayer.setPosition(neighbor);
+                    thePlayer.getBody().setPosition(neighbor);
                     return true;
                 }
             }
@@ -139,17 +140,17 @@ namespace TCPGameClient.Server
 
         private void addPlayerLocation(List<String> outputData)
         {
-            outputData.Add(numCommand++ + ",Player,Position," + thePlayer.getPosition().getX() + "," + thePlayer.getPosition().getY());
+            outputData.Add(numCommand++ + ",Player,Position," + thePlayer.getBody().getPosition().getX() + "," + thePlayer.getBody().getPosition().getY());
         }
 
         private void getSurroundingTiles(List<String> outputData, int depth)
         {
             List<Tile> tilesToSend = new List<Tile>();
 
-            thePlayer.getPosition().setColor(depth);
+            thePlayer.getBody().getPosition().setColor(depth);
 
             Queue<Tile> tileQueue = new Queue<Tile>();
-            tileQueue.Enqueue(thePlayer.getPosition());
+            tileQueue.Enqueue(thePlayer.getBody().getPosition());
 
             BFS_To_Depth(tileQueue, tilesToSend);
 
@@ -198,6 +199,8 @@ namespace TCPGameClient.Server
             Debug.Print("user registered");
 
             this.user = user;
+
+            thePlayer = new Player(body, user);
 
             List<String> initData = getInitData();
 
