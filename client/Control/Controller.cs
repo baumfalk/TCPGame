@@ -16,7 +16,9 @@ namespace TCPGameClient.Control
 {
     class Controller
     {
+        // view is the display form
         private TileDisplayForm tdView;
+        // the local model
         private LocalModel worldModel;
 
         public Controller(TileDisplayForm tdView)
@@ -27,7 +29,7 @@ namespace TCPGameClient.Control
             // we need to locally model the world to display it
             worldModel = new LocalModel(21,21);
 
-            // connect to the world-server
+            // "connect" to the world-server
             World theWorld = new World();
 
             // register with the server to start getting updates

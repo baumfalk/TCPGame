@@ -21,18 +21,18 @@ namespace TCPGameClient.Server
 
         private Controller user;
 
-        private Tile[,] tiles = new Tile[10, 8];
+        private Tile[,] tiles = new Tile[40, 8];
 
         private int numCommand;
 
         public World() {
-            for (int x = 0; x < 10; x++)
+            for (int x = 0; x < 40; x++)
             {
                 for (int y = 0; y < 8; y++)
                 {
                     String type;
 
-                    if (x == 0 || x == 9 || y == 0 || y == 7)
+                    if (x == 0 || x == 39 || y == 0 || y == 7)
                     {
                         type = "wall";
                     }
