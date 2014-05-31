@@ -82,7 +82,9 @@ namespace TCPGameClient.Server
             {
                 Debug.Print("input: ." + input + ".");
 
-                playerHasMoved = movePlayer(Directions.fromShortString(input), outputData);
+                int direction = Directions.fromShortString(input);
+
+                playerHasMoved = (direction != -1 && movePlayer(direction, outputData));
             }
 
             if (playerHasMoved) addPlayerLocation(outputData);
