@@ -95,7 +95,7 @@ namespace TCPGameClient.Server
         //0 = north, 1 = east, 2 = up, 3 = south, 4 = west, 5 = down
         public bool hasNeighbor(int direction)
         {
-            return (neighbors[direction] != null);
+            return (direction >= 0 && direction < neighbors.Length && neighbors[direction] != null);
         }
 
         public Tile getNeighbor(int direction)
