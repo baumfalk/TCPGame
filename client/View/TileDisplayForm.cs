@@ -59,13 +59,9 @@ namespace TCPGameClient.View
                 {
                     if (theModel.hasFieldAtPosition(11 + x, 11 + y))
                     {
-                        Debug.Print("printing the field at " + (11 + x) + ", " + (11 + y));
-
                         Field fieldToDraw = theModel.getFieldAtPosition(11 + x, 11 + y);
 
                         String fieldRepresentation = fieldToDraw.getRepresentation();
-
-                        Debug.Print("of type " + fieldRepresentation);
 
                         Image imToDraw = imageBuffer.getImage(fieldRepresentation);
 
@@ -85,7 +81,9 @@ namespace TCPGameClient.View
         {
             if (textBox1.Text.EndsWith("\n"))
             {
-                inputList.Add(textBox1.Text.Replace("\n", ""));
+                String input = textBox1.Text.Replace("\r\n", "");
+
+                inputList.Add(input);
                 textBox1.Clear();
             }
         }

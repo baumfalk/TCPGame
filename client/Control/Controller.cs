@@ -37,16 +37,12 @@ namespace TCPGameClient.Control
         // server will ask for our input every tick
         public List<String> getInput()
         {
-            Debug.Print("getting input");
-
             return tdView.getInput();
         }
 
         // and server will send updates every tick
         public void doUpdate(List<String> updateData)
         {
-            Debug.Print("doing update (size " + updateData.Count + ")");
-
             // update local model using the data sent
             worldModel.update(updateData);
 

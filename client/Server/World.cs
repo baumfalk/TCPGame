@@ -79,6 +79,8 @@ namespace TCPGameClient.Server
 
             foreach (String input in userInput) 
             {
+                Debug.Print("input: ." + input + ".");
+
                 switch (input)
                 {
                     case "n":
@@ -105,6 +107,8 @@ namespace TCPGameClient.Server
 
         private bool movePlayer(int direction, List<String> outputData)
         {
+            Debug.Print("move player");
+
             Tile playerPosition = thePlayer.getPosition();
 
             if (playerPosition.hasNeighbor(direction))
@@ -142,9 +146,12 @@ namespace TCPGameClient.Server
         {
             List<Tile> tilesToSend = new List<Tile>();
 
-            thePlayer.getPosition().setColor(5);
+            thePlayer.getPosition().setColor(depth);
 
-            IterativeDeepeningTiles(thePlayer.getPosition(), tilesToSend);
+            Queue<Tile> tileQueue = new Queue<Tile>();
+            tileQueue.Enqueue(thePlayer.getPosition());
+
+            BFS_To_Depth(tileQueue, tilesToSend);
 
             foreach (Tile tile in tilesToSend)
             {
@@ -158,9 +165,32 @@ namespace TCPGameClient.Server
             }
         }
 
-        private void IterativeDeepeningTiles(Tile startingTile, List<Tile> tilesToSend)
+        private void BFS_To_Depth(Queue<Tile> tileQueue, List<Tile> tilesToSend)
         {
-            // add tiles that should be displayed here and it works
+            while (tileQueue.Count > 0)
+            {
+                Tile activeTile = tileQueue.Dequeue();
+                int depth = activeTile.getColor();
+
+                tilesToSend.Add(activeTile);
+
+                if (depth == 0) return;
+
+                for (int direction = 0; direction < 4; direction++)
+                {
+                    if (activeTile.hasNeighbor(direction))
+                    {
+                        Tile neighbor = activeTile.getNeighbor(direction);
+                        if (neighbor.getColor() == 0)
+                        {
+                            neighbor.setColor(depth - 1);
+
+                            tileQueue.Enqueue(neighbor);
+                        }
+                    }
+                }
+            }
+            
         }
 
         public void registerUser(Controller user)
@@ -173,7 +203,7 @@ namespace TCPGameClient.Server
 
             user.doUpdate(initData);
 
-            //tmTick.Start();
+            tmTick.Start();
         }
 
         public void removeUser(Controller user)

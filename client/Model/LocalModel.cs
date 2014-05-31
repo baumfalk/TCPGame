@@ -19,6 +19,8 @@ namespace TCPGameClient.Model
         // display grid
         public Field[,] map;
 
+        bool onlyonce = true;
+
         public LocalModel(int gridSizeX, int gridSizeY)
         {
             this.gridSizeX = gridSizeX;
@@ -26,13 +28,11 @@ namespace TCPGameClient.Model
 
             map = new Field[gridSizeX, gridSizeY];
         }
-
+        
         public void update(List<String> updateData)
         {
             foreach (String input in updateData)
             {
-                Debug.Print(input);
-
                 String[] inputPart = input.Split(',');
 
                 switch (inputPart[1])
@@ -41,10 +41,12 @@ namespace TCPGameClient.Model
                         updatePlayer(inputPart);
                         break;
                     case "Tile":
-                        updateMap(inputPart);
+                        if (onlyonce) updateMap(inputPart);
                         break;
                 }
             }
+
+            onlyonce = true;
         }
 
         public bool hasFieldAtPosition(int x, int y)
@@ -64,16 +66,14 @@ namespace TCPGameClient.Model
                 int newX = int.Parse(inputPart[3]);
                 int newY = int.Parse(inputPart[4]);
 
-                Debug.Print("position (" + newX + ", " + newY + ")");
-
                 if (newX != currentX || newY != currentY) shiftMap(newX, newY);
             }
         }
 
         private void shiftMap(int newX, int newY)
         {
-            int shiftX = newX - currentX;
-            int shiftY = newY - currentY;
+            int shiftX = currentX - newX;
+            int shiftY = currentY - newY;
 
             Field[,] newMap = new Field[gridSizeX, gridSizeY];
 
@@ -81,8 +81,8 @@ namespace TCPGameClient.Model
             {
                 for (int y = 0; y < gridSizeY; y++)
                 {
-                    if (x - shiftX < 0 || x - shiftX > gridSizeX ||
-                        y - shiftY < 0 || y - shiftY > gridSizeY)
+                    if (x - shiftX < 0 || x - shiftX > gridSizeX -1 ||
+                        y - shiftY < 0 || y - shiftY > gridSizeY -1)
                     {
                         newMap[x, y] = null;
                     }
@@ -105,8 +105,6 @@ namespace TCPGameClient.Model
 
             int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);
             int mapPosY = gridSizeX / 2 + 1 + (yPos - currentY);
-
-            Debug.Print(xPos + ", " + yPos + " -> " + mapPosX + ", " + mapPosY);
 
             map[mapPosX, mapPosY] = new Field(representation);
         }
