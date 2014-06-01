@@ -17,7 +17,7 @@ namespace TCPGameClient.View
 {
     public partial class TileDisplayForm : Form
     {
-        // controller, handles communication with server and model
+        // controller running everything
         private Controller control;
 
         // image buffer containing preloaded images
@@ -129,7 +129,14 @@ namespace TCPGameClient.View
                 // add it to the input list with the carriage return / line feed replaced
                 String input = textBox1.Text.Replace("\r\n", "");
 
-                inputList.Add(input);
+                if (input.Equals("connect"))
+                {
+                    control.Connect();
+                }
+                else
+                {
+                    inputList.Add(input);
+                }
                 textBox1.Clear();
             }
         }

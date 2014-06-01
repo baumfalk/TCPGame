@@ -54,6 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\InputHandling\InputHandler.cs" />
     <Compile Include="Server\Controller.cs" />
+    <Compile Include="Server\MessageFormatting.cs" />
     <Compile Include="Server\NetServer.cs" />
     <Compile Include="Server\Ticker.cs" />
     <Compile Include="Server\User.cs" />

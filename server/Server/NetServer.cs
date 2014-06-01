@@ -9,7 +9,7 @@ using System.Net.Sockets;
 
 namespace TCPGameServer.Server
 {
-    class NetServer
+    public class NetServer
     {
         private TcpListener server;
 
@@ -25,26 +25,34 @@ namespace TCPGameServer.Server
             this.port = port;
 
             server = new TcpListener(IPAddress.Any, port);
+
+            control.outputMessage("server created at port " + port);
         }
 
         public void Start()
         {
             bRunning = true;
 
+            control.outputMessage("server started");
+
+            server.Start();
+
             startListening();
         }
 
         public void Stop()
         {
+            control.outputMessage("server stopping");
+
             bRunning = false;
         }
 
         private void startListening()
         {
+            control.outputMessage("starting listening for connections");
+
             if (bRunning)
             {
-                server.Start();
-
                 server.BeginAcceptTcpClient(connectionMade, null);
             }
             else
@@ -56,6 +64,8 @@ namespace TCPGameServer.Server
         private void connectionMade(IAsyncResult connection)
         {
             TcpClient newClient = server.EndAcceptTcpClient(connection);
+
+            control.outputMessage("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
 
             User newUser = new User(newClient);
 

@@ -15,12 +15,19 @@ namespace TCPGameServer.World
         private List<Player> players;
 
         public Model() {
-            createModel();            
+            players = new List<Player>();
+
+            createModel();
         }
 
         public void doUpdate()
         {
+            // er zijn nog geen updates die zonder player interaction gebeuren, maar die moeten hier
 
+            foreach (Player player in players)
+            {
+
+            }
         }
 
         public void addPlayer(Player player)

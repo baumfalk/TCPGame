@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 
 using System.Diagnostics;
 
@@ -26,16 +27,38 @@ namespace TCPGameClient.Control
         // we may not get full messages, if we get parts they go in here.
         private String message = "";
 
+        IPAddress IP;
+        int port;
+
         public NetConnector(Controller control, String IP, int port)
         {
+            // assign controller
+            this.control = control;
+
             // start running
             bRunning = true;
 
             // create the client
             client = new TcpClient();
 
-            // connect the client to the server. connectionMade will be called when connected
-            client.BeginConnect(IPAddress.Parse(IP), port, new AsyncCallback(connectionMade), null);
+            this.IP = IPAddress.Parse(IP);
+            this.port = port;
+        }
+
+        public void Connect()
+        {
+            try
+            {
+                // connect the client to the server. connectionMade will be called when connected
+                client.BeginConnect(IP, port, new AsyncCallback(connectionMade), null);
+            }
+            catch (IOException e)
+            {
+                Debug.Print("exception when trying to connect");
+                Debug.Print(e.Message);
+
+                Disconnect();
+            }
         }
 
         // disconnect the client
@@ -48,8 +71,18 @@ namespace TCPGameClient.Control
         // fairly passive and waits for the server to initiate contact
         private void connectionMade(IAsyncResult newConnection)
         {
-            // finish connecting
-            client.EndConnect(newConnection);
+            try
+            {
+                // finish connecting
+                client.EndConnect(newConnection);
+            }
+            catch (IOException e)
+            {
+                Debug.Print("exception on finishing connection");
+                Debug.Print(e.Message);
+
+                Disconnect();
+            }
 
             // set stream to be the client's networkstream
             stream = client.GetStream();
@@ -63,8 +96,18 @@ namespace TCPGameClient.Control
         {
             if (bRunning)
             {
-                // begin reading. When data arrives, call dataReveived
-                stream.BeginRead(new byte[1024], 0, 1024, dataReceived, null);
+                try
+                {
+                    // begin reading. When data arrives, call dataReveived
+                    stream.BeginRead(new byte[1024], 0, 1024, dataReceived, null);
+                }
+                catch (IOException e)
+                {
+                    Debug.Print("can't begin reading from stream");
+                    Debug.Print(e.Message);
+
+                    Disconnect();
+                }
             }
             else
             {
@@ -88,14 +131,22 @@ namespace TCPGameClient.Control
             byte[] dataBuffer = new byte[1024];
 
             // finish the asynchronous reading
-            stream.EndRead(data);
-
-            // read all available data and add it to the message string
-            while (stream.DataAvailable)
+            try
             {
-                stream.Read(dataBuffer, 0, 1024);
+                stream.EndRead(data);
 
-                message = String.Concat(message, Encoding.ASCII.GetString(dataBuffer, 0, 1024));
+                // read all available data and add it to the message string
+                while (stream.DataAvailable)
+                {
+                    stream.Read(dataBuffer, 0, 1024);
+
+                    message = String.Concat(message, Encoding.ASCII.GetString(dataBuffer, 0, 1024));
+                }
+            }
+            catch (IOException e)
+            {
+                Debug.Print("can't read during dataReceived");
+                Debug.Print(e.Message);
             }
 
             // handle the data
@@ -158,9 +209,16 @@ namespace TCPGameClient.Control
 
             // convert the whole message to a byte array
             byte[] toSend = Encoding.ASCII.GetBytes(longMessage.ToString());
-
-            // send the byte array to the server
-            stream.Write(toSend ,0, toSend.Length);
+            try
+            {
+                // send the byte array to the server
+                stream.Write(toSend, 0, toSend.Length);
+            }
+            catch (IOException e)
+            {
+                Debug.Print("can't write during SendData");
+                Debug.Print(e.Message);
+            }
         }
 
         

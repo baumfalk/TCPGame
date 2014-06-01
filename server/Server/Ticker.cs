@@ -15,14 +15,12 @@ namespace TCPGameServer.Server
     class Ticker
     {
         private Controller control;
-        private Model world;
 
         private Timer tmTick;
 
-        public Ticker(Controller control, Model world)
+        public Ticker(Controller control)
         {
             this.control = control;
-            this.world = world;
 
             tmTick = new Timer(100);
             tmTick.Elapsed += tmTick_Elapsed;
@@ -40,12 +38,7 @@ namespace TCPGameServer.Server
 
         void tmTick_Elapsed(object sender, ElapsedEventArgs e)
         {
-            foreach (User user in control.getUsers())
-            {
-                
-            }
-
-            world.doUpdate();
+            control.Tick();
         }
     }
 }

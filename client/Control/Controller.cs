@@ -29,12 +29,20 @@ namespace TCPGameClient.Control
             // we need to locally model the world to display it
             worldModel = new LocalModel(101,101,101);
 
-            // "connect" to the world-server
-            connection = new NetConnector(this, "10.0.0.127", 4502);
-            // World theWorld = new World();
+            // connect to the world-server
+            connection = new NetConnector(this, "127.0.0.1", 4502);
+        }
 
-            // register with the server to start getting updates
-            // theWorld.registerUser(this);
+        // connect to the server
+        public void Connect()
+        {
+            connection.Connect();
+        }
+
+        // disconnect from the server
+        public void Disconnect()
+        {
+            connection.Disconnect();
         }
 
         // server will ask for our input every tick

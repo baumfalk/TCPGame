@@ -18,15 +18,58 @@ namespace TCPGameServer.Server
         private Ticker ticker;
         private NetServer server;
 
+        bool block;
+
         public Controller(ServerOutputWindow outputWindow)
         {
             this.outputWindow = outputWindow;
 
+            users = new List<User>();
+
             world = new Model();
 
-            ticker = new Ticker(this, world);
+            ticker = new Ticker(this);
 
             server = new NetServer(this, 4502);
+
+            server.Start();
+
+            ticker.Start();
+
+            block = false;
+        }
+
+        public void Tick()
+        {
+            // last tick hasn't finished, so skip the next one
+            if (block)
+            {
+                outputMessage("block happened");
+                return;
+            }
+            block = true;
+
+            List<User> disconnectedUsers = new List<User>();
+
+            world.doUpdate();
+
+            foreach (User user in users)
+            {
+                if (user.isConnected())
+                {
+                    user.sendMessages();
+                }
+                else
+                {
+                    disconnectedUsers.Add(user);
+                }
+            }
+
+            foreach(User user in disconnectedUsers) {
+                users.Remove(user);
+            }
+
+            block = false;
         }
 
         public void addUser(User newUser)
@@ -37,6 +80,11 @@ namespace TCPGameServer.Server
         public List<User> getUsers()
         {
             return users;
+        }
+
+        public void outputMessage(String message)
+        {
+            outputWindow.addMessageToTextbox(message);
         }
     }
 }

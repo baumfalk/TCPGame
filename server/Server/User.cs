@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
+using System.IO;
+
 using TCPGameServer.World;
 
 namespace TCPGameServer.Server
 {
-    class User
+    public class User
     {
         private TcpClient client;
 
@@ -29,8 +31,15 @@ namespace TCPGameServer.Server
 
             player = new Player(playerBody);
 
-            player.addBlockingCommand("login");
             player.setCommandState(Player.COMMANDSTATE_LOGIN);
+
+            addMessage("PING");
+            addMessage("LOGIN,MESSAGE,please input your character name");
+        }
+
+        public bool isConnected()
+        {
+            return client.Connected;
         }
 
         public void addMessage(String message)
@@ -38,20 +47,44 @@ namespace TCPGameServer.Server
             messageQueue.Enqueue(message);
         }
 
-        public bool hasMessages()
+        public void sendMessages()
         {
-            return (messageQueue.Count > 0);
+            NetworkStream stream = client.GetStream();
+
+            String message = MessageFormatting.formatCollection(messageQueue);
+
+            byte[] messageInBytes = Encoding.ASCII.GetBytes(message);
+
+            ServerOutputWindow.onlyWindow.addMessageToTextbox("sending " + message + " to client at " + client.Client.RemoteEndPoint.ToString());
+
+            {
+                try
+                {
+                    stream.BeginWrite(messageInBytes, 0, messageInBytes.Length, messageSent, null);
+                    
+                }
+                catch (IOException e)
+                {
+                    ServerOutputWindow.onlyWindow.addMessageToTextbox("exception trying to begin write to " + client.Client.RemoteEndPoint.ToString());
+                    ServerOutputWindow.onlyWindow.addMessageToTextbox(e.Message);
+                }
+            }
+
+            addMessage("PING");
         }
 
-        public String getMessage()
+        private void messageSent(IAsyncResult sent)
         {
-            if (hasMessages())
+            NetworkStream stream = client.GetStream();
+
+            try
             {
-                return messageQueue.Dequeue();
+                stream.EndWrite(sent);
             }
-            else
+            catch (IOException e)
             {
-                return "";
+                ServerOutputWindow.onlyWindow.addMessageToTextbox("exception trying to end write to " + client.Client.RemoteEndPoint.ToString());
+                ServerOutputWindow.onlyWindow.addMessageToTextbox(e.Message);
             }
         }
     }
