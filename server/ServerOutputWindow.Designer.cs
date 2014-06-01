@@ -47,6 +47,7 @@
             this.Controls.Add(this.textBox1);
             this.Name = "ServerOutputWindow";
             this.Text = "TCPGame Server";
+            this.Load += new System.EventHandler(this.ServerOutputWindow_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

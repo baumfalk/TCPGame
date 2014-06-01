@@ -6,33 +6,46 @@ using System.Threading.Tasks;
 
 using System.Timers;
 
+using System.Diagnostics;
+
+using TCPGameServer.World;
+
 namespace TCPGameServer.Server
 {
     class Ticker
     {
+        private Controller control;
+        private Model world;
+
         private Timer tmTick;
 
-        private int numCommand;
-
-        public Ticker()
+        public Ticker(Controller control, Model world)
         {
+            this.control = control;
+            this.world = world;
+
             tmTick = new Timer(100);
             tmTick.Elapsed += tmTick_Elapsed;
         }
 
+        public void Start()
+        {
+            tmTick.Start();
+        }
+
+        public void Stop()
+        {
+            tmTick.Stop();
+        }
+
         void tmTick_Elapsed(object sender, ElapsedEventArgs e)
         {
-            numCommand = 0;
+            foreach (User user in control.getUsers())
+            {
+                
+            }
 
-            // vraag input;
-            List<String> outputData = handleInput(user.getInput());
-
-            // sorteer. Zou goed moeten zijn, maar better safe dan sorry.
-            // TODO: beter sorteren
-            outputData.Sort();
-
-            // geef output;
-            user.doUpdate(outputData);
+            world.doUpdate();
         }
     }
 }

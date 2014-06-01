@@ -44,7 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IController.cs" />
     <Compile Include="ServerOutputWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -53,11 +52,16 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server\InputHandling\InputHandler.cs" />
+    <Compile Include="Server\Controller.cs" />
+    <Compile Include="Server\NetServer.cs" />
+    <Compile Include="Server\Ticker.cs" />
+    <Compile Include="Server\User.cs" />
     <Compile Include="World\Creature.cs" />
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Player.cs" />
     <Compile Include="World\Tile.cs" />
-    <Compile Include="World\World.cs" />
+    <Compile Include="World\Model.cs" />
     <EmbeddedResource Include="ServerOutputWindow.resx">
       <DependentUpon>ServerOutputWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -83,9 +87,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Server\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

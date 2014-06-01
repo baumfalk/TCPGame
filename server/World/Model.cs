@@ -4,138 +4,48 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using System.Drawing;
-using System.Timers;
-
 using System.Diagnostics;
 
 namespace TCPGameServer.World
 {
     class Model
     {
-        private Timer tmTick;
-
-        private Creature body;
-        private Player thePlayer;
-
         private Tile[,,] tiles = new Tile[40, 8, 2];
 
-        private int numCommand;
+        private List<Player> players;
 
         public Model() {
-            for (int x = 0; x < 10; x++)
-            {
-                for (int y = 0; y < 8; y++)
-                {
-                    String type;
-
-                    if (x == 0 || x == 9 || y == 0 || y == 7)
-                    {
-                        type = "wall";
-                    }
-                    else if ((x == 1 && y == 1) || (x == 8 && y == 6))
-                    {
-                        type = "stairs";
-                    } 
-                    else
-                    {
-                        type = "floor";
-                    }
-
-                    tiles[x, y, 0] = new Tile(type, type, x, y, 0);
-                    tiles[x, y, 1] = new Tile(type, type, x, y, 1);
-
-                    if (x != 0)
-                    {
-                        tiles[x, y, 0].link(Directions.WEST, tiles[x - 1, y, 0]);
-                        tiles[x, y, 1].link(Directions.WEST, tiles[x - 1, y, 1]);
-                    }
-                    if (y != 0)
-                    {
-                        tiles[x, y, 0].link(Directions.NORTH, tiles[x, y - 1, 0]);
-                        tiles[x, y, 1].link(Directions.NORTH, tiles[x, y - 1, 1]);
-                    }
-                }
-            }
-
-            tiles[1, 1, 0].link(Directions.UP, tiles[1, 1, 1]);
-            tiles[8, 6, 0].link(Directions.UP, tiles[8, 6, 1]);
-
-            body = new Creature("player");
-            
-            tiles[4, 3, 0].setOccupant(body);
+            createModel();            
         }
 
-        private List<String> handleInput(List<String> userInput)
+        public void doUpdate()
         {
-            List<String> outputData = new List<String>();
 
-            bool playerHasMoved = false;
-
-            foreach (String input in userInput) 
-            {
-                Debug.Print("input: ." + input + ".");
-
-                int direction = Directions.fromShortString(input);
-
-                playerHasMoved = (direction != -1 && movePlayer(direction, outputData));
-            }
-
-            if (playerHasMoved) addPlayerLocation(outputData);
-
-            getSurroundingTiles(outputData, 5);
-
-            return outputData;
         }
 
-        private bool movePlayer(int direction, List<String> outputData)
+        public void addPlayer(Player player)
         {
-            Debug.Print("move player");
-
-            Tile playerPosition = thePlayer.getBody().getPosition();
-
-            if (playerPosition.hasNeighbor(direction))
-            {
-                Tile neighbor = playerPosition.getNeighbor(direction);
-
-                if (neighbor.isPassable() && !neighbor.hasOccupant())
-                {
-                    playerPosition.vacate();
-                    thePlayer.getBody().setPosition(neighbor);
-                    return true;
-                }
-            }
-            return false;
+            players.Add(player);
         }
 
-        
-        private List<String> getInitData()
+        public void removePlayer(Player player)
         {
-            List<String> outputData = new List<String>();
-
-            addPlayerLocation(outputData);
-
-            getSurroundingTiles(outputData, 5);
-
-            return outputData;
+            players.Remove(player);
         }
 
-        private void addPlayerLocation(List<String> outputData)
+        public List<Player> getPlayers()
         {
-            Tile playerPosition = thePlayer.getBody().getPosition();
-
-            outputData.Add(numCommand++ + ",Player,Position," + playerPosition.getX() + "," + playerPosition.getY() + "," + playerPosition.getZ());
+            return players;
         }
 
-        private void getSurroundingTiles(List<String> outputData, int depth)
+        public List<Tile> getSurroundingTiles(Tile centerTile, List<String> outputData, int depth)
         {
             List<Tile> tilesToSend = new List<Tile>();
-            Tile playerPosition = thePlayer.getBody().getPosition();
             
-            playerPosition.setColor(depth);
+            centerTile.setColor(depth);
 
             Queue<Tile> tileQueue = new Queue<Tile>();
-            tileQueue.Enqueue(playerPosition);
+            tileQueue.Enqueue(centerTile);
 
             BFS_To_Depth(tileQueue, tilesToSend);
 
@@ -145,10 +55,12 @@ namespace TCPGameServer.World
                 tile.setColor(0);
 
                 // add tile to output
-                outputData.Add(numCommand++ + ",Tile,Detected," + tile.getX() + "," + tile.getY() + "," + tile.getZ() + "," + tile.getRepresentation());
+                
 
-                // je kan hier ook naar occupants kijken. Doe ik nog niet.
+                // je moet hier ook naar occupants kijken. Doe ik nog niet.
             }
+
+            return tilesToSend;
         }
 
         private void BFS_To_Depth(Queue<Tile> tileQueue, List<Tile> tilesToSend)
@@ -179,25 +91,45 @@ namespace TCPGameServer.World
             
         }
 
-        public void registerUser(IController user)
+        private void createModel()
         {
-            Debug.Print("user registered");
+            for (int x = 0; x < 10; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    String type;
 
-            this.user = user;
+                    if (x == 0 || x == 9 || y == 0 || y == 7)
+                    {
+                        type = "wall";
+                    }
+                    else if ((x == 1 && y == 1) || (x == 8 && y == 6))
+                    {
+                        type = "stairs";
+                    }
+                    else
+                    {
+                        type = "floor";
+                    }
 
-            thePlayer = new Player(body, user);
+                    tiles[x, y, 0] = new Tile(type, type, x, y, 0);
+                    tiles[x, y, 1] = new Tile(type, type, x, y, 1);
 
-            List<String> initData = getInitData();
+                    if (x != 0)
+                    {
+                        tiles[x, y, 0].link(Directions.WEST, tiles[x - 1, y, 0]);
+                        tiles[x, y, 1].link(Directions.WEST, tiles[x - 1, y, 1]);
+                    }
+                    if (y != 0)
+                    {
+                        tiles[x, y, 0].link(Directions.NORTH, tiles[x, y - 1, 0]);
+                        tiles[x, y, 1].link(Directions.NORTH, tiles[x, y - 1, 1]);
+                    }
+                }
+            }
 
-            user.doUpdate(initData);
-
-            tmTick.Start();
-        }
-
-        public void removeUser(IController user)
-        {
-            this.user = null;
-            tmTick.Stop();
+            tiles[1, 1, 0].link(Directions.UP, tiles[1, 1, 1]);
+            tiles[8, 6, 0].link(Directions.UP, tiles[8, 6, 1]);
         }
     }
 }

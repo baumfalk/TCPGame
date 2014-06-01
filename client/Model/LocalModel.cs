@@ -59,10 +59,6 @@ namespace TCPGameClient.Model
         // N indicates an order in which commands are sent from the server. Player position changes to x, y.
         public void update(List<String> updateData)
         {
-            // sort our input so we handle them in order. Should already be sorted, but better to check?
-            // possible chokepoint later, but I doubt sorting short lists will be an issue.
-            updateData.Sort();
-
             // loop through all strings we received
             foreach (String input in updateData)
             {
@@ -70,7 +66,7 @@ namespace TCPGameClient.Model
                 String[] inputPart = input.Split(',');
 
                 // switch on the type of input, let other methods handle them.
-                switch (inputPart[1])
+                switch (inputPart[0])
                 {
                     case "Player":
                         updatePlayer(inputPart);
@@ -103,12 +99,11 @@ namespace TCPGameClient.Model
         // handles player-type updates. Only "position" update exists at the moment.
         private void updatePlayer(String[] inputPart)
         {
-            
-            if (inputPart[2].Equals("Position"))
+            if (inputPart[1].Equals("Position"))
             {
-                int newX = int.Parse(inputPart[3]);
-                int newY = int.Parse(inputPart[4]);
-                int newZ = int.Parse(inputPart[5]);
+                int newX = int.Parse(inputPart[2]);
+                int newY = int.Parse(inputPart[3]);
+                int newZ = int.Parse(inputPart[4]);
 
                 // if we have moved, we should shift our map (which is player-centered)
                 if (newX != currentX || newY != currentY || newZ != currentZ) shiftMap(newX, newY, newZ);
@@ -158,13 +153,13 @@ namespace TCPGameClient.Model
         // handles "tile" type updates. Only "detection" updates exist at the moment.
         private void updateTile(String[] inputPart)
         {
-            if (inputPart[2].Equals("Detected"))
+            if (inputPart[1].Equals("Detected"))
             {
                 // get position and representation from the input
-                int xPos = int.Parse(inputPart[3]);
-                int yPos = int.Parse(inputPart[4]);
-                int zPos = int.Parse(inputPart[5]);
-                String representation = inputPart[6];
+                int xPos = int.Parse(inputPart[2]);
+                int yPos = int.Parse(inputPart[3]);
+                int zPos = int.Parse(inputPart[4]);
+                String representation = inputPart[5];
 
                 // calculate position relative to the player
                 int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using System.Drawing;
-
 namespace TCPGameServer.World
 {
     // a player is an object registered to a user on the server, which tells the ticker
@@ -25,6 +23,15 @@ namespace TCPGameServer.World
         // the number of immediate commands that will be handled in a tick, but in theory
         // they should just be handled and the results returned on the next tick.
         private Queue<String> immediateCommands;
+
+        // commandState to toggle which commands are legitimate and which are not. (For
+        // example: you want to have some sort of login, where direction commands and the
+        // like shouldn't be accepted)
+        private int commandState = 0;
+
+        public static int COMMANDSTATE_IDLE = 0;
+        public static int COMMANDSTATE_LOGIN = 1;
+        public static int COMMANDSTATE_NORMAL = 2;
 
         public Player(Creature body)
         {
@@ -81,6 +88,16 @@ namespace TCPGameServer.World
             {
                 return "";
             }
+        }
+
+        public void setCommandState(int commandState)
+        {
+            this.commandState = commandState;
+        }
+
+        public int getCommandState()
+        {
+            return commandState;
         }
 
         // body can be requested, but not changed
