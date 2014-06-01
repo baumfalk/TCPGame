@@ -98,8 +98,10 @@ namespace TCPGameClient.Control
             {
                 try
                 {
+                    byte[] buffer = new byte[1024];
+
                     // begin reading. When data arrives, call dataReveived
-                    stream.BeginRead(new byte[1024], 0, 1024, dataReceived, null);
+                    stream.BeginRead(buffer, 0, 1024, dataReceived, buffer);
                 }
                 catch (IOException e)
                 {
@@ -133,14 +135,23 @@ namespace TCPGameClient.Control
             // finish the asynchronous reading
             try
             {
-                stream.EndRead(data);
+                // since this method was called, there's some data in the buffer
+                dataBuffer = (byte[]) data.AsyncState;
+                // number of bytes read
+                int numBytes = stream.EndRead(data);
 
-                // read all available data and add it to the message string
-                while (stream.DataAvailable)
+                // add the new data to the message buffer
+                message = String.Concat(message, Encoding.ASCII.GetString(dataBuffer, 0, numBytes));
+
+                // if there's still available data, read it as well with another call.
+                if (stream.DataAvailable)
                 {
-                    stream.Read(dataBuffer, 0, 1024);
-
-                    message = String.Concat(message, Encoding.ASCII.GetString(dataBuffer, 0, 1024));
+                    startReading();
+                }
+                else
+                {
+                    // otherwise split the received data into commands and pass it on
+                    splitAndHandle();
                 }
             }
             catch (IOException e)
@@ -148,14 +159,10 @@ namespace TCPGameClient.Control
                 Debug.Print("can't read during dataReceived");
                 Debug.Print(e.Message);
             }
-
-            // handle the data
-            splitAndHandle();
         }
 
         // data should be sent with separate lines separated by semicolons. It will be passed
-        // to the controller as a list, after which another list with new input it requested and
-        // passed to the server. The server will send these updates/requests every 100ms.
+        // to the controller as a list.
         private void splitAndHandle()
         {
             // split the message into separate strings
@@ -178,37 +185,21 @@ namespace TCPGameClient.Control
             // send the upadtes to the controller
             control.doUpdate(messageList);
 
-            // get new input from the controller and send it to the server
-            sendData(control.getInput());
-
             // get ready for a new batch of data from the server
             startReading();
         }
 
         // sends data, splitting lines with semicolons
-        private void sendData(List<String> data)
+        public void sendData(String data)
         {
-            // split the list into a string array
-            String[] splitData = data.ToArray();
+            // replace semicolons because they have a special function
+            data = data.Replace(';', ':');
 
-            // we need to concatenate a lot of strings, so we'll use a stringbuilder
-            StringBuilder longMessage = new StringBuilder();
-
-            // loop through every string we're going to send
-            for (int n = 0; n < splitData.Length; n++)
-            {
-                // replace all semicolons with colons. Seems like a fairly nice option
-                // to avoid problems with the fact that semicolons fulfill a special
-                // function.
-                splitData[n] = splitData[n].Replace(';', ':');
-
-                // append the message, and a semicolon at the end
-                longMessage.Append(splitData[n]);
-                longMessage.Append(";");
-            }
-
-            // convert the whole message to a byte array
-            byte[] toSend = Encoding.ASCII.GetBytes(longMessage.ToString());
+            // add a semicolon to the end to mark the end of the message
+            data += ";";
+            
+            // convert the message to a byte array
+            byte[] toSend = Encoding.ASCII.GetBytes(data.ToString());
             try
             {
                 // send the byte array to the server

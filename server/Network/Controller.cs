@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using TCPGameServer.World;
 
-namespace TCPGameServer.Server
+namespace TCPGameServer.Network
 {
     public class Controller
     {
@@ -39,7 +39,7 @@ namespace TCPGameServer.Server
             block = false;
         }
 
-        public void Tick()
+        public void Tick(int tick)
         {
             // last tick hasn't finished, so skip the next one
             if (block)
@@ -57,6 +57,8 @@ namespace TCPGameServer.Server
             {
                 if (user.isConnected())
                 {
+                    if ((tick % 100) == 0) user.addMessage("PING");
+
                     user.sendMessages();
                 }
                 else
@@ -68,6 +70,8 @@ namespace TCPGameServer.Server
             foreach(User user in disconnectedUsers) {
                 users.Remove(user);
             }
+
+            disconnectedUsers.Clear();
 
             block = false;
         }

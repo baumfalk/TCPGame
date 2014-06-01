@@ -45,13 +45,11 @@ namespace TCPGameClient.Control
             connection.Disconnect();
         }
 
-        // server will ask for our input every tick
-        public List<String> getInput()
+        public void sendInput(String input)
         {
-            return tdView.getInput();
+            connection.sendData(input);
         }
 
-        // and server will send updates every tick
         public void doUpdate(List<String> updateData)
         {
             // update local model using the data sent

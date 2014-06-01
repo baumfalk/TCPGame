@@ -68,11 +68,17 @@ namespace TCPGameClient.Model
                 // switch on the type of input, let other methods handle them.
                 switch (inputPart[0])
                 {
+                    case "LOGIN":
+                        Debug.Print(inputPart[2]);
+                        break;
                     case "Player":
                         updatePlayer(inputPart);
                         break;
                     case "Tile":
                         updateTile(inputPart);
+                        break;
+                    default:
+                        Debug.Print(input);
                         break;
                 }
             }

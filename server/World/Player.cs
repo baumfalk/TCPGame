@@ -33,12 +33,24 @@ namespace TCPGameServer.World
         public static int COMMANDSTATE_LOGIN = 1;
         public static int COMMANDSTATE_NORMAL = 2;
 
+        private bool disconnected;
+
         public Player(Creature body)
         {
             this.body = body;
 
             blockingCommands = new Queue<String>();
             immediateCommands = new Queue<String>();
+        }
+
+        public bool isDisconnected()
+        {
+            return disconnected;
+        }
+
+        public void SetDisconnected(bool disconnected)
+        {
+            this.disconnected = disconnected;
         }
 
         public void addBlockingCommand(String command)

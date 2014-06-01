@@ -6,17 +6,25 @@ using System.Threading.Tasks;
 
 using TCPGameServer.World;
 
-namespace TCPGameServer.Server.InputHandling
+namespace TCPGameServer.Network.InputHandling
 {
     class InputHandler
     {
-        
+        private Player player;
 
         //outputData.Add("Tile,Detected," + tile.getX() + "," + tile.getY() + "," + tile.getZ() + "," + tile.getRepresentation());3
 
-        public InputHandler(Model world)
+        public InputHandler(Player player)
         {
-            
+            this.player = player;
+        }
+
+        public void Handle(List<String> commands)
+        {
+            foreach (String command in commands)
+            {
+                ServerOutputWindow.onlyWindow.addMessageToTextbox(command + " received from user");
+            }
         }
 
         /*

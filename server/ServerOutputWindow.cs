@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using TCPGameServer.Server;
+using TCPGameServer.Network;
 
 namespace TCPGameServer
 {

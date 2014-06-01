@@ -23,9 +23,6 @@ namespace TCPGameClient.View
         // image buffer containing preloaded images
         private ImageBuffer imageBuffer;
 
-        // list of input put into the textbox between updates.
-        private List<String> inputList = new List<String>();
-
         // bool which indicated the drawing context is free
         private bool canDraw = true;
 
@@ -43,16 +40,6 @@ namespace TCPGameClient.View
 
             // controller is created, this "starts the program"
             control = new Controller(this);
-        }
-
-        // input request by the controller, has to return a list of all input given since last request
-        public List<String> getInput()
-        {
-            // can't clear the list after returning it, so I worked around that
-            List<String> returnList = new List<String>(inputList);
-
-            inputList.Clear();
-            return returnList;
         }
 
         // draws the model onto the form
@@ -135,7 +122,7 @@ namespace TCPGameClient.View
                 }
                 else
                 {
-                    inputList.Add(input);
+                    control.sendInput(input);
                 }
                 textBox1.Clear();
             }

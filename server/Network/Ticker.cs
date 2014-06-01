@@ -10,13 +10,15 @@ using System.Diagnostics;
 
 using TCPGameServer.World;
 
-namespace TCPGameServer.Server
+namespace TCPGameServer.Network
 {
     class Ticker
     {
         private Controller control;
 
         private Timer tmTick;
+
+        int tick;
 
         public Ticker(Controller control)
         {
@@ -38,7 +40,8 @@ namespace TCPGameServer.Server
 
         void tmTick_Elapsed(object sender, ElapsedEventArgs e)
         {
-            control.Tick();
+            tick++;
+            control.Tick(tick);
         }
     }
 }

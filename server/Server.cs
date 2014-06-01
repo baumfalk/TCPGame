@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace TCPGameServer
 {
-    static class Program
+    static class Server
     {
         /// <summary>
         /// The main entry point for the application.

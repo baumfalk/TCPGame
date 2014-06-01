@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
-namespace TCPGameServer.Server
+namespace TCPGameServer.Network
 {
     public class NetServer
     {
@@ -67,7 +67,7 @@ namespace TCPGameServer.Server
 
             control.outputMessage("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
 
-            User newUser = new User(newClient);
+            User newUser = new User(control, newClient);
 
             if (bRunning)
             {
