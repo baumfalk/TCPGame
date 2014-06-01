@@ -24,16 +24,20 @@ namespace TCPGameServer.World
         // they should just be handled and the results returned on the next tick.
         private Queue<String> immediateCommands;
 
+        // a queue of messages to send to the client, queried by the user linked to this
+        // player object every tick.
+        private Queue<String> messages;
+
         // commandState to toggle which commands are legitimate and which are not. (For
         // example: you want to have some sort of login, where direction commands and the
         // like shouldn't be accepted)
         private int commandState = 0;
 
-        public static int COMMANDSTATE_IDLE = 0;
-        public static int COMMANDSTATE_LOGIN = 1;
-        public static int COMMANDSTATE_NORMAL = 2;
+        public const int COMMANDSTATE_IDLE = 0;
+        public const int COMMANDSTATE_LOGIN = 1;
+        public const int COMMANDSTATE_NORMAL = 2;
 
-        private bool disconnected;
+        private bool disconnected = false;
 
         public Player(Creature body)
         {
@@ -41,6 +45,7 @@ namespace TCPGameServer.World
 
             blockingCommands = new Queue<String>();
             immediateCommands = new Queue<String>();
+            messages = new Queue<String>();
         }
 
         public bool isDisconnected()
@@ -77,6 +82,7 @@ namespace TCPGameServer.World
 
         public void addImmediateCommand(String command)
         {
+            ServerOutputWindow.onlyWindow.addMessageToTextbox("adding immediate command: " + command);
             immediateCommands.Enqueue(command);
         }
 
@@ -95,6 +101,28 @@ namespace TCPGameServer.World
             if (hasImmediateCommands())
             {
                 return immediateCommands.Dequeue();
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        public void addMessage(String message)
+        {
+            messages.Enqueue(message);
+        }
+
+        public bool hasMessages()
+        {
+            return (messages.Count > 0);
+        }
+
+        public String getMessage()
+        {
+            if (hasMessages())
+            {
+                return messages.Dequeue();
             }
             else
             {

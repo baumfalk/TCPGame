@@ -46,6 +46,8 @@ namespace TCPGameServer.Network
             addMessage("LOGIN,MESSAGE,please input your character name");
 
             startReading();
+
+            control.registerPlayer(player);
         }
 
         public bool isConnected()
@@ -151,6 +153,11 @@ namespace TCPGameServer.Network
 
         public void sendMessages()
         {
+            while (player.hasMessages())
+            {
+                messageQueue.Enqueue(player.getMessage());
+            }
+
             if (messageQueue.Count == 0) return;
 
             NetworkStream stream = client.GetStream();

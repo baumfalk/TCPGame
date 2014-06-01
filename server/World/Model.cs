@@ -6,27 +6,80 @@ using System.Threading.Tasks;
 
 using System.Diagnostics;
 
+using TCPGameServer.World.ActionHandling;
+
 namespace TCPGameServer.World
 {
-    class Model
+    public class Model
     {
         private Tile[,,] tiles = new Tile[40, 8, 2];
 
         private List<Player> players;
 
+        private ActionHandler actionHandler;
+
         public Model() {
             players = new List<Player>();
+
+            actionHandler = new ActionHandler(this);
 
             createModel();
         }
 
+        // dit moet onderverdeeld worden in areas oid
+        public Tile FindTileAt(int x, int y, int z)
+        {
+            foreach (Tile tile in tiles)
+            {
+                if (x == tile.getX() && y == tile.getY() && z == tile.getZ())
+                {
+                    return tile;
+                }
+            }
+
+            return null;
+        }
+
         public void doUpdate()
         {
+            List<Player> disconnectedPlayers = new List<Player>();
+
             // er zijn nog geen updates die zonder player interaction gebeuren, maar die moeten hier
 
             foreach (Player player in players)
             {
+                if (player.isDisconnected())
+                {
+                    ServerOutputWindow.onlyWindow.addMessageToTextbox("player is disconnected");
 
+                    disconnectedPlayers.Add(player);
+                    continue;
+                }
+
+                // handle one blocking command per tick
+                if (player.hasNextBlockingCommand())
+                {
+                    String command = player.getNextBlockingCommand();
+
+                    ServerOutputWindow.onlyWindow.addMessageToTextbox("handling blocking command " + command);
+
+                    actionHandler.Handle(player, command);
+                }
+
+                // handle all immediate commands
+                while (player.hasImmediateCommands())
+                {
+                    String command = player.getNextImmediateCommand();
+
+                    ServerOutputWindow.onlyWindow.addMessageToTextbox("handling immediate command " + command);
+
+                    actionHandler.Handle(player, command);
+                }
+            }
+
+            foreach (Player disconnected in disconnectedPlayers)
+            {
+                players.Remove(disconnected);
             }
         }
 
@@ -45,7 +98,7 @@ namespace TCPGameServer.World
             return players;
         }
 
-        public List<Tile> getSurroundingTiles(Tile centerTile, List<String> outputData, int depth)
+        public List<Tile> getSurroundingTiles(Tile centerTile, int depth)
         {
             List<Tile> tilesToSend = new List<Tile>();
             
@@ -60,11 +113,6 @@ namespace TCPGameServer.World
             {
                 // set color back to unexplored status
                 tile.setColor(0);
-
-                // add tile to output
-                
-
-                // je moet hier ook naar occupants kijken. Doe ik nog niet.
             }
 
             return tilesToSend;

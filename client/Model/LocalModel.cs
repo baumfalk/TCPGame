@@ -71,10 +71,10 @@ namespace TCPGameClient.Model
                     case "LOGIN":
                         Debug.Print(inputPart[2]);
                         break;
-                    case "Player":
+                    case "PLAYER":
                         updatePlayer(inputPart);
                         break;
-                    case "Tile":
+                    case "TILE":
                         updateTile(inputPart);
                         break;
                     default:
@@ -105,7 +105,7 @@ namespace TCPGameClient.Model
         // handles player-type updates. Only "position" update exists at the moment.
         private void updatePlayer(String[] inputPart)
         {
-            if (inputPart[1].Equals("Position"))
+            if (inputPart[1].Equals("POSITION"))
             {
                 int newX = int.Parse(inputPart[2]);
                 int newY = int.Parse(inputPart[3]);
@@ -159,7 +159,7 @@ namespace TCPGameClient.Model
         // handles "tile" type updates. Only "detection" updates exist at the moment.
         private void updateTile(String[] inputPart)
         {
-            if (inputPart[1].Equals("Detected"))
+            if (inputPart[1].Equals("DETECTED"))
             {
                 // get position and representation from the input
                 int xPos = int.Parse(inputPart[2]);

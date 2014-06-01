@@ -12,8 +12,6 @@ namespace TCPGameServer.Network.InputHandling
     {
         private Player player;
 
-        //outputData.Add("Tile,Detected," + tile.getX() + "," + tile.getY() + "," + tile.getZ() + "," + tile.getRepresentation());3
-
         public InputHandler(Player player)
         {
             this.player = player;
@@ -21,67 +19,52 @@ namespace TCPGameServer.Network.InputHandling
 
         public void Handle(List<String> commands)
         {
+            switch (player.getCommandState()) {
+                case Player.COMMANDSTATE_IDLE:
+                    HandleIdle(commands);
+                    break;
+                case Player.COMMANDSTATE_LOGIN:
+                    HandleLogin(commands);
+                    break;
+                case Player.COMMANDSTATE_NORMAL:
+                    HandleNormal(commands);
+                    break;
+            }
+        }
+
+        private void HandleIdle(List<String> commands)
+        {
+            ServerOutputWindow.onlyWindow.addMessageToTextbox("user is idle");
+        }
+
+        private void HandleLogin(List<String> commands)
+        {
+            ServerOutputWindow.onlyWindow.addMessageToTextbox("user is logging in");
+
+            if (commands[0].Equals("geerten")) player.addImmediateCommand("PLAYER,PLACE,4,4,0");
+            else if (commands[0].Equals("jetze")) player.addImmediateCommand("PLAYER,PLACE,4,3,0");
+            else player.addImmediateCommand("PLAYER,PLACE,2,2,0");
+
+            player.addImmediateCommand("LOGIN,COMPLETE");
+        }
+
+        private void HandleNormal(List<String> commands) {
             foreach (String command in commands)
             {
+                ServerOutputWindow.onlyWindow.addMessageToTextbox("user is in normal operation");
+
+                bool isMovementCommand = (!(Directions.fromShortString(command).Equals("") || Directions.fromString(command).Equals("")));
+
+                if (isMovementCommand)
+                {
+                    int direction = Directions.fromShortString(command);
+                    if (direction == -1) direction = Directions.fromString(command);
+
+                    player.addBlockingCommand("MOVE," + direction);
+                }
+
                 ServerOutputWindow.onlyWindow.addMessageToTextbox(command + " received from user");
             }
         }
-
-        /*
-        private List<String> getInitData(Player player)
-        {
-            List<String> outputData = new List<String>();
-
-            Tile playerPosition = player.getBody().getPosition();
-
-            addPlayerLocation(playerPosition, outputData);
-
-            world.getSurroundingTiles(playerPosition, outputData, 5);
-
-            return outputData;
-        }
-
-        private void addPlayerLocation(Tile playerPosition, List<String> outputData)
-        {
-            outputData.Add("Player,Position," + playerPosition.getX() + "," + playerPosition.getY() + "," + playerPosition.getZ());
-        }
-
-        private List<String> handleInput(List<String> userInput)
-        {
-            List<String> outputData = new List<String>();
-
-            bool playerHasMoved = false;
-
-            foreach (String input in userInput)
-            {
-                int direction = Directions.fromShortString(input);
-
-                playerHasMoved = (direction != -1 && movePlayer(direction, outputData));
-            }
-
-            if (playerHasMoved) addPlayerLocation(outputData);
-
-            world.getSurroundingTiles(outputData, 5);
-
-            return outputData;
-        }
-
-        private bool movePlayer(Player player, int direction, List<String> outputData)
-        {
-            Tile playerPosition = player.getBody().getPosition();
-
-            if (playerPosition.hasNeighbor(direction))
-            {
-                Tile neighbor = playerPosition.getNeighbor(direction);
-
-                if (neighbor.isPassable() && !neighbor.hasOccupant())
-                {
-                    playerPosition.vacate();
-                    player.getBody().setPosition(neighbor);
-                    return true;
-                }
-            }
-            return false;
-        }*/
     }
 }

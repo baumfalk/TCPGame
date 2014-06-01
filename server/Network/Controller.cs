@@ -39,6 +39,11 @@ namespace TCPGameServer.Network
             block = false;
         }
 
+        public void registerPlayer(Player player)
+        {
+            world.addPlayer(player);
+        }
+
         public void Tick(int tick)
         {
             // last tick hasn't finished, so skip the next one
