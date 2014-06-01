@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TCPGameClient.Server
+namespace TCPGameServer.World
 {
     class Directions
     {

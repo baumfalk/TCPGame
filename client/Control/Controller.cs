@@ -10,8 +10,6 @@ using System.Diagnostics;
 using TCPGameClient.View;
 using TCPGameClient.Model;
 
-using TCPGameClient.Server;
-
 namespace TCPGameClient.Control
 {
     public class Controller
@@ -20,6 +18,8 @@ namespace TCPGameClient.Control
         private TileDisplayForm tdView;
         // the local model
         private LocalModel worldModel;
+        // the network connector which communicates with the server
+        private NetConnector connection;
 
         public Controller(TileDisplayForm tdView)
         {
@@ -30,10 +30,11 @@ namespace TCPGameClient.Control
             worldModel = new LocalModel(101,101,101);
 
             // "connect" to the world-server
-            World theWorld = new World();
+            connection = new NetConnector(this, "10.0.0.127", 4502);
+            // World theWorld = new World();
 
             // register with the server to start getting updates
-            theWorld.registerUser(this);
+            // theWorld.registerUser(this);
         }
 
         // server will ask for our input every tick

@@ -9,24 +9,20 @@ using System.Timers;
 
 using System.Diagnostics;
 
-using TCPGameClient.Control;
-
-namespace TCPGameClient.Server
+namespace TCPGameServer.World
 {
-    class World
+    class Model
     {
         private Timer tmTick;
 
         private Creature body;
         private Player thePlayer;
 
-        private Controller user;
-
         private Tile[,,] tiles = new Tile[40, 8, 2];
 
         private int numCommand;
 
-        public World() {
+        public Model() {
             for (int x = 0; x < 10; x++)
             {
                 for (int y = 0; y < 8; y++)
@@ -68,25 +64,7 @@ namespace TCPGameClient.Server
             body = new Creature("player");
             
             tiles[4, 3, 0].setOccupant(body);
-
-            tmTick = new Timer(100);
-            tmTick.Elapsed += tmTick_Elapsed;
         }
-
-        void tmTick_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            numCommand = 0;
-
-            // vraag input;
-            List<String> outputData = handleInput(user.getInput());
-
-            // sorteer. Zou goed moeten zijn, maar better safe dan sorry.
-            outputData.Sort();
-
-            // geef output;
-            user.doUpdate(outputData);
-        }
-
 
         private List<String> handleInput(List<String> userInput)
         {
@@ -201,7 +179,7 @@ namespace TCPGameClient.Server
             
         }
 
-        public void registerUser(Controller user)
+        public void registerUser(IController user)
         {
             Debug.Print("user registered");
 
@@ -216,7 +194,7 @@ namespace TCPGameClient.Server
             tmTick.Start();
         }
 
-        public void removeUser(Controller user)
+        public void removeUser(IController user)
         {
             this.user = null;
             tmTick.Stop();

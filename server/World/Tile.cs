@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Drawing;
 
-namespace TCPGameClient.Server
+namespace TCPGameServer.World
 {
     // 
     public class Tile

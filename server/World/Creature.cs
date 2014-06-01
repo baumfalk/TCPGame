@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Drawing;
 
-namespace TCPGameClient.Server
+namespace TCPGameServer.World
 {
     // a creature is any mobile object, including players and such which may extend it
     public class Creature
