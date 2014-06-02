@@ -30,20 +30,20 @@ namespace TCPGameClient.Control
         IPAddress IP;
         int port;
 
-        public NetConnector(Controller control, String IP, int port)
+        public NetConnector(Controller control)
         {
             // assign controller
             this.control = control;
 
             // create the client
             client = new TcpClient();
-
-            this.IP = IPAddress.Parse(IP);
-            this.port = port;
         }
 
-        public void Connect()
+        public void Connect(String IP, int port)
         {
+            this.IP = IPAddress.Parse(IP);
+            this.port = port;
+
             // don't try to connect if already connected.
             if (bRunning) return;
 
@@ -195,6 +195,9 @@ namespace TCPGameClient.Control
         // sends data, splitting lines with semicolons
         public void sendData(String data)
         {
+            // if we're not connected, we can't send data
+            if (!bRunning) return;
+
             // replace semicolons because they have a special function
             data = data.Replace(';', ':');
 

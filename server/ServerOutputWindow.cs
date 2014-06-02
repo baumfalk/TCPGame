@@ -16,6 +16,7 @@ namespace TCPGameServer
     {
         // needed for thread-safe output to the textbox
         delegate void SetTextCallback(String text);
+        delegate void ShutdownCallback();
 
         // we want only one window. We keep a tab on it so static printing can be routed to
         // the window that's open.
@@ -35,6 +36,26 @@ namespace TCPGameServer
         private void ServerOutputWindow_Load(object sender, EventArgs e)
         {
             new Controller();
+        }
+
+        // tells the only window to close
+        public static void Shutdown()
+        {
+            onlyWindow.DoShutdown();
+        }
+
+        // invokes this method to close it down on the right thread
+        private void DoShutdown()
+        {
+            if (this.InvokeRequired)
+            {
+                ShutdownCallback d = new ShutdownCallback(DoShutdown);
+                this.Invoke(d, new object[0]);
+            }
+            else
+            {
+                Close();
+            }
         }
 
         // gets the open window and calls the addMessageToTextbox method on it

@@ -12,7 +12,7 @@ namespace TCPGameServer.Network
 {
     public class Controller
     {
-        public static bool headless = true;
+        public static bool headless = false;
         public static bool running = true;
 
         // list of all connected users
@@ -44,9 +44,12 @@ namespace TCPGameServer.Network
 
             block = false;
 
-            while (running)
+            if (headless)
             {
-                Thread.Sleep(1000);
+                while (running)
+                {
+                    Thread.Sleep(1000);
+                }
             }
         }
 

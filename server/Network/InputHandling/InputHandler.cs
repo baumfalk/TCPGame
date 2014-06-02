@@ -30,6 +30,12 @@ namespace TCPGameServer.Network.InputHandling
                     HandleNormal(commands);
                     break;
             }
+
+            if (commands[0].Equals("shutdown"))
+            {
+                Controller.running = false;
+                if (!Controller.headless) ServerOutputWindow.Shutdown();
+            }
         }
 
         private void HandleIdle(List<String> commands)
