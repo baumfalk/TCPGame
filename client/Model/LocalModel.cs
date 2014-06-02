@@ -54,6 +54,7 @@ namespace TCPGameClient.Model
             return gridSizeZ;
         }
 
+        // returns the list of nearby creatures
         public List<Creature> getCreatures()
         {
             return creatures;
@@ -89,12 +90,6 @@ namespace TCPGameClient.Model
                         updateTile(inputPart);
                         break;
                     case "CREATURE":
-                        if (!updatingCreatures)
-                        {
-                            creatures = new List<Creature>();
-                            updatingCreatures = true;
-                        }
-
                         updateCreature(inputPart);
                         break;
                     default:
@@ -179,6 +174,13 @@ namespace TCPGameClient.Model
         // handles "creature" type updates. Only "detection" updates exist at the moment.
         private void updateCreature(String[] inputPart)
         {
+            // if we get creature updates we'll clear the list and redo it completely.
+            if (!updatingCreatures)
+            {
+                creatures = new List<Creature>();
+                updatingCreatures = true;
+            }
+
             if (inputPart[1].Equals("DETECTED"))
             {
                 // get position and representation from the input

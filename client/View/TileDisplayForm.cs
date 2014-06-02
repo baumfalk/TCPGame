@@ -139,14 +139,8 @@ namespace TCPGameClient.View
                 // add it to the input list with the carriage return / line feed replaced
                 String input = textBox1.Text.Replace("\r\n", "");
 
-                if (input.Equals("connect"))
-                {
-                    control.Connect();
-                }
-                else
-                {
-                    control.sendInput(input);
-                }
+                control.sendInput(input);
+                
                 textBox1.Clear();
             }
         }

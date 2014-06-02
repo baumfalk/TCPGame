@@ -22,7 +22,7 @@ namespace TCPGameClient.View
         public ImageBuffer(int defaultWidth, int defaultHeight)
         {
             // create the default image
-            setDefault(defaultWidth, defaultHeight);
+            SetDefault(defaultWidth, defaultHeight);
 
             // initialize the dictionary
             images = new Dictionary<String,Image>();
@@ -44,7 +44,7 @@ namespace TCPGameClient.View
         }
 
         //creates a default image
-        private void setDefault(int defaultWidth, int defaultHeight)
+        private void SetDefault(int defaultWidth, int defaultHeight)
         {
             // the image is just a red square
             defaultImage = new Bitmap(defaultWidth, defaultHeight);

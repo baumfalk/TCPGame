@@ -35,9 +35,6 @@ namespace TCPGameClient.Control
             // assign controller
             this.control = control;
 
-            // start running
-            bRunning = true;
-
             // create the client
             client = new TcpClient();
 
@@ -47,10 +44,16 @@ namespace TCPGameClient.Control
 
         public void Connect()
         {
+            // don't try to connect if already connected.
+            if (bRunning) return;
+
             try
             {
                 // connect the client to the server. connectionMade will be called when connected
                 client.BeginConnect(IP, port, new AsyncCallback(connectionMade), null);
+
+                // set flag to show connector is running
+                bRunning = true;
             }
             catch (IOException e)
             {
@@ -75,6 +78,9 @@ namespace TCPGameClient.Control
             {
                 // finish connecting
                 client.EndConnect(newConnection);
+
+                // set stream to be the client's networkstream
+                stream = client.GetStream();
             }
             catch (IOException e)
             {
@@ -83,9 +89,6 @@ namespace TCPGameClient.Control
 
                 Disconnect();
             }
-
-            // set stream to be the client's networkstream
-            stream = client.GetStream();
 
             // start listening for data
             startReading();

@@ -19,6 +19,7 @@ namespace TCPGameServer.Network
         private Controller control;
 
         private TcpClient client;
+        private NetworkStream stream;
 
         private InputHandler handler;
         private Player player;
@@ -32,6 +33,7 @@ namespace TCPGameServer.Network
             this.control = control;
 
             this.client = client;
+            stream = client.GetStream();
 
             messageQueue = new Queue<String>();
 
@@ -65,8 +67,6 @@ namespace TCPGameServer.Network
 
         private void startReading()
         {
-            Stream stream = client.GetStream();
-
             try
             {
                 byte[] buffer = new byte[1024];
@@ -84,8 +84,6 @@ namespace TCPGameServer.Network
         // gets called when data is received
         private void dataReceived(IAsyncResult data)
         {
-            NetworkStream stream = client.GetStream();
-
             // a data buffer
             byte[] dataBuffer = new byte[1024];
 
@@ -160,8 +158,6 @@ namespace TCPGameServer.Network
 
             if (messageQueue.Count == 0) return;
 
-            NetworkStream stream = client.GetStream();
-
             String message = MessageFormatting.formatCollection(messageQueue);
 
             byte[] messageInBytes = Encoding.ASCII.GetBytes(message);
@@ -183,8 +179,6 @@ namespace TCPGameServer.Network
 
         private void messageSent(IAsyncResult sent)
         {
-            NetworkStream stream = client.GetStream();
-
             try
             {
                 stream.EndWrite(sent);

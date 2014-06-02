@@ -45,9 +45,17 @@ namespace TCPGameClient.Control
             connection.Disconnect();
         }
 
+        // handle input from the form. Usually this will just be passed on to the server
         public void sendInput(String input)
         {
-            connection.sendData(input);
+            if (input.Equals("connect"))
+            {
+                Connect();
+            }
+            else
+            {
+                connection.sendData(input);
+            }
         }
 
         public void doUpdate(List<String> updateData)
