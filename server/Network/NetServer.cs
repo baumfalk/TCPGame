@@ -26,14 +26,14 @@ namespace TCPGameServer.Network
 
             server = new TcpListener(IPAddress.Any, port);
 
-            ServerOutputWindow.Print("server created at port " + port);
+            if (!Network.Controller.headless) ServerOutputWindow.Print("server created at port " + port);
         }
 
         public void Start()
         {
             bRunning = true;
 
-            ServerOutputWindow.Print("server started");
+            if (!Network.Controller.headless) ServerOutputWindow.Print("server started");
 
             server.Start();
 
@@ -42,14 +42,14 @@ namespace TCPGameServer.Network
 
         public void Stop()
         {
-            ServerOutputWindow.Print("server stopping");
+            if (!Network.Controller.headless) ServerOutputWindow.Print("server stopping");
 
             bRunning = false;
         }
 
         private void startListening()
         {
-            ServerOutputWindow.Print("starting listening for connections");
+            if (!Network.Controller.headless) ServerOutputWindow.Print("starting listening for connections");
 
             if (bRunning)
             {
@@ -65,7 +65,7 @@ namespace TCPGameServer.Network
         {
             TcpClient newClient = server.EndAcceptTcpClient(connection);
 
-            ServerOutputWindow.Print("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
+            if (!Network.Controller.headless) ServerOutputWindow.Print("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
 
             User newUser = new User(control, newClient);
 

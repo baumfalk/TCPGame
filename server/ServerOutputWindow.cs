@@ -40,7 +40,7 @@ namespace TCPGameServer
         // gets the open window and calls the addMessageToTextbox method on it
         public static void Print(String message)
         {
-            //onlyWindow.addMessageToTextbox(message);
+            onlyWindow.addMessageToTextbox(message);
         }
 
         

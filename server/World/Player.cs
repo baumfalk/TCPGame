@@ -96,7 +96,7 @@ namespace TCPGameServer.World
 
         public void addImmediateCommand(String command)
         {
-            ServerOutputWindow.Print("adding immediate command: " + command);
+            if (!Network.Controller.headless) ServerOutputWindow.Print("adding immediate command: " + command);
             immediateCommands.Enqueue(command);
         }
 

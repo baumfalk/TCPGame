@@ -60,7 +60,7 @@ namespace TCPGameServer.Network
             {
                 player.SetDisconnected(true);
 
-                ServerOutputWindow.Print("user " + client.Client.RemoteEndPoint.ToString() + " has disconnected");
+                if (!Network.Controller.headless) ServerOutputWindow.Print("user " + client.Client.RemoteEndPoint.ToString() + " has disconnected");
             }
             return client.Connected;
         }
@@ -76,8 +76,8 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                ServerOutputWindow.Print("can't begin reading from stream of user " + client.Client.RemoteEndPoint.ToString());
-                ServerOutputWindow.Print(e.Message);
+                if (!Network.Controller.headless) ServerOutputWindow.Print("can't begin reading from stream of user " + client.Client.RemoteEndPoint.ToString());
+                if (!Network.Controller.headless) ServerOutputWindow.Print(e.Message);
             }
         }
 
@@ -111,8 +111,8 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                ServerOutputWindow.Print("can't read during dataReceived for user " + client.Client.RemoteEndPoint.ToString());
-                ServerOutputWindow.Print(e.Message);
+                if (!Network.Controller.headless) ServerOutputWindow.Print("can't read during dataReceived for user " + client.Client.RemoteEndPoint.ToString());
+                if (!Network.Controller.headless) ServerOutputWindow.Print(e.Message);
             }
         }
 
@@ -162,7 +162,7 @@ namespace TCPGameServer.Network
 
             byte[] messageInBytes = Encoding.ASCII.GetBytes(message);
 
-            ServerOutputWindow.Print("sending " + message + "(" + message.Length + ") to client at " + client.Client.RemoteEndPoint.ToString());
+            if (!Network.Controller.headless) ServerOutputWindow.Print("sending " + message + "(" + message.Length + ") to client at " + client.Client.RemoteEndPoint.ToString());
             {
                 try
                 {
@@ -171,8 +171,8 @@ namespace TCPGameServer.Network
                 }
                 catch (IOException e)
                 {
-                    ServerOutputWindow.Print("exception trying to begin write to " + client.Client.RemoteEndPoint.ToString());
-                    ServerOutputWindow.Print(e.Message);
+                    if (!Network.Controller.headless) ServerOutputWindow.Print("exception trying to begin write to " + client.Client.RemoteEndPoint.ToString());
+                    if (!Network.Controller.headless) ServerOutputWindow.Print(e.Message);
                 }
             }
         }
@@ -185,8 +185,8 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                ServerOutputWindow.Print("exception trying to end write to " + client.Client.RemoteEndPoint.ToString());
-                ServerOutputWindow.Print(e.Message);
+                if (!Network.Controller.headless) ServerOutputWindow.Print("exception trying to end write to " + client.Client.RemoteEndPoint.ToString());
+                if (!Network.Controller.headless) ServerOutputWindow.Print(e.Message);
             }
         }
     }

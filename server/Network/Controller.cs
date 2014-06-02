@@ -10,6 +10,8 @@ namespace TCPGameServer.Network
 {
     public class Controller
     {
+        public static bool headless = true;
+
         // list of all connected users
         private List<User> users;
 
@@ -51,7 +53,7 @@ namespace TCPGameServer.Network
             // last tick hasn't finished, so skip the next one
             if (block)
             {
-                ServerOutputWindow.Print("block happened");
+                if (!Network.Controller.headless) ServerOutputWindow.Print("block happened");
                 return;
             }
             block = true;
