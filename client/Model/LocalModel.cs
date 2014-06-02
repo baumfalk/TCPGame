@@ -81,7 +81,6 @@ namespace TCPGameClient.Model
                 switch (inputPart[0])
                 {
                     case "LOGIN":
-                        Debug.Print(inputPart[2]);
                         break;
                     case "PLAYER":
                         updatePlayer(inputPart);

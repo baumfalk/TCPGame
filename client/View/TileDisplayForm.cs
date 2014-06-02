@@ -67,9 +67,10 @@ namespace TCPGameClient.View
             int tilesX = pictureBox1.Width / 64 + 2;
             int tilesY = pictureBox1.Height / 64 + 2;
 
-            int positionX = theModel.getGridSizeX() / 2 + 1;
-            int positionY = theModel.getGridSizeY() / 2 + 1;
-            int positionZ = theModel.getGridSizeZ() / 2 + 1;
+            // position of the player on the grid (always in the center)
+            int playerPositionX = theModel.getGridSizeX() / 2 + 1;
+            int playerPositionY = theModel.getGridSizeY() / 2 + 1;
+            int playerPositionZ = theModel.getGridSizeZ() / 2 + 1;
 
             // draws a 2D grid around the player.
             int minX = -tilesX / 2;
@@ -81,10 +82,10 @@ namespace TCPGameClient.View
                 for (int y = minY; y <= maxY; y++)
                 {
                     // check if a field exists to draw
-                    if (theModel.hasFieldAtPosition(positionX + x, positionY + y, positionZ))
+                    if (theModel.hasFieldAtPosition(playerPositionX + x, playerPositionY + y, playerPositionZ))
                     {
                         // get that field
-                        Field fieldToDraw = theModel.getFieldAtPosition(positionX + x, positionY + y, positionZ);
+                        Field fieldToDraw = theModel.getFieldAtPosition(playerPositionX + x, playerPositionY + y, playerPositionZ);
 
                         // get the internal name of it's image
                         String fieldRepresentation = fieldToDraw.getRepresentation();
@@ -103,8 +104,6 @@ namespace TCPGameClient.View
                 int yPos = creature.getY();
                 int zPos = creature.getZ();
 
-                Debug.Print("printing creature (" + xPos + ", " + yPos + ", " + zPos + ", " + creature.getRepresentation());
-
                 if (xPos >= minX && xPos <= maxX &&
                     yPos >= minY && yPos <= maxY &&
                     zPos == 0)
@@ -116,9 +115,6 @@ namespace TCPGameClient.View
                     g.DrawImage(imToDraw, centerX + xPos * 64 - 16, centerY + yPos * 64 - 16, 32, 32);
                 }
             }
-
-            // draw the player in the center
-            //g.DrawImage(imageBuffer.getImage("player"), centerX - 16, centerY - 16, 32, 32);
 
             // dispose of the graphics object
             g.Dispose();
