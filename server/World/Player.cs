@@ -39,13 +39,27 @@ namespace TCPGameServer.World
 
         private bool disconnected = false;
 
+        private bool moved = false;
+
         public Player(Creature body)
         {
             this.body = body;
 
+            body.setPlayer(this);
+
             blockingCommands = new Queue<String>();
             immediateCommands = new Queue<String>();
             messages = new Queue<String>();
+        }
+
+        public bool hasMoved()
+        {
+            return moved;
+        }
+
+        public void setMoved(bool moved)
+        {
+            this.moved = moved;
         }
 
         public bool isDisconnected()

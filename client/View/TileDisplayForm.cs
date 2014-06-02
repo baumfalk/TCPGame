@@ -72,9 +72,13 @@ namespace TCPGameClient.View
             int positionZ = theModel.getGridSizeZ() / 2 + 1;
 
             // draws a 2D grid around the player.
-            for (int x = -tilesX / 2; x < tilesX / 2; x++)
+            int minX = -tilesX / 2;
+            int maxX = tilesX / 2 - 1;
+            int minY = -tilesY / 2;
+            int maxY = tilesY / 2 - 1;
+            for (int x = minX; x <= maxX; x++)
             {
-                for (int y = -tilesY / 2; y < tilesY / 2; y++)
+                for (int y = minY; y <= maxY; y++)
                 {
                     // check if a field exists to draw
                     if (theModel.hasFieldAtPosition(positionX + x, positionY + y, positionZ))
@@ -94,8 +98,27 @@ namespace TCPGameClient.View
                 }
             }
 
+            foreach (Creature creature in theModel.getCreatures()) {
+                int xPos = creature.getX();
+                int yPos = creature.getY();
+                int zPos = creature.getZ();
+
+                Debug.Print("printing creature (" + xPos + ", " + yPos + ", " + zPos + ", " + creature.getRepresentation());
+
+                if (xPos >= minX && xPos <= maxX &&
+                    yPos >= minY && yPos <= maxY &&
+                    zPos == 0)
+                {
+                    String creatureRepresentation = creature.getRepresentation();
+
+                    Image imToDraw = imageBuffer.getImage(creatureRepresentation);
+
+                    g.DrawImage(imToDraw, centerX + xPos * 64 - 16, centerY + yPos * 64 - 16, 32, 32);
+                }
+            }
+
             // draw the player in the center
-            g.DrawImage(imageBuffer.getImage("player"), centerX - 16, centerY - 16, 32, 32);
+            //g.DrawImage(imageBuffer.getImage("player"), centerX - 16, centerY - 16, 32, 32);
 
             // dispose of the graphics object
             g.Dispose();

@@ -39,6 +39,8 @@ namespace TCPGameServer.Network.InputHandling
 
         private void HandleLogin(List<String> commands)
         {
+            if (commands.Count == 0) return;
+
             ServerOutputWindow.onlyWindow.addMessageToTextbox("user is logging in");
 
             if (commands[0].Equals("geerten")) player.addImmediateCommand("PLAYER,PLACE,4,4,0");

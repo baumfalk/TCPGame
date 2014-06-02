@@ -21,7 +21,10 @@ namespace TCPGameClient.Model
         private int gridSizeZ;
 
         // display grid
-        public Field[,,] map;
+        private Field[, ,] map;
+        private List<Creature> creatures;
+
+        private bool updatingCreatures;
 
         // constructor allows the controller to give a grid size, which is
         // the area that will be "remembered"
@@ -32,6 +35,7 @@ namespace TCPGameClient.Model
             this.gridSizeZ = gridSizeZ;
 
             map = new Field[gridSizeX, gridSizeY, gridSizeZ];
+            creatures = new List<Creature>();
         }
 
         // view needs to know how big the grid is to properly center it
@@ -49,7 +53,12 @@ namespace TCPGameClient.Model
         {
             return gridSizeZ;
         }
-        
+
+        public List<Creature> getCreatures()
+        {
+            return creatures;
+        }
+
         // updates based on strings sent to the controller by the server. Is not very
         // robust yet, the following two inputs are possible at the moment:
 
@@ -59,6 +68,8 @@ namespace TCPGameClient.Model
         // N indicates an order in which commands are sent from the server. Player position changes to x, y.
         public void update(List<String> updateData)
         {
+            updatingCreatures = false;
+
             // loop through all strings we received
             foreach (String input in updateData)
             {
@@ -76,6 +87,15 @@ namespace TCPGameClient.Model
                         break;
                     case "TILE":
                         updateTile(inputPart);
+                        break;
+                    case "CREATURE":
+                        if (!updatingCreatures)
+                        {
+                            creatures = new List<Creature>();
+                            updatingCreatures = true;
+                        }
+
+                        updateCreature(inputPart);
                         break;
                     default:
                         Debug.Print(input);
@@ -156,6 +176,27 @@ namespace TCPGameClient.Model
             currentZ = newZ;
         }
 
+        // handles "creature" type updates. Only "detection" updates exist at the moment.
+        private void updateCreature(String[] inputPart)
+        {
+            if (inputPart[1].Equals("DETECTED"))
+            {
+                // get position and representation from the input
+                int xPos = int.Parse(inputPart[2]);
+                int yPos = int.Parse(inputPart[3]);
+                int zPos = int.Parse(inputPart[4]);
+                String representation = inputPart[5];
+
+                // calculate position relative to the player
+                int relPosX = xPos - currentX;
+                int relPosY = yPos - currentY;
+                int relPosZ = zPos - currentZ;
+
+                // add creature to the list
+                creatures.Add(new Creature(relPosX, relPosY, relPosZ, representation));
+            }
+        }
+
         // handles "tile" type updates. Only "detection" updates exist at the moment.
         private void updateTile(String[] inputPart)
         {
@@ -167,7 +208,7 @@ namespace TCPGameClient.Model
                 int zPos = int.Parse(inputPart[4]);
                 String representation = inputPart[5];
 
-                // calculate position relative to the player
+                // calculate position relative to the center of the map
                 int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);
                 int mapPosY = gridSizeY / 2 + 1 + (yPos - currentY);
                 int mapPosZ = gridSizeZ / 2 + 1 + (zPos - currentZ);

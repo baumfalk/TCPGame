@@ -81,6 +81,19 @@ namespace TCPGameServer.World
             {
                 players.Remove(disconnected);
             }
+
+            foreach (Player player in players)
+            {
+                if (player.hasMoved())
+                {
+                    actionHandler.Handle(player, "LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
+                    player.setMoved(false);
+                }
+                else
+                {
+                    actionHandler.Handle(player, "LOOK,TILES_EXLUDED,PLAYER_INCLUDED");
+                }
+            }
         }
 
         public void addPlayer(Player player)

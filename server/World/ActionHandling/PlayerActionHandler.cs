@@ -28,7 +28,8 @@ namespace TCPGameServer.World.ActionHandling
 
                     position.setOccupant(player.getBody());
 
-                    LookActionHandler.Look(player, world);
+                    player.setMoved(true);
+
                     return;
             }
         }
