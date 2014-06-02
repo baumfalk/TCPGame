@@ -14,27 +14,41 @@ namespace TCPGameServer
 {
     public partial class ServerOutputWindow : Form
     {
+        // needed for thread-safe output to the textbox
         delegate void SetTextCallback(String text);
 
-        public static ServerOutputWindow onlyWindow;
+        // we want only one window. We keep a tab on it so static printing can be routed to
+        // the window that's open.
+        private static ServerOutputWindow onlyWindow;
 
-        Controller server;
-
+        // create a window, but only if none exist.
         public ServerOutputWindow()
         {
-            InitializeComponent();
-
-            //lelijk, maar whatever. hack hack
+            if (onlyWindow != null) return;
             onlyWindow = this;
+
+            InitializeComponent();
         }
 
+        // I have no idea how to properly start a window from the controller, so this form
+        // is the entry point for the program. Starts a controller.
         private void ServerOutputWindow_Load(object sender, EventArgs e)
         {
-            server = new Controller(this);
+            new Controller();
         }
 
-        public void addMessageToTextbox(String message)
+        // gets the open window and calls the addMessageToTextbox method on it
+        public static void Print(String message)
         {
+            //onlyWindow.addMessageToTextbox(message);
+        }
+
+        
+        private void addMessageToTextbox(String message)
+        {
+            // if this request comes from another thread than the one that created the
+            // form (which should be the case), we need to tell the thread that did create
+            // it to come write something in the textbox. That's what we're doing here.
             if (this.textBox1.InvokeRequired)
             {
                 SetTextCallback d = new SetTextCallback(addMessageToTextbox);
@@ -42,6 +56,7 @@ namespace TCPGameServer
             } 
             else
             {
+                // if this is the right thread, just write it down.
                 textBox1.AppendText(message + "\n");
             }
         }

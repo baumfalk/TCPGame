@@ -96,7 +96,7 @@ namespace TCPGameServer.World
 
         public void addImmediateCommand(String command)
         {
-            ServerOutputWindow.onlyWindow.addMessageToTextbox("adding immediate command: " + command);
+            ServerOutputWindow.Print("adding immediate command: " + command);
             immediateCommands.Enqueue(command);
         }
 

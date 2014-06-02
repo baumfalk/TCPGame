@@ -34,14 +34,14 @@ namespace TCPGameServer.Network.InputHandling
 
         private void HandleIdle(List<String> commands)
         {
-            ServerOutputWindow.onlyWindow.addMessageToTextbox("user is idle");
+            ServerOutputWindow.Print("user is idle");
         }
 
         private void HandleLogin(List<String> commands)
         {
             if (commands.Count == 0) return;
 
-            ServerOutputWindow.onlyWindow.addMessageToTextbox("user is logging in");
+            ServerOutputWindow.Print("user is logging in");
 
             if (commands[0].Equals("geerten")) player.addImmediateCommand("PLAYER,PLACE,4,4,0");
             else if (commands[0].Equals("jetze")) player.addImmediateCommand("PLAYER,PLACE,4,3,0");
@@ -53,7 +53,7 @@ namespace TCPGameServer.Network.InputHandling
         private void HandleNormal(List<String> commands) {
             foreach (String command in commands)
             {
-                ServerOutputWindow.onlyWindow.addMessageToTextbox("user is in normal operation");
+                ServerOutputWindow.Print("user is in normal operation");
 
                 bool isMovementCommand = (!(Directions.fromShortString(command).Equals("") || Directions.fromString(command).Equals("")));
 
@@ -65,7 +65,7 @@ namespace TCPGameServer.Network.InputHandling
                     player.addBlockingCommand("MOVE," + direction);
                 }
 
-                ServerOutputWindow.onlyWindow.addMessageToTextbox(command + " received from user");
+                ServerOutputWindow.Print(command + " received from user");
             }
         }
     }

@@ -14,9 +14,13 @@ namespace TCPGameServer
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ServerOutputWindow());
+            //Application.EnableVisualStyles();
+            //Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(new ServerOutputWindow());
+
+            new Network.Controller();
+
+            Application.Run();
         }
     }
 }

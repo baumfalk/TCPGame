@@ -10,19 +10,21 @@ namespace TCPGameServer.Network
 {
     public class Controller
     {
+        // list of all connected users
         private List<User> users;
 
-        private ServerOutputWindow outputWindow;
-
+        // the model
         private Model world;
+        // a ticker which tells the server to update
         private Ticker ticker;
+        // connects new clients to user objects
         private NetServer server;
 
+        // flag to disallow updates while another update is ongoing
         bool block;
 
-        public Controller(ServerOutputWindow outputWindow)
+        public Controller()
         {
-            this.outputWindow = outputWindow;
 
             users = new List<User>();
 
@@ -49,7 +51,7 @@ namespace TCPGameServer.Network
             // last tick hasn't finished, so skip the next one
             if (block)
             {
-                outputMessage("block happened");
+                ServerOutputWindow.Print("block happened");
                 return;
             }
             block = true;
@@ -62,7 +64,7 @@ namespace TCPGameServer.Network
             {
                 if (user.isConnected())
                 {
-                    if ((tick % 100) == 0) user.addMessage("PING");
+                    if ((tick % 100) == 0) user.addMessage("PING (" + tick + ")");
 
                     user.sendMessages();
                 }
@@ -89,11 +91,6 @@ namespace TCPGameServer.Network
         public List<User> getUsers()
         {
             return users;
-        }
-
-        public void outputMessage(String message)
-        {
-            outputWindow.addMessageToTextbox(message);
         }
     }
 }
