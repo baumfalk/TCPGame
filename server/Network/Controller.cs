@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Threading;
+
 using TCPGameServer.World;
 
 namespace TCPGameServer.Network
@@ -11,6 +13,7 @@ namespace TCPGameServer.Network
     public class Controller
     {
         public static bool headless = true;
+        public static bool running = true;
 
         // list of all connected users
         private List<User> users;
@@ -27,7 +30,6 @@ namespace TCPGameServer.Network
 
         public Controller()
         {
-
             users = new List<User>();
 
             world = new Model();
@@ -41,6 +43,11 @@ namespace TCPGameServer.Network
             ticker.Start();
 
             block = false;
+
+            while (running)
+            {
+                Thread.Sleep(1000);
+            }
         }
 
         public void registerPlayer(Player player)
