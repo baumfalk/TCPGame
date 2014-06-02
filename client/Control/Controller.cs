@@ -22,7 +22,7 @@ namespace TCPGameClient.Control
         private NetConnector connection;
 
         // default server is Jetze's server
-        private String IP = "145.97.240.64";
+        private String IP = "145.97.240.63";
         private int port = 8888;
 
         public Controller(TileDisplayForm tdView)

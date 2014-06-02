@@ -36,7 +36,7 @@ namespace TCPGameServer.Network
 
             ticker = new Ticker(this);
 
-            server = new NetServer(this, 4502);
+            server = new NetServer(this, 8888);
 
             server.Start();
 
