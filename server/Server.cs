@@ -12,17 +12,17 @@ namespace TCPGameServer
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string [] args)
         {
-            if (!Network.Controller.headless)
+            if (args.Length > 0 && args[0].Equals("--headless") || Network.Controller.headless)
+            {
+                new Network.Controller();
+            }
+            else
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new ServerOutputWindow());
-            }
-            else
-            {
-                new Network.Controller();
             }
         }
     }

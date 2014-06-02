@@ -40,14 +40,14 @@ namespace TCPGameServer.Network.InputHandling
 
         private void HandleIdle(List<String> commands)
         {
-            if (!Network.Controller.headless) ServerOutputWindow.Print("user is idle");
+            Network.Controller.Print("user is idle");
         }
 
         private void HandleLogin(List<String> commands)
         {
             if (commands.Count == 0) return;
 
-            if (!Network.Controller.headless) ServerOutputWindow.Print("user is logging in");
+            Network.Controller.Print("user is logging in");
 
             if (commands[0].Equals("geerten")) player.addImmediateCommand("PLAYER,PLACE,4,4,0");
             else if (commands[0].Equals("jetze")) player.addImmediateCommand("PLAYER,PLACE,4,3,0");
@@ -59,7 +59,7 @@ namespace TCPGameServer.Network.InputHandling
         private void HandleNormal(List<String> commands) {
             foreach (String command in commands)
             {
-                if (!Network.Controller.headless) ServerOutputWindow.Print("user is in normal operation");
+                Network.Controller.Print("user is in normal operation");
 
                 bool isMovementCommand = (!(Directions.fromShortString(command).Equals("") || Directions.fromString(command).Equals("")));
 
@@ -71,7 +71,7 @@ namespace TCPGameServer.Network.InputHandling
                     player.addBlockingCommand("MOVE," + direction);
                 }
 
-                if (!Network.Controller.headless) ServerOutputWindow.Print(command + " received from user");
+                Network.Controller.Print(command + " received from user");
             }
         }
     }

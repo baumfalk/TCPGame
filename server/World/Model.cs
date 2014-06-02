@@ -50,7 +50,7 @@ namespace TCPGameServer.World
             {
                 if (player.isDisconnected())
                 {
-                    if (!Network.Controller.headless) ServerOutputWindow.Print("player is disconnected");
+                    Network.Controller.Print("player is disconnected");
 
                     disconnectedPlayers.Add(player);
                     continue;
@@ -61,7 +61,7 @@ namespace TCPGameServer.World
                 {
                     String command = player.getNextBlockingCommand();
 
-                    if (!Network.Controller.headless) ServerOutputWindow.Print("handling blocking command " + command);
+                    Network.Controller.Print("handling blocking command " + command);
 
                     actionHandler.Handle(player, command);
                 }
@@ -71,7 +71,7 @@ namespace TCPGameServer.World
                 {
                     String command = player.getNextImmediateCommand();
 
-                    if (!Network.Controller.headless) ServerOutputWindow.Print("handling immediate command " + command);
+                    Network.Controller.Print("handling immediate command " + command);
 
                     actionHandler.Handle(player, command);
                 }

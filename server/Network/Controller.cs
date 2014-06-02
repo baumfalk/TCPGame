@@ -12,7 +12,7 @@ namespace TCPGameServer.Network
 {
     public class Controller
     {
-        public static bool headless = false;
+        public static bool headless = true;
         public static bool running = true;
 
         // list of all connected users
@@ -53,6 +53,12 @@ namespace TCPGameServer.Network
             }
         }
 
+        public static void Print(string message)
+        {
+            if (!Network.Controller.headless) ServerOutputWindow.Print(message);
+            else Console.WriteLine(message);
+        }
+
         public void registerPlayer(Player player)
         {
             world.addPlayer(player);
@@ -63,7 +69,8 @@ namespace TCPGameServer.Network
             // last tick hasn't finished, so skip the next one
             if (block)
             {
-                if (!Network.Controller.headless) ServerOutputWindow.Print("block happened");
+                Controller.Print("Block happened");
+
                 return;
             }
             block = true;
