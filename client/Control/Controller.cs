@@ -21,6 +21,10 @@ namespace TCPGameClient.Control
         // the network connector which communicates with the server
         private NetConnector connection;
 
+        // default server is Jetze's server
+        private String IP = "145.97.240.64";
+        private int port = 8888;
+
         public Controller(TileDisplayForm tdView)
         {
             // the view will be passed to the controller
@@ -30,13 +34,13 @@ namespace TCPGameClient.Control
             worldModel = new LocalModel(101,101,101);
 
             // connect to the world-server
-            connection = new NetConnector(this, "127.0.0.1", 4502);
+            connection = new NetConnector(this);
         }
 
         // connect to the server
         public void Connect()
         {
-            connection.Connect();
+            connection.Connect(IP, port);
         }
 
         // disconnect from the server
@@ -48,8 +52,14 @@ namespace TCPGameClient.Control
         // handle input from the form. Usually this will just be passed on to the server
         public void sendInput(String input)
         {
-            if (input.Equals("connect"))
+            
+            if (input.StartsWith("connect"))
             {
+                String[] connectInfo = input.Split(' ');
+
+                if (connectInfo.Length > 1) IP = connectInfo[1];
+                if (connectInfo.Length > 2) port = int.Parse(connectInfo[2]);
+
                 Connect();
             }
             else
