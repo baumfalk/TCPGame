@@ -169,6 +169,7 @@ namespace TCPGameClient.Control
         // to the controller as a list.
         private void splitAndHandle()
         {
+            Console.WriteLine(message);
             // split the message into separate strings
             String[] splitMessage = message.Split(';');
 
