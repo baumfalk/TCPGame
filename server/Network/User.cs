@@ -149,7 +149,7 @@ namespace TCPGameServer.Network
             messageQueue.Enqueue(message);
         }
 
-        public void sendMessages()
+        public void sendMessages(int tick)
         {
             while (player.hasMessages())
             {
@@ -158,7 +158,7 @@ namespace TCPGameServer.Network
 
             if (messageQueue.Count == 0) return;
 
-            String message = MessageFormatting.formatCollection(messageQueue);
+            String message = "(" + tick + ");" + MessageFormatting.formatCollection(messageQueue);
 
             byte[] messageInBytes = Encoding.ASCII.GetBytes(message);
 

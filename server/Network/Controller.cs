@@ -85,7 +85,7 @@ namespace TCPGameServer.Network
                 {
                     if ((tick % 100) == 0) user.addMessage("PING (" + tick + ")");
 
-                    user.sendMessages();
+                    user.sendMessages(tick);
                 }
                 else
                 {
