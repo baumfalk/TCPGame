@@ -21,6 +21,9 @@ namespace TCPGameServer.Network
         // list of users to put in on the next tick
         private List<User> newUsers;
 
+        // Contains a log of everything that is printed so far.
+        private static List<string> log = new List<string>();
+
         // the model
         private Model world;
         // a ticker which tells the server to update
@@ -35,7 +38,7 @@ namespace TCPGameServer.Network
         {
             users = new List<User>();
             newUsers = new List<User>();
-
+            
             world = new Model();
 
             ticker = new Ticker(this);
@@ -59,8 +62,15 @@ namespace TCPGameServer.Network
 
         public static void Print(string message)
         {
-            if (!Network.Controller.headless) ServerOutputWindow.Print(message);
+            if (!headless) ServerOutputWindow.Print(message);
             else Console.WriteLine(message);
+            log.Add(message);
+
+        }
+
+        public static List<string> getLog()
+        {
+            return log;
         }
 
         public void registerPlayer(Player player)
