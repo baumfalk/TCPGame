@@ -41,7 +41,8 @@ namespace TCPGameClient.Control
 
         public void Connect(String IP, int port)
         {
-            this.IP = IPAddress.Parse(IP);
+            bool validIP =  IPAddress.TryParse(IP, out this.IP);
+            //if (!validIP) this.IP = Dns.GetHostEntry(IP);
             this.port = port;
 
             // don't try to connect if already connected.

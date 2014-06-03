@@ -18,6 +18,9 @@ namespace TCPGameServer.Network
         // list of all connected users
         private List<User> users;
 
+        // list of users to put in on the next tick
+        private List<User> newUsers;
+
         // the model
         private Model world;
         // a ticker which tells the server to update
@@ -31,6 +34,7 @@ namespace TCPGameServer.Network
         public Controller()
         {
             users = new List<User>();
+            newUsers = new List<User>();
 
             world = new Model();
 
@@ -97,6 +101,12 @@ namespace TCPGameServer.Network
                 users.Remove(user);
             }
 
+            foreach (User newUser in newUsers)
+            {
+                users.Add(newUser);
+            }
+            newUsers.Clear();
+
             disconnectedUsers.Clear();
 
             block = false;
@@ -104,7 +114,7 @@ namespace TCPGameServer.Network
 
         public void addUser(User newUser)
         {
-            users.Add(newUser);
+            newUsers.Add(newUser);
         }
 
         public List<User> getUsers()
