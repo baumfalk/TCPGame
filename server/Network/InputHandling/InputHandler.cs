@@ -36,6 +36,15 @@ namespace TCPGameServer.Network.InputHandling
                 Controller.running = false;
                 if (!Controller.headless) ServerOutputWindow.Shutdown();
             }
+            else if (commands[0].Equals("log"))
+            {
+                Network.Controller.Print("Sending log to user");
+
+                foreach (string message in Controller.getLog())
+                {
+                    player.addMessage(message);
+                }
+            }
         }
 
         private void HandleIdle(List<String> commands)

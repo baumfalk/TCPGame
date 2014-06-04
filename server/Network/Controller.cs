@@ -23,6 +23,9 @@ namespace TCPGameServer.Network
         // list of users to put in on the next tick
         private List<User> newUsers;
 
+        // Contains a log of everything that is printed so far.
+        private static List<string> log = new List<string>();
+
         // the model
         private Model world;
         // connects new clients to user objects
@@ -67,8 +70,15 @@ namespace TCPGameServer.Network
         // output to the window, or to the debug stream if headless
         public static void Print(string message)
         {
-            if (!Network.Controller.headless) ServerOutputWindow.Print(message);
+            if (!headless) ServerOutputWindow.Print(message);
             else Console.WriteLine(message);
+            log.Add(message);
+
+        }
+
+        public static List<string> getLog()
+        {
+            return log;
         }
 
         // register a player to the model. Usually done when a user has finished login.
