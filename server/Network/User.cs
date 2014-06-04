@@ -153,6 +153,9 @@ namespace TCPGameServer.Network
             // cut off the last member of the list (since it's the overflow)
             inputList = inputList.GetRange(0, size - 1);
 
+            // if there is no full command, don't try to parse it
+            if (inputList.Count == 0) return;
+
             // send the updates to the input handler
             handler.Handle(inputList);
         }

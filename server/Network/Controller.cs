@@ -67,15 +67,15 @@ namespace TCPGameServer.Network
             }
         }
 
-        // output to the window, or to the debug stream if headless
+        // output to the window, or to the debug stream if headless. Also added to the log.
         public static void Print(string message)
         {
             if (!headless) ServerOutputWindow.Print(message);
             else Console.WriteLine(message);
             log.Add(message);
-
         }
 
+		// returns the log
         public static List<string> getLog()
         {
             return log;

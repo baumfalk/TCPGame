@@ -19,6 +19,8 @@ namespace TCPGameServer.Network.InputHandling
 
         public void Handle(List<String> commands)
         {
+            if (commands.Count == 0) return;
+
             switch (player.getCommandState()) {
                 case Player.COMMANDSTATE_IDLE:
                     HandleIdle(commands);
