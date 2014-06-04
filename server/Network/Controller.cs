@@ -13,7 +13,7 @@ namespace TCPGameServer.Network
     public class Controller
     {
         //set to true to not use a output window
-        public static bool headless = false;
+        public static bool headless = true;
         //when running is set to false, the headless version quits
         public static bool running = true;
 
