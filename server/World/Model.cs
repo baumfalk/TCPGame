@@ -61,7 +61,7 @@ namespace TCPGameServer.World
                 {
                     String command = player.getNextBlockingCommand();
 
-                    Network.Controller.Print("handling blocking command " + command);
+                    if (!Network.Controller.headless) Network.Controller.Print("handling blocking command " + command);
 
                     actionHandler.Handle(player, command);
                 }
@@ -71,7 +71,7 @@ namespace TCPGameServer.World
                 {
                     String command = player.getNextImmediateCommand();
 
-                    Network.Controller.Print("handling immediate command " + command);
+                    if (!Network.Controller.headless) Network.Controller.Print("handling immediate command " + command);
 
                     actionHandler.Handle(player, command);
                 }

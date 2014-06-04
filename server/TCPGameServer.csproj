@@ -57,7 +57,6 @@
     <Compile Include="Network\Controller.cs" />
     <Compile Include="Network\MessageFormatting.cs" />
     <Compile Include="Network\NetServer.cs" />
-    <Compile Include="Network\Ticker.cs" />
     <Compile Include="Network\User.cs" />
     <Compile Include="World\ActionHandling\ActionHandler.cs" />
     <Compile Include="World\ActionHandling\LoginActionHandler.cs" />

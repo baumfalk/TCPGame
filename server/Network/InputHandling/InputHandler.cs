@@ -40,7 +40,7 @@ namespace TCPGameServer.Network.InputHandling
 
         private void HandleIdle(List<String> commands)
         {
-            Network.Controller.Print("user is idle");
+            Network.Controller.Print("user is idle but sending commands");
         }
 
         private void HandleLogin(List<String> commands)

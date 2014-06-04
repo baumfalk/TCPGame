@@ -20,6 +20,7 @@ namespace TCPGameServer.Network
 
         private TcpClient client;
         private NetworkStream stream;
+        private String remoteIP;
 
         private InputHandler handler;
         private Player player;
@@ -28,12 +29,19 @@ namespace TCPGameServer.Network
 
         private String inputBuffer;
 
+        private bool connected;
+
         public User(Controller control, TcpClient client)
         {
             this.control = control;
 
             this.client = client;
             stream = client.GetStream();
+            remoteIP = client.Client.RemoteEndPoint.ToString();
+
+            connected = true;
+
+            inputBuffer = "";
 
             messageQueue = new Queue<String>();
 
@@ -54,19 +62,25 @@ namespace TCPGameServer.Network
 
         public bool isConnected()
         {
-            bool connected = client.Connected;
+            return connected;
+        }
 
-            if (!connected)
-            {
-                player.SetDisconnected(true);
+        public void Disconnect()
+        {
+            client.Close();
 
-                Controller.Print("user " + client.Client.RemoteEndPoint.ToString() + " has disconnected");
-            }
-            return client.Connected;
+            player.SetDisconnected(true);
+
+            connected = false;
+
+            Controller.Print("user " + remoteIP + " has disconnected");
         }
 
         private void startReading()
         {
+            // if the client isn't connected, don't read.
+            if (!connected) return;
+
             try
             {
                 byte[] buffer = new byte[1024];
@@ -76,14 +90,19 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                Controller.Print("can't begin reading from stream of user " + client.Client.RemoteEndPoint.ToString());
+                Controller.Print("can't begin reading from stream of user " + remoteIP);
                 Controller.Print(e.Message);
+
+                if (connected) Disconnect();
             }
         }
 
         // gets called when data is received
         private void dataReceived(IAsyncResult data)
         {
+            // if the client isn't connected, we can't receive anything.
+            if (!connected) return;
+
             // a data buffer
             byte[] dataBuffer = new byte[1024];
 
@@ -98,28 +117,25 @@ namespace TCPGameServer.Network
                 // add the new data to the message buffer
                 inputBuffer = String.Concat(inputBuffer, Encoding.ASCII.GetString(dataBuffer, 0, numBytes));
 
-                // if there's still available data, read it as well with another call.
-                if (stream.DataAvailable)
-                {
-                    startReading();
-                }
-                else
-                {
-                    // otherwise split the received data into commands and pass it on
-                    splitAndHandle();
-                }
+                // and resume reading
+                startReading();
             }
             catch (IOException e)
             {
-                Controller.Print("can't read during dataReceived for user " + client.Client.RemoteEndPoint.ToString());
+                Controller.Print("can't read during dataReceived for user " + remoteIP);
                 Controller.Print(e.Message);
+
+                if (connected) Disconnect();
             }
         }
 
         // data should be sent with separate lines separated by semicolons. It will be passed
         // to the controller as a list.
-        private void splitAndHandle()
+        public void HandleInput()
         {
+            // no data = no handling
+            if (inputBuffer.Equals("")) return;
+
             // split the message into separate strings
             String[] splitMessage = inputBuffer.Split(';');
 
@@ -139,9 +155,11 @@ namespace TCPGameServer.Network
 
             // send the updates to the input handler
             handler.Handle(inputList);
+        }
 
-            // get ready for a new batch of data from the server
-            startReading();
+        public void Remove()
+        {
+            if (connected) Disconnect();
         }
 
         public void addMessage(String message)
@@ -156,37 +174,48 @@ namespace TCPGameServer.Network
                 messageQueue.Enqueue(player.getMessage());
             }
 
+            if (!Controller.headless) Controller.Print("messageQueue count = " + messageQueue.Count);
+
             if (messageQueue.Count == 0) return;
 
             String message = "(" + tick + ");" + MessageFormatting.formatCollection(messageQueue);
 
             byte[] messageInBytes = Encoding.ASCII.GetBytes(message);
 
-            if (!Controller.headless) Controller.Print("sending " + message + "(" + message.Length + ") to client at " + client.Client.RemoteEndPoint.ToString());
+            if (!Controller.headless) Controller.Print("sending " + message + "(" + message.Length + ") to client at " + remoteIP);
+
+            // if the client isn't connected, don't send.
+            if (!connected) return;
+            try
             {
-                try
-                {
-                    stream.BeginWrite(messageInBytes, 0, messageInBytes.Length, messageSent, null);
-                    
-                }
-                catch (IOException e)
-                {
-                    Controller.Print("exception trying to begin write to " + client.Client.RemoteEndPoint.ToString());
-                    Controller.Print(e.Message);
-                }
+                stream.BeginWrite(messageInBytes, 0, messageInBytes.Length, messageSent, null);
+
             }
+            catch (IOException e)
+            {
+                Controller.Print("exception trying to begin write to " + remoteIP);
+                Controller.Print(e.Message);
+
+                if (connected) Disconnect();
+            }
+            
         }
 
         private void messageSent(IAsyncResult sent)
         {
+            // if the client isn't connected, don't call endWrite.
+            if (!connected) return;
+
             try
             {
                 stream.EndWrite(sent);
             }
             catch (IOException e)
             {
-                Controller.Print("exception trying to end write to " + client.Client.RemoteEndPoint.ToString());
+                Controller.Print("exception trying to end write to " + remoteIP);
                 Controller.Print(e.Message);
+
+                if (connected) Disconnect();
             }
         }
     }

@@ -27,7 +27,7 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String command)
         {
-            Network.Controller.Print("handling command: " + command);
+            if (!Network.Controller.headless) Network.Controller.Print("handling command: " + command);
 
             String[] splitCommand = command.Split(',');
 

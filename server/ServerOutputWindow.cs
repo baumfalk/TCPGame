@@ -72,8 +72,16 @@ namespace TCPGameServer
             // it to come write something in the textbox. That's what we're doing here.
             if (this.textBox1.InvokeRequired)
             {
-                SetTextCallback d = new SetTextCallback(addMessageToTextbox);
-                this.Invoke(d, new object[] { message });
+                try
+                {
+                    SetTextCallback d = new SetTextCallback(addMessageToTextbox);
+                    this.Invoke(d, new object[] { message });
+                }
+                catch (ObjectDisposedException e)
+                {
+                    System.Diagnostics.Debug.Print("form was disposed on write");
+                    System.Diagnostics.Debug.Print(e.Message);
+                }
             } 
             else
             {

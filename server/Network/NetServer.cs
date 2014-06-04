@@ -71,7 +71,7 @@ namespace TCPGameServer.Network
 
             if (bRunning)
             {
-                control.addUser(newUser);
+                control.AddUser(newUser);
                 startListening();
             }
             else
