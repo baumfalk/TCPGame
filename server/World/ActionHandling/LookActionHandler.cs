@@ -17,7 +17,7 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String[] splitCommand)
         {
-            if (player.getCommandState() != Player.COMMANDSTATE_NORMAL) return;
+            if (player.GetCommandState() != Player.COMMANDSTATE_NORMAL) return;
 
             bool includeTiles = false;
             bool includePlayer = false;
@@ -25,21 +25,21 @@ namespace TCPGameServer.World.ActionHandling
             if (splitCommand[1].Equals("TILES_INCLUDED")) includeTiles = true;
             if (splitCommand[2].Equals("PLAYER_INCLUDED")) includePlayer = true;
 
-            Tile playerLocation = player.getBody().getPosition();
+            Tile playerLocation = player.GetBody().getPosition();
 
             List<Tile> tilesToSend = world.getSurroundingTiles(playerLocation, 5);
 
-            if (includePlayer) player.addMessage("PLAYER,POSITION," + playerLocation.getX() + "," + playerLocation.getY() + "," + playerLocation.getZ());
+            if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.getX() + "," + playerLocation.getY() + "," + playerLocation.getZ());
 
             foreach (Tile toSend in tilesToSend)
             {
-                if (includeTiles) player.addMessage("TILE,DETECTED," + toSend.getX() + "," + toSend.getY() + "," + toSend.getZ() + "," + toSend.getRepresentation());
+                if (includeTiles) player.AddMessage("TILE,DETECTED," + toSend.getX() + "," + toSend.getY() + "," + toSend.getZ() + "," + toSend.getRepresentation());
 
                 if (toSend.hasOccupant() && (!(toSend == playerLocation) || includePlayer))
                 {
                     Creature occupant = toSend.getOccupant();
 
-                    player.addMessage("CREATURE,DETECTED," + toSend.getX() + "," + toSend.getY() + "," + toSend.getZ() + "," + occupant.getRepresentation());
+                    player.AddMessage("CREATURE,DETECTED," + toSend.getX() + "," + toSend.getY() + "," + toSend.getZ() + "," + occupant.getRepresentation());
                 }
             }
         }

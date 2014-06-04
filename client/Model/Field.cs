@@ -19,7 +19,7 @@ namespace TCPGameClient.Model
         }
 
         // retrieve the image key
-        public String getRepresentation()
+        public String GetRepresentation()
         {
             return representation;
         }

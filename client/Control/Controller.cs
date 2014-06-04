@@ -50,7 +50,7 @@ namespace TCPGameClient.Control
         }
 
         // handle input from the form. Usually this will just be passed on to the server
-        public void sendInput(String input)
+        public void SendInput(String input)
         {
             
             if (input.StartsWith("connect"))
@@ -64,17 +64,17 @@ namespace TCPGameClient.Control
             }
             else
             {
-                connection.sendData(input);
+                connection.SendData(input);
             }
         }
 
-        public void doUpdate(List<String> updateData)
+        public void DoUpdate(List<String> updateData)
         {
             // update local model using the data sent
-            worldModel.update(updateData);
+            worldModel.Update(updateData);
 
             // update view
-            tdView.drawModel(worldModel);
+            tdView.DrawModel(worldModel);
         }
     }
 }

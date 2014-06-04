@@ -3,28 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 using System.Threading;
 
 using TCPGameServer.World;
+using TCPGameServer.Network;
 
-namespace TCPGameServer.Network
+using TCPGameServer.Control.IO;
+
+namespace TCPGameServer.Control
 {
     public class Controller
     {
         //set to true to not use a output window
-        public static bool headless = true;
-        //when running is set to false, the headless version quits
-        public static bool running = true;
+        public static bool headless;
+        //when running is set to false, the program quits on the next tick
+        private static bool running = true;
 
         // list of all connected users
         private List<User> users;
 
         // list of users to put in on the next tick
         private List<User> newUsers;
-
-        // Contains a log of everything that is printed so far.
-        private static List<string> log = new List<string>();
 
         // the model
         private Model world;
@@ -38,8 +39,17 @@ namespace TCPGameServer.Network
         // number of ticks that have passed since game start
         int tick;
 
-        public Controller()
+        public Controller(bool headless_mode)
         {
+            // set the headless flag
+            headless = headless_mode;
+
+            // if the application is not headless, create a UI-thread and run the window on it
+            if (!headless)
+            {
+                new Thread(OpenWindow).Start();
+            }
+
             // list of active users
             users = new List<User>();
 
@@ -58,33 +68,32 @@ namespace TCPGameServer.Network
             // start the Ticker on it's own thread
             new Thread(Ticker).Start();
 
-            // if the program is running headless, this is the startup thread. The program
-            // will end when it does, so we sleep the thread until the running flag is set
-            // to false.
-            while (headless && running)
+            // wait while the running flag is set
+            while (running)
             {
                 Thread.Sleep(1000);
             }
+
+            // if not headless, shut down the window.
+            if (!headless) ServerOutputWindow.Shutdown();
         }
 
-        // output to the window, or to the debug stream if headless. Also added to the log.
-        public static void Print(string message)
+        // create an output window
+        private void OpenWindow()
         {
-            if (!headless) ServerOutputWindow.Print(message);
-            else Console.WriteLine(message);
-            log.Add(message);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new ServerOutputWindow());
         }
 
-		// returns the log
-        public static List<string> getLog()
+        // stop the server on the next cycle
+        public static void Stop()
         {
-            return log;
+            running = false;
         }
 
         // register a player to the model. Usually done when a user has finished login.
-        // a player is an object in the model, connecting it to the users on the server.
-        // a user is a client on the server, connected to a player in the model.
-        public void registerPlayer(Player player)
+        public void RegisterPlayer(Player player)
         {
             world.addPlayer(player);
         }
@@ -119,7 +128,7 @@ namespace TCPGameServer.Network
 
                 // run the update on a different thread, so the ticker doesn't
                 // get blocked
-                new Thread(update).Start();
+                new Thread(Update).Start();
             }
         }
 
@@ -129,7 +138,7 @@ namespace TCPGameServer.Network
         // output to the players, checking which ones of them have disconnected
         // since the last tick, and adding new users / removing disconnected
         // users. After that the flag is unset
-        private void update() {
+        private void Update() {
             // set the blocking flag
             update_block = true;
 
@@ -172,13 +181,13 @@ namespace TCPGameServer.Network
 
             foreach (User user in users)
             {
-                if (user.isConnected())
+                if (user.IsConnected())
                 {
                     // we can only check if people are online if we send them data
                     // now and then.
-                    if ((tick % 100) == 0) user.addMessage("PING (" + tick + ")");
+                    if ((tick % 100) == 0) user.AddMessage("PING (" + tick + ")");
 
-                    user.sendMessages(tick);
+                    user.SendMessages(tick);
                 }
                 else
                 {

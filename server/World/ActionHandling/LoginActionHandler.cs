@@ -20,7 +20,7 @@ namespace TCPGameServer.World.ActionHandling
             switch (splitCommand[1])
             {
                 case "COMPLETE":
-                    player.setCommandState(Player.COMMANDSTATE_NORMAL);
+                    player.SetCommandState(Player.COMMANDSTATE_NORMAL);
                     return;
             }
         }

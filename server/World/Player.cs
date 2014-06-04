@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World
 {
     // a player is an object registered to a user on the server, which tells the ticker
@@ -33,13 +35,14 @@ namespace TCPGameServer.World
         // like shouldn't be accepted)
         private int commandState = 0;
 
+        // constants for the different command states
         public const int COMMANDSTATE_IDLE = 0;
         public const int COMMANDSTATE_LOGIN = 1;
         public const int COMMANDSTATE_NORMAL = 2;
+        public const int COMMANDSTATE_DISCONNECTED = 3;
 
+        // flag to show a player is disconnected
         private bool disconnected = false;
-
-        private bool moved = false;
 
         public Player(Creature body)
         {
@@ -52,17 +55,12 @@ namespace TCPGameServer.World
             messages = new Queue<String>();
         }
 
-        public bool hasMoved()
+        public void Remove()
         {
-            return moved;
+            body.setPlayer(null);
         }
 
-        public void setMoved(bool moved)
-        {
-            this.moved = moved;
-        }
-
-        public bool isDisconnected()
+        public bool IsDisconnected()
         {
             return disconnected;
         }
@@ -70,21 +68,24 @@ namespace TCPGameServer.World
         public void SetDisconnected(bool disconnected)
         {
             this.disconnected = disconnected;
+
+            if (disconnected) commandState = COMMANDSTATE_DISCONNECTED;
+            else commandState = COMMANDSTATE_NORMAL;
         }
 
-        public void addBlockingCommand(String command)
+        public void AddBlockingCommand(String command)
         {
             blockingCommands.Enqueue(command);
         }
 
-        public bool hasNextBlockingCommand()
+        public bool HasNextBlockingCommand()
         {
             return blockingCommands.Count > 0;
         }
 
-        public String getNextBlockingCommand()
+        public String GetNextBlockingCommand()
         {
-            if (hasNextBlockingCommand())
+            if (HasNextBlockingCommand())
             {
                 return blockingCommands.Dequeue();
             }
@@ -94,25 +95,20 @@ namespace TCPGameServer.World
             }
         }
 
-        public void addImmediateCommand(String command)
+        public void AddImmediateCommand(String command)
         {
-            Network.Controller.Print("adding immediate command: " + command);
+            Output.Print("adding immediate command: " + command);
             immediateCommands.Enqueue(command);
         }
 
-        public int immediateCommandCount()
+        public bool HasImmediateCommands()
         {
-            return immediateCommands.Count;
+            return (immediateCommands.Count > 0);
         }
 
-        public bool hasImmediateCommands()
+        public String GetNextImmediateCommand()
         {
-            return (immediateCommandCount() > 0);
-        }
-
-        public String getNextImmediateCommand()
-        {
-            if (hasImmediateCommands())
+            if (HasImmediateCommands())
             {
                 return immediateCommands.Dequeue();
             }
@@ -122,40 +118,33 @@ namespace TCPGameServer.World
             }
         }
 
-        public void addMessage(String message)
+        public void AddMessage(String message)
         {
             messages.Enqueue(message);
         }
 
-        public bool hasMessages()
+        public bool HasMessages()
         {
             return (messages.Count > 0);
         }
 
-        public String getMessage()
+        public Queue<String> GetMessages()
         {
-            if (hasMessages())
-            {
-                return messages.Dequeue();
-            }
-            else
-            {
-                return "";
-            }
+            return messages;
         }
 
-        public void setCommandState(int commandState)
+        public void SetCommandState(int commandState)
         {
             this.commandState = commandState;
         }
 
-        public int getCommandState()
+        public int GetCommandState()
         {
             return commandState;
         }
 
         // body can be requested, but not changed
-        public Creature getBody()
+        public Creature GetBody()
         {
             return body;
         }

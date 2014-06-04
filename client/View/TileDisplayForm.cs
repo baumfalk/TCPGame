@@ -43,7 +43,7 @@ namespace TCPGameClient.View
         }
 
         // draws the model onto the form
-        public void drawModel(LocalModel theModel)
+        public void DrawModel(LocalModel theModel)
         {
             // check if we can draw. If we can, noone else can until we're done
             if (!canDraw) return;
@@ -68,9 +68,9 @@ namespace TCPGameClient.View
             int tilesY = pictureBox1.Height / 64 + 2;
 
             // position of the player on the grid (always in the center)
-            int playerPositionX = theModel.getGridSizeX() / 2 + 1;
-            int playerPositionY = theModel.getGridSizeY() / 2 + 1;
-            int playerPositionZ = theModel.getGridSizeZ() / 2 + 1;
+            int playerPositionX = theModel.GetGridSizeX() / 2 + 1;
+            int playerPositionY = theModel.GetGridSizeY() / 2 + 1;
+            int playerPositionZ = theModel.GetGridSizeZ() / 2 + 1;
 
             // draws a 2D grid around the player.
             int minX = -tilesX / 2;
@@ -82,16 +82,16 @@ namespace TCPGameClient.View
                 for (int y = minY; y <= maxY; y++)
                 {
                     // check if a field exists to draw
-                    if (theModel.hasFieldAtPosition(playerPositionX + x, playerPositionY + y, playerPositionZ))
+                    if (theModel.HasFieldAtPosition(playerPositionX + x, playerPositionY + y, playerPositionZ))
                     {
                         // get that field
-                        Field fieldToDraw = theModel.getFieldAtPosition(playerPositionX + x, playerPositionY + y, playerPositionZ);
+                        Field fieldToDraw = theModel.GetFieldAtPosition(playerPositionX + x, playerPositionY + y, playerPositionZ);
 
                         // get the internal name of it's image
-                        String fieldRepresentation = fieldToDraw.getRepresentation();
+                        String fieldRepresentation = fieldToDraw.GetRepresentation();
 
                         // get the actual image from the image buffer, with the name as a key
-                        Image imToDraw = imageBuffer.getImage(fieldRepresentation);
+                        Image imToDraw = imageBuffer.GetImage(fieldRepresentation);
 
                         // draw the image onto the bitmap
                         g.DrawImage(imToDraw, centerX + x * 64 - 32, centerY + y * 64 - 32, 64, 64);
@@ -99,18 +99,18 @@ namespace TCPGameClient.View
                 }
             }
 
-            foreach (Creature creature in theModel.getCreatures()) {
-                int xPos = creature.getX();
-                int yPos = creature.getY();
-                int zPos = creature.getZ();
+            foreach (Creature creature in theModel.GetCreatures()) {
+                int xPos = creature.GetX();
+                int yPos = creature.GetY();
+                int zPos = creature.GetZ();
 
                 if (xPos >= minX && xPos <= maxX &&
                     yPos >= minY && yPos <= maxY &&
                     zPos == 0)
                 {
-                    String creatureRepresentation = creature.getRepresentation();
+                    String creatureRepresentation = creature.GetRepresentation();
 
-                    Image imToDraw = imageBuffer.getImage(creatureRepresentation);
+                    Image imToDraw = imageBuffer.GetImage(creatureRepresentation);
 
                     g.DrawImage(imToDraw, centerX + xPos * 64 - 16, centerY + yPos * 64 - 16, 32, 32);
                 }
@@ -135,7 +135,7 @@ namespace TCPGameClient.View
                 // add it to the input list with the carriage return / line feed replaced
                 String input = textBox1.Text.Replace("\r\n", "");
 
-                control.sendInput(input);
+                control.SendInput(input);
                 
                 textBox1.Clear();
             }

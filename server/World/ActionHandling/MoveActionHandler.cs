@@ -17,7 +17,7 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String[] splitCommand)
         {
-            Tile position = player.getBody().getPosition();
+            Tile position = player.GetBody().getPosition();
 
             int direction = int.Parse(splitCommand[1]);
 
@@ -27,9 +27,7 @@ namespace TCPGameServer.World.ActionHandling
 
                 if (neighbor.isPassable() && !neighbor.hasOccupant()) {
                     position.vacate();
-                    neighbor.setOccupant(player.getBody());
-
-                    player.setMoved(true);
+                    neighbor.setOccupant(player.GetBody());
                 }
             }
         }

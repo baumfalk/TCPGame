@@ -56,7 +56,7 @@ namespace TCPGameClient.View
         }
 
         // getImage returns an image from the dictionary if it's there, and otherwise the default
-        public Image getImage(String imageName)
+        public Image GetImage(String imageName)
         {
             Image imReturn;
 

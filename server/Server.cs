@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using TCPGameServer.Control;
+
 namespace TCPGameServer
 {
     static class Server
@@ -14,15 +16,16 @@ namespace TCPGameServer
         [STAThread]
         static void Main(string [] args)
         {
-            if (args.Length > 0 && args[0].Equals("--headless") || Network.Controller.headless)
+            // if one of the arguments is --headless, we run in headless mode. Otherwise we're using the window
+            if (args.Length > 0 && args.Contains("--headless"))
             {
-                new Network.Controller();
+                // headless controller
+                new Controller(true);
             }
             else
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new ServerOutputWindow());
+                // "headed" controller
+                new Controller(false);       
             }
         }
     }

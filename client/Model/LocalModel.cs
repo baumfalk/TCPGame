@@ -39,23 +39,23 @@ namespace TCPGameClient.Model
         }
 
         // view needs to know how big the grid is to properly center it
-        public int getGridSizeX()
+        public int GetGridSizeX()
         {
             return gridSizeX;
         }
 
-        public int getGridSizeY()
+        public int GetGridSizeY()
         {
             return gridSizeY;
         }
 
-        public int getGridSizeZ()
+        public int GetGridSizeZ()
         {
             return gridSizeZ;
         }
 
         // returns the list of nearby creatures
-        public List<Creature> getCreatures()
+        public List<Creature> GetCreatures()
         {
             return creatures;
         }
@@ -67,7 +67,7 @@ namespace TCPGameClient.Model
         // N,Tile,Detected,x,y,representation
 
         // N indicates an order in which commands are sent from the server. Player position changes to x, y.
-        public void update(List<String> updateData)
+        public void Update(List<String> updateData)
         {
             updatingCreatures = false;
 
@@ -83,41 +83,41 @@ namespace TCPGameClient.Model
                     case "LOGIN":
                         break;
                     case "PLAYER":
-                        updatePlayer(inputPart);
+                        UpdatePlayer(inputPart);
                         break;
                     case "TILE":
-                        updateTile(inputPart);
+                        UpdateTile(inputPart);
                         break;
                     case "CREATURE":
-                        updateCreature(inputPart);
+                        UpdateCreature(inputPart);
                         break;
                     default:
-                        Debug.Print(input);
+                        
                         break;
                 }
             }
         }
 
         // checks if a field position is in bounds
-        private bool isInBounds(int x, int y, int z)
+        private bool IsInBounds(int x, int y, int z)
         {
             return (x >= 0 && y >= 0 && z >= 0 && x < gridSizeX && y < gridSizeY && z < gridSizeZ);
         }
 
         // checks if a field exists
-        public bool hasFieldAtPosition(int x, int y, int z)
+        public bool HasFieldAtPosition(int x, int y, int z)
         {
-            return (isInBounds(x, y, z) && map[x, y, z] != null);
+            return (IsInBounds(x, y, z) && map[x, y, z] != null);
         }
 
         // returns field at a position
-        public Field getFieldAtPosition(int x, int y, int z)
+        public Field GetFieldAtPosition(int x, int y, int z)
         {
             return map[x, y, z];
         }
 
         // handles player-type updates. Only "position" update exists at the moment.
-        private void updatePlayer(String[] inputPart)
+        private void UpdatePlayer(String[] inputPart)
         {
             if (inputPart[1].Equals("POSITION"))
             {
@@ -126,13 +126,13 @@ namespace TCPGameClient.Model
                 int newZ = int.Parse(inputPart[4]);
 
                 // if we have moved, we should shift our map (which is player-centered)
-                if (newX != currentX || newY != currentY || newZ != currentZ) shiftMap(newX, newY, newZ);
+                if (newX != currentX || newY != currentY || newZ != currentZ) ShiftMap(newX, newY, newZ);
             }
         }
 
         // shift the map. This is needed when the player moves, since the map is centered
         // on the player.
-        private void shiftMap(int newX, int newY, int newZ)
+        private void ShiftMap(int newX, int newY, int newZ)
         {
             // the shift we need to make is the difference of the old (current) position 
             // with the new one
@@ -151,7 +151,7 @@ namespace TCPGameClient.Model
                     for (int z = 0; z < gridSizeZ; z++)
                     {
                         // check if a field already exists on the old map
-                        if (isInBounds(x - shiftX, y - shiftY, z - shiftZ))
+                        if (IsInBounds(x - shiftX, y - shiftY, z - shiftZ))
                         {
                             newMap[x, y, z] = map[x - shiftX, y - shiftY, z - shiftZ];
                         }
@@ -171,7 +171,7 @@ namespace TCPGameClient.Model
         }
 
         // handles "creature" type updates. Only "detection" updates exist at the moment.
-        private void updateCreature(String[] inputPart)
+        private void UpdateCreature(String[] inputPart)
         {
             // if we get creature updates we'll clear the list and redo it completely.
             if (!updatingCreatures)
@@ -199,7 +199,7 @@ namespace TCPGameClient.Model
         }
 
         // handles "tile" type updates. Only "detection" updates exist at the moment.
-        private void updateTile(String[] inputPart)
+        private void UpdateTile(String[] inputPart)
         {
             if (inputPart[1].Equals("DETECTED"))
             {

@@ -5,10 +5,11 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using TCPGameServer.Network;
+using TCPGameServer.Control;
 
 namespace TCPGameServer
 {
@@ -31,17 +32,10 @@ namespace TCPGameServer
             InitializeComponent();
         }
 
-        // I have no idea how to properly start a window from the controller, so this form
-        // is the entry point for the program. Starts a controller.
-        private void ServerOutputWindow_Load(object sender, EventArgs e)
-        {
-            new Controller();
-        }
-
         // tells the only window to close
         public static void Shutdown()
         {
-            onlyWindow.DoShutdown();
+            if (onlyWindow != null) onlyWindow.DoShutdown();
         }
 
         // invokes this method to close it down on the right thread
@@ -61,10 +55,27 @@ namespace TCPGameServer
         // gets the open window and calls the addMessageToTextbox method on it
         public static void Print(String message)
         {
+            // if a message is sent before the form is loaded, let it wait until the
+            // form is loaded, and write it then.
+            if (onlyWindow == null) new Thread(MessageTooSoon).Start(message);
+
             onlyWindow.addMessageToTextbox(message);
         }
 
-        
+        // saves messages sent before the form is loaded, and sends them back to
+        // the Print method when it is. The order of the messages will not be kept.
+        private static void MessageTooSoon(object message)
+        {
+            String string_message = "(printed before form was loaded)" + (String)message;
+
+            while (onlyWindow == null)
+            {
+                Thread.Sleep(1);
+            }
+
+            Print(string_message);
+        }
+
         private void addMessageToTextbox(String message)
         {
             // if this request comes from another thread than the one that created the
@@ -88,6 +99,11 @@ namespace TCPGameServer
                 // if this is the right thread, just write it down.
                 textBox1.AppendText(message + "\n");
             }
+        }
+
+        private void ServerOutputWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Controller.Stop();
         }
     }
 }

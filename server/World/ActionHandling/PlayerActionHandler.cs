@@ -26,9 +26,7 @@ namespace TCPGameServer.World.ActionHandling
 
                     Tile position = world.FindTileAt(x, y, z);
 
-                    position.setOccupant(player.getBody());
-
-                    player.setMoved(true);
+                    position.setOccupant(player.GetBody());
 
                     return;
             }

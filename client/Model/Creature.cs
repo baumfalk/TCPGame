@@ -23,22 +23,22 @@ namespace TCPGameClient.Model
             this.z = z;
         }
 
-        public String getRepresentation()
+        public String GetRepresentation()
         {
             return representation;
         }
 
-        public int getX()
+        public int GetX()
         {
             return x;
         }
 
-        public int getY()
+        public int GetY()
         {
             return y;
         }
 
-        public int getZ()
+        public int GetZ()
         {
             return z;
         }

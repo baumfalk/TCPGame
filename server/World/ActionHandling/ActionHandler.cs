@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.ActionHandling
 {
     class ActionHandler
@@ -27,8 +29,6 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String command)
         {
-            if (!Network.Controller.headless) Network.Controller.Print("handling command: " + command);
-
             String[] splitCommand = command.Split(',');
 
             // hand off command handling to specialized classes

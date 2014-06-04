@@ -51,7 +51,7 @@ namespace TCPGameClient.Control
             try
             {
                 // connect the client to the server. connectionMade will be called when connected
-                client.BeginConnect(IP, port, new AsyncCallback(connectionMade), null);
+                client.BeginConnect(IP, port, new AsyncCallback(ConnectionMade), null);
 
                 // set flag to show connector is running
                 bRunning = true;
@@ -73,7 +73,7 @@ namespace TCPGameClient.Control
 
         // when a connection has been made we start listening for incoming data. The client is
         // fairly passive and waits for the server to initiate contact
-        private void connectionMade(IAsyncResult newConnection)
+        private void ConnectionMade(IAsyncResult newConnection)
         {
             try
             {
@@ -92,11 +92,11 @@ namespace TCPGameClient.Control
             }
 
             // start listening for data
-            startReading();
+            StartReading();
         }
 
         // starts listening for data if brunning is true, otherwise it closes the connection
-        private void startReading()
+        private void StartReading()
         {
             if (bRunning)
             {
@@ -105,7 +105,7 @@ namespace TCPGameClient.Control
                     byte[] buffer = new byte[1024];
 
                     // begin reading. When data arrives, call dataReveived
-                    stream.BeginRead(buffer, 0, 1024, dataReceived, buffer);
+                    stream.BeginRead(buffer, 0, 1024, DataReceived, buffer);
                 }
                 catch (IOException e)
                 {
@@ -123,7 +123,7 @@ namespace TCPGameClient.Control
         }
 
         // gets called when data is received
-        private void dataReceived(IAsyncResult data)
+        private void DataReceived(IAsyncResult data)
         {
             // if the disconnect command has been received between starting to listen and
             // getting data, we don't handle it but close the client and return
@@ -150,12 +150,12 @@ namespace TCPGameClient.Control
                 // if there's still available data, read it as well with another call.
                 if (stream.DataAvailable)
                 {
-                    startReading();
+                    StartReading();
                 }
                 else
                 {
                     // otherwise split the received data into commands and pass it on
-                    splitAndHandle();
+                    SplitAndHandle();
                 }
             }
             catch (IOException e)
@@ -167,7 +167,7 @@ namespace TCPGameClient.Control
 
         // data should be sent with separate lines separated by semicolons. It will be passed
         // to the controller as a list.
-        private void splitAndHandle()
+        private void SplitAndHandle()
         {
             Console.WriteLine(message);
             // split the message into separate strings
@@ -188,14 +188,14 @@ namespace TCPGameClient.Control
             messageList = messageList.GetRange(0, size - 1);
 
             // send the upadtes to the controller
-            control.doUpdate(messageList);
+            control.DoUpdate(messageList);
 
             // get ready for a new batch of data from the server
-            startReading();
+            StartReading();
         }
 
         // sends data, splitting lines with semicolons
-        public void sendData(String data)
+        public void SendData(String data)
         {
             // if we're not connected, we can't send data
             if (!bRunning) return;

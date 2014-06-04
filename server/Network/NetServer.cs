@@ -7,53 +7,68 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
+using TCPGameServer.Control;
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.Network
 {
     public class NetServer
     {
+        // a listener
         private TcpListener server;
+        // the port
+        private int port;
+        // when false, the server will stop
+        private bool server_running;
+        // the controller
+        Controller control;
 
-        private Controller control;
-
-        int port;
-
-        Boolean bRunning;
-
+        // fills fields and creates the TCP Listener, doesn't start yet
         public NetServer(Controller control, int port)
         {
             this.control = control;
+
             this.port = port;
 
             server = new TcpListener(IPAddress.Any, port);
 
-            Network.Controller.Print("server created at port " + port);
+            Output.Print("server created at port " + port);
         }
 
+        // starts the listener
         public void Start()
         {
-            bRunning = true;
+            // set the flag
+            server_running = true;
 
-            Network.Controller.Print("server started");
+            // give output that we've started
+            Output.Print("server started");
 
+            // start the TCP listener
             server.Start();
 
-            startListening();
+            // start asynchronous listening procedure
+            StartListening();
         }
 
         public void Stop()
         {
-            Network.Controller.Print("server stopping");
+            // give output that we're stopping
+            Output.Print("server stopping");
 
-            bRunning = false;
+            // set the flag, the server will stop on it's next operation
+            server_running = false;
         }
 
-        private void startListening()
+        private void StartListening()
         {
-            Network.Controller.Print("starting listening for connections");
+            // give output that we're listening
+            Output.Print("starting listening for connections");
 
-            if (bRunning)
+            // if running, try to accept a client, otherwise stop the server
+            if (server_running)
             {
-                server.BeginAcceptTcpClient(connectionMade, null);
+                server.BeginAcceptTcpClient(ConnectionMade, null);
             }
             else
             {
@@ -61,18 +76,29 @@ namespace TCPGameServer.Network
             }
         }
 
-        private void connectionMade(IAsyncResult connection)
+        // called when a connection to the server has been made
+        private void ConnectionMade(IAsyncResult connection)
         {
+            // accept the client
             TcpClient newClient = server.EndAcceptTcpClient(connection);
 
-            Network.Controller.Print("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
+            // give output that a new connection has been made
+            Output.Print("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
 
-            User newUser = new User(control, newClient);
+            // create a netclient which will maintain the link
+            NetClient newNetClient = new NetClient(newClient);
 
-            if (bRunning)
+            // create a user which will facilitate communication between the
+            // different parts of the program with the netclient
+            User newUser = new User(control, newNetClient);
+
+            // add the user to the controller.
+            control.AddUser(newUser);
+
+            // if running, start listening for the next client. Otherwise, stop the server.
+            if (server_running)
             {
-                control.AddUser(newUser);
-                startListening();
+                StartListening();
             }
             else
             {

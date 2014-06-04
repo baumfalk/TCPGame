@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 
 using TCPGameServer.World.ActionHandling;
+using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World
 {
@@ -48,30 +49,26 @@ namespace TCPGameServer.World
 
             foreach (Player player in players)
             {
-                if (player.isDisconnected())
+                if (player.IsDisconnected())
                 {
-                    Network.Controller.Print("player is disconnected");
+                    Output.Print("player is disconnected");
 
                     disconnectedPlayers.Add(player);
                     continue;
                 }
 
                 // handle one blocking command per tick
-                if (player.hasNextBlockingCommand())
+                if (player.HasNextBlockingCommand())
                 {
-                    String command = player.getNextBlockingCommand();
-
-                    if (!Network.Controller.headless) Network.Controller.Print("handling blocking command " + command);
+                    String command = player.GetNextBlockingCommand();
 
                     actionHandler.Handle(player, command);
                 }
 
                 // handle all immediate commands
-                while (player.hasImmediateCommands())
+                while (player.HasImmediateCommands())
                 {
-                    String command = player.getNextImmediateCommand();
-
-                    if (!Network.Controller.headless) Network.Controller.Print("handling immediate command " + command);
+                    String command = player.GetNextImmediateCommand();
 
                     actionHandler.Handle(player, command);
                 }
@@ -82,17 +79,10 @@ namespace TCPGameServer.World
                 removePlayer(disconnected);
             }
 
+            // look if necessary
             foreach (Player player in players)
             {
-                if (player.hasMoved())
-                {
-                    actionHandler.Handle(player, "LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
-                    player.setMoved(false);
-                }
-                else
-                {
-                    actionHandler.Handle(player, "LOOK,TILES_EXLUDED,PLAYER_INCLUDED");
-                }
+                //actionHandler.Handle(player, "LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
             }
         }
 
