@@ -48,7 +48,7 @@ namespace TCPGameServer.World
         {
             this.body = body;
 
-            body.setPlayer(this);
+            body.SetPlayer(this);
 
             blockingCommands = new Queue<String>();
             immediateCommands = new Queue<String>();
@@ -57,7 +57,7 @@ namespace TCPGameServer.World
 
         public void Remove()
         {
-            body.setPlayer(null);
+            body.SetPlayer(null);
         }
 
         public bool IsDisconnected()

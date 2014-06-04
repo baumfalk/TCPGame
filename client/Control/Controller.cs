@@ -70,6 +70,13 @@ namespace TCPGameClient.Control
 
         public void DoUpdate(List<String> updateData)
         {
+            if (updateData.Contains("QUIT"))
+            {
+                Disconnect();
+
+                tdView.Stop();
+            }
+
             // update local model using the data sent
             worldModel.Update(updateData);
 

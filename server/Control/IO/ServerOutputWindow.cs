@@ -11,17 +11,19 @@ using System.Windows.Forms;
 
 using TCPGameServer.Control;
 
-namespace TCPGameServer
+namespace TCPGameServer.Control.IO
 {
     public partial class ServerOutputWindow : Form
     {
         // needed for thread-safe output to the textbox
-        delegate void SetTextCallback(String text);
-        delegate void ShutdownCallback();
+        private delegate void SetTextCallback(String text);
+        private delegate void ShutdownCallback();
 
         // we want only one window. We keep a tab on it so static printing can be routed to
         // the window that's open.
         private static ServerOutputWindow onlyWindow;
+
+        private static bool loaded = false;
 
         // create a window, but only if none exist.
         public ServerOutputWindow()
@@ -57,23 +59,9 @@ namespace TCPGameServer
         {
             // if a message is sent before the form is loaded, let it wait until the
             // form is loaded, and write it then.
-            if (onlyWindow == null) new Thread(MessageTooSoon).Start(message);
+            if (!loaded) return;
 
             onlyWindow.addMessageToTextbox(message);
-        }
-
-        // saves messages sent before the form is loaded, and sends them back to
-        // the Print method when it is. The order of the messages will not be kept.
-        private static void MessageTooSoon(object message)
-        {
-            String string_message = "(printed before form was loaded)" + (String)message;
-
-            while (onlyWindow == null)
-            {
-                Thread.Sleep(1);
-            }
-
-            Print(string_message);
         }
 
         private void addMessageToTextbox(String message)
@@ -104,6 +92,18 @@ namespace TCPGameServer
         private void ServerOutputWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             Controller.Stop();
+        }
+
+        private void ServerOutputWindow_Load(object sender, EventArgs e)
+        {
+            loaded = true;
+
+            List<String> log = Output.GetLog();
+
+            foreach (String text in log)
+            {
+                Print(text);
+            }
         }
     }
 }

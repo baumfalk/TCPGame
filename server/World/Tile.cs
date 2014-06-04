@@ -67,7 +67,7 @@ namespace TCPGameServer.World
         public void setOccupant(Creature occupant)
         {
             this.occupant = occupant;
-            occupant.setPosition(this);
+            occupant.SetPosition(this);
         }
 
         public void vacate()

@@ -17,6 +17,9 @@ namespace TCPGameClient.View
 {
     public partial class TileDisplayForm : Form
     {
+        // base size
+        int baseSize;
+
         // controller running everything
         private Controller control;
 
@@ -25,6 +28,9 @@ namespace TCPGameClient.View
 
         // bool which indicated the drawing context is free
         private bool canDraw = true;
+
+        // to close the form safely
+        private delegate void CloseCallback();
 
         // automatic code by Visual Studio
         public TileDisplayForm()
@@ -35,8 +41,11 @@ namespace TCPGameClient.View
         // image buffer and controller are created on launch
         private void TileDisplayForm_Load(object sender, EventArgs e)
         {
+            // set base size
+            baseSize = 16;
+
             // imagebuffer loads images with default size 64x64
-            imageBuffer = new ImageBuffer(64, 64);
+            imageBuffer = new ImageBuffer(baseSize, baseSize);
 
             // controller is created, this "starts the program"
             control = new Controller(this);
@@ -64,8 +73,8 @@ namespace TCPGameClient.View
 
             // number of tiles to draw. Intentionally overestimates the amount needed to make sure the space
             // gets filled
-            int tilesX = pictureBox1.Width / 64 + 2;
-            int tilesY = pictureBox1.Height / 64 + 2;
+            int tilesX = pictureBox1.Width / baseSize + 2;
+            int tilesY = pictureBox1.Height / baseSize + 2;
 
             // position of the player on the grid (always in the center)
             int playerPositionX = theModel.GetGridSizeX() / 2 + 1;
@@ -94,11 +103,12 @@ namespace TCPGameClient.View
                         Image imToDraw = imageBuffer.GetImage(fieldRepresentation);
 
                         // draw the image onto the bitmap
-                        g.DrawImage(imToDraw, centerX + x * 64 - 32, centerY + y * 64 - 32, 64, 64);
+                        g.DrawImage(imToDraw, centerX + x * baseSize - (baseSize / 2), centerY + y * baseSize - baseSize / 2, baseSize, baseSize);
                     }
                 }
             }
 
+            // draw creatures onto the grid
             foreach (Creature creature in theModel.GetCreatures()) {
                 int xPos = creature.GetX();
                 int yPos = creature.GetY();
@@ -112,7 +122,7 @@ namespace TCPGameClient.View
 
                     Image imToDraw = imageBuffer.GetImage(creatureRepresentation);
 
-                    g.DrawImage(imToDraw, centerX + xPos * 64 - 16, centerY + yPos * 64 - 16, 32, 32);
+                    g.DrawImage(imToDraw, centerX + xPos * baseSize - baseSize / 4, centerY + yPos * baseSize - baseSize / 4, baseSize / 2, baseSize / 2);
                 }
             }
 
@@ -138,6 +148,31 @@ namespace TCPGameClient.View
                 control.SendInput(input);
                 
                 textBox1.Clear();
+            }
+        }
+
+        // Closes the form safely
+        public void Stop()
+        {
+            // check if this is the thread that created the form
+            if (this.InvokeRequired)
+            {
+                // if it's not, create a callback and invoke it
+                try
+                {
+                    CloseCallback d = new CloseCallback(Stop);
+                    this.Invoke(d);
+                }
+                catch (ObjectDisposedException e)
+                {
+                    System.Diagnostics.Debug.Print("form was disposed on close?");
+                    System.Diagnostics.Debug.Print(e.Message);
+                }
+            }
+            else
+            {
+                // if it is, close the form
+                Close();
             }
         }
     }

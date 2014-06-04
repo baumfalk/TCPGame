@@ -22,37 +22,37 @@ namespace TCPGameServer.World
             this.representation = representation;
         }
 
-        public bool isPlayer()
+        public bool IsPlayer()
         {
             return (player != null);
         }
 
-        public void setPlayer(Player player)
+        public void SetPlayer(Player player)
         {
             this.player = player;
         }
 
-        public Player getPlayer()
+        public Player GetPlayer()
         {
             return player;
         }
 
         // position can be changed and requested freely
-        public void setPosition(Tile position)
+        public void SetPosition(Tile position)
         {
             this.position = position;
         }
-        public Tile getPosition()
+        public Tile GetPosition()
         {
             return position;
         }
 
         // image key can be requested and changed freely
-        public void setRepresentation(String representation)
+        public void SetRepresentation(String representation)
         {
             this.representation = representation;
         }
-        public String getRepresentation()
+        public String GetRepresentation()
         {
             return representation;
         }

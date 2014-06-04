@@ -17,7 +17,7 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String[] splitCommand)
         {
-            Tile position = player.GetBody().getPosition();
+            Tile position = player.GetBody().GetPosition();
 
             int direction = int.Parse(splitCommand[1]);
 

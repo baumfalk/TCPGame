@@ -92,7 +92,7 @@ namespace TCPGameClient.Model
                         UpdateCreature(inputPart);
                         break;
                     default:
-                        
+                        // do nothing on unknown input for now
                         break;
                 }
             }

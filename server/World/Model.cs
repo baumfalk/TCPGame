@@ -151,6 +151,8 @@ namespace TCPGameServer.World
 
         private void createModel()
         {
+            Random rand = new Random();
+
             for (int x = 0; x < 10; x++)
             {
                 for (int y = 0; y < 8; y++)
@@ -167,7 +169,9 @@ namespace TCPGameServer.World
                     }
                     else
                     {
-                        type = "floor";
+                        String prefix = (rand.NextDouble() < 0.5) ? "" : "2";
+
+                        type = prefix + "floor";
                     }
 
                     tiles[x, y, 0] = new Tile(type, type, x, y, 0);

@@ -1,4 +1,4 @@
-﻿namespace TCPGameServer
+﻿namespace TCPGameServer.Control.IO
 {
     partial class ServerOutputWindow
     {
@@ -48,6 +48,7 @@
             this.Name = "ServerOutputWindow";
             this.Text = "TCPGame Server";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ServerOutputWindow_FormClosed);
+            this.Load += new System.EventHandler(this.ServerOutputWindow_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

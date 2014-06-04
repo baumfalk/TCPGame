@@ -42,6 +42,11 @@ namespace TCPGameServer.Control
         // removing the user tells the player and the client to remove themselves
         public void Remove()
         {
+            Queue<String> quitQueue = new Queue<String>();
+            quitQueue.Enqueue("QUIT");
+
+            client.SendMessages(quitQueue, 0);
+
             player.Remove();
             client.Remove();
         }

@@ -25,8 +25,9 @@ namespace TCPGameClient.Control
         private Boolean bRunning;
 
         // we may not get full messages, if we get parts they go in here.
-        private String message = "";
+        private String inputBuffer = "";
 
+        // connection information
         IPAddress IP;
         int port;
 
@@ -125,73 +126,71 @@ namespace TCPGameClient.Control
         // gets called when data is received
         private void DataReceived(IAsyncResult data)
         {
-            // if the disconnect command has been received between starting to listen and
-            // getting data, we don't handle it but close the client and return
+            // if the client isn't connected, we can't receive anything.
             if (!bRunning)
             {
                 client.Close();
                 return;
-            }
+            } 
 
-            // a data buffer
+            // a data buffer, size is pretty arbitrary
             byte[] dataBuffer = new byte[1024];
 
-            // finish the asynchronous reading
+            // finish the asynchronous read
             try
             {
                 // since this method was called, there's some data in the buffer
-                dataBuffer = (byte[]) data.AsyncState;
+                dataBuffer = (byte[])data.AsyncState;
                 // number of bytes read
                 int numBytes = stream.EndRead(data);
 
                 // add the new data to the message buffer
-                message = String.Concat(message, Encoding.ASCII.GetString(dataBuffer, 0, numBytes));
+                inputBuffer = String.Concat(inputBuffer, Encoding.ASCII.GetString(dataBuffer, 0, numBytes));
 
-                // if there's still available data, read it as well with another call.
-                if (stream.DataAvailable)
-                {
-                    StartReading();
-                }
-                else
-                {
-                    // otherwise split the received data into commands and pass it on
-                    SplitAndHandle();
-                }
+                // handle what you can
+                SendInput();
+
+                // and resume reading
+                StartReading();
             }
             catch (IOException e)
             {
                 Debug.Print("can't read during dataReceived");
                 Debug.Print(e.Message);
+
+                if (bRunning) Disconnect();
+            }
+            catch (ObjectDisposedException e)
+            {
+                Debug.Print("client was disposed while reading");
+                Debug.Print(e.Message);
             }
         }
 
-        // data should be sent with separate lines separated by semicolons. It will be passed
-        // to the controller as a list.
-        private void SplitAndHandle()
+        private void SendInput()
         {
-            Console.WriteLine(message);
             // split the message into separate strings
-            String[] splitMessage = message.Split(';');
+            String[] splitMessage = inputBuffer.Split(';');
 
             // put them in a list
-            List<String> messageList = new List<String>(splitMessage);
+            List<String> inputList = new List<String>(splitMessage);
 
             // size of the list
-            int size = messageList.Count;
+            int size = inputList.Count;
 
-            // if the last character is a semicolon, we'll have an empty string as "overflow",
-            // if it's not, there will be actual overflow in the message string, which will be
-            // concatenated to in the next pass
-            message = messageList[size - 1];
+            if (size > 0)
+            {
+                // if the last character is a semicolon, we'll have an empty string as "overflow",
+                // if it's not, there will be actual overflow in the message string, which will be
+                // concatenated to in the next pass
+                inputBuffer = inputList[size - 1];
 
-            // cut off the last member of the list (since it's the overflow)
-            messageList = messageList.GetRange(0, size - 1);
+                // cut off the last member of the list (since it's the overflow)
+                inputList = inputList.GetRange(0, size - 1);
+            }
 
-            // send the upadtes to the controller
-            control.DoUpdate(messageList);
-
-            // get ready for a new batch of data from the server
-            StartReading();
+            // update using the list
+            control.DoUpdate(inputList);
         }
 
         // sends data, splitting lines with semicolons
@@ -218,8 +217,6 @@ namespace TCPGameClient.Control
                 Debug.Print("can't write during SendData");
                 Debug.Print(e.Message);
             }
-        }
-
-        
+        }   
     }
 }

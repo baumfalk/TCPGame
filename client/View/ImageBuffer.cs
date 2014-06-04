@@ -30,16 +30,35 @@ namespace TCPGameClient.View
             // the path is the executing directory + \images for now
             String path = Directory.GetCurrentDirectory() + @"\images";
 
-            // try to load these images. Should be dynamic at some point
-            try
+            // images folder in the git..
+            String gitPath = @"..\..\..\images";
+
+            // load the images from the path specified. Should be "path", but "gitPath" is handier
+            // for now.
+            loadImages(gitPath);
+        }
+
+        private void loadImages(String path) {
+            // try to load the images from the specified path
+            foreach (String fileName in Directory.GetFiles(path))
             {
-                images.Add("wall", Image.FromFile(path + @"\wall.png"));
-                images.Add("floor", Image.FromFile(path + @"\floor.png"));
-                images.Add("player", Image.FromFile(path + @"\player.png"));
-            }
-            catch (System.IO.FileNotFoundException e)
-            {
-                System.Diagnostics.Debug.Print(e.Message);
+                try
+                {
+                    // split to extract the name of the file
+                    String[] splitFile = fileName.Split('\\');
+
+                    // the last element is the filename
+                    String name = splitFile[splitFile.Count() - 1];
+                    // take off the extension for the name
+                    name = name.Substring(0, name.Length - 4);
+
+                    // add the image to the imagebuffer
+                    images.Add(name, Image.FromFile(fileName));
+                }
+                catch (System.IO.FileNotFoundException e)
+                {
+                    System.Diagnostics.Debug.Print(e.Message);
+                }
             }
         }
 

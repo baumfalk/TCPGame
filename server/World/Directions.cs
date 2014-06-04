@@ -6,20 +6,24 @@ using System.Threading.Tasks;
 
 namespace TCPGameServer.World
 {
+    // simple class with some functions to make working with directions easier and
+    // reduce the chances developers will use the wrong values for directions
     class Directions
     {
-        public static int NORTH = 0;
-        public static int EAST = 1;
-        public static int UP = 2;
-        public static int SOUTH = 3;
-        public static int WEST = 4;
-        public static int DOWN = 5;
+        public const int NORTH = 0;
+        public const int EAST = 1;
+        public const int UP = 2;
+        public const int SOUTH = 3;
+        public const int WEST = 4;
+        public const int DOWN = 5;
 
+        // inverse direction
         public static int inverse(int direction)
         {
             return (direction + 3) % 6;
         }
 
+        // convert int to a long string version of the direction
         public static String toString(int direction)
         {
             switch (direction)
@@ -34,6 +38,7 @@ namespace TCPGameServer.World
             }
         }
 
+        // convert int to a short string version of the direction
         public static String toShortString(int direction)
         {
             switch (direction)
@@ -48,6 +53,7 @@ namespace TCPGameServer.World
             }
         }
 
+        // convert long string version of the direction to int
         public static int fromString(String direction)
         {
             switch (direction)
@@ -62,6 +68,7 @@ namespace TCPGameServer.World
             }
         }
 
+        // convert short string version of the direction to int
         public static int fromShortString(String direction)
         {
             switch (direction)
