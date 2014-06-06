@@ -43,7 +43,10 @@ namespace TCPGameServer.World
 
         // flag to show a player is disconnected
         private bool disconnected = false;
+
+        // unique identifier
         private string name = "anon";
+
         public Player(Creature body)
         {
             this.body = body;

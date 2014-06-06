@@ -7,6 +7,10 @@ namespace TCPGameServer.World.Map
 {
     public class World
     {
+        // seed for the random number generator
+        private int worldSeed = 0;
+
+        // the areas loaded at the moment
         private Dictionary<String, Area> loadedAreas;
 
         // world is the overarching maptype. Areas are parts of the world,
@@ -39,6 +43,12 @@ namespace TCPGameServer.World.Map
             Area area = getArea(areaName);
 
             return area.GetTile(TileID);
+        }
+
+        // get the random number generator seed
+        public int GetSeed()
+        {
+            return worldSeed;
         }
     }
 }

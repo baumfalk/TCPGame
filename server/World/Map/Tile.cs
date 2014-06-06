@@ -203,6 +203,25 @@ namespace TCPGameServer.World.Map
             return neighbors[direction];
         }
 
+        public String GetLinkText(int direction)
+        {
+            if (hasNeighbor[direction])
+            {
+                if (neighbors[direction] != null && neighbors[direction].GetArea().Equals(area))
+                {
+                    return neighbors[direction].ID.ToString();
+                }
+                else
+                {
+                    return areaLinks[direction].areaName + ";" + areaLinks[direction].targetID;
+                }
+            }
+            else
+            {
+                return "-1";
+            }
+        }
+
         // get the image key for this tile
         public String GetRepresentation()
         {

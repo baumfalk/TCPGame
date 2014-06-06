@@ -39,7 +39,7 @@ namespace TCPGameServer.Control.IO
 
                     foreach (string message in Output.GetLog())
                     {
-                        player.AddMessage(message);
+                        player.AddMessage("LOG: " + message);
                     }
                 }
                 else if (command.Equals("quit"))
@@ -82,6 +82,7 @@ namespace TCPGameServer.Control.IO
             else if (command.Equals("jetze")) player.AddImmediateCommand("PLAYER,PLACE,start,1");
             else player.AddImmediateCommand("PLAYER,PLACE,start,2");
 
+            // set the player's name to whatever he used to log in
             player.SetName(command);
             // tell the model the player is logged in
             player.AddImmediateCommand("LOGIN,COMPLETE");
@@ -91,7 +92,7 @@ namespace TCPGameServer.Control.IO
         }
 
         // handle "normal" logins. This should probably be split at some point, like the actionhandlers in
-        // the model, but for now movement is the only command.
+        // the model, but for now there aren't many commands.
         private static void HandleNormal(String command, Player player)
         {
             // something is a movement command if it can be parsed to a direction
@@ -136,11 +137,8 @@ namespace TCPGameServer.Control.IO
                     else
                     {
                         player.AddImmediateCommand("SAY," + splittedString[1] + "," + splittedString[2]);
-
                     }
                 }
-                 
-
             }
         }
 

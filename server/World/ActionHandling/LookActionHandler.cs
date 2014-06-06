@@ -29,7 +29,7 @@ namespace TCPGameServer.World.ActionHandling
 
             Tile playerLocation = player.GetBody().GetPosition();
 
-            List<Tile> tilesToSend = world.getSurroundingTiles(playerLocation, 5);
+            List<Tile> tilesToSend = world.getSurroundingTiles(playerLocation, 10);
 
             if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.GetX() + "," + playerLocation.GetY() + "," + playerLocation.GetZ());
 
