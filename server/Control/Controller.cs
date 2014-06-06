@@ -133,7 +133,7 @@ namespace TCPGameServer.Control
                 timer_block = false;
 
                 // wait until the last update is finished, if needed
-                while (update_block)
+                while (update_block && running)
                 {
                     Thread.Sleep(1);
                 }
@@ -168,7 +168,7 @@ namespace TCPGameServer.Control
                 update_block = false;
                 
                 // wait until the timer is finished, then set the flag again.
-                while (timer_block)
+                while (timer_block && running)
                 {
                     Thread.Sleep(1);
                 }

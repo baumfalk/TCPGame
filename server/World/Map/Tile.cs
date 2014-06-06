@@ -108,11 +108,15 @@ namespace TCPGameServer.World.Map
         }
 
         // create a link to a tile. If it has a link but that link is not this tile,
-        // output a message
+        // output messages to show linking is incorrect if needed, but don't force links
+        // to follow the standard rule. Teleporter tiles, special tiles, etcetera should
+        // not be forced to follow the rules for standard tiles.
         public void Link(int direction, Tile neighbor)
         {
+            // set the neighbor tile to be the supplied tile
             neighbors[direction] = neighbor;
 
+            // check if, if that tile is linked as well, it's linked to this tile.
             if (neighbor.HasNeighbor(Directions.Inverse(direction)))
             {
                 if (neighbor.GetNeighbor(Directions.Inverse(direction)) != this)
@@ -121,6 +125,7 @@ namespace TCPGameServer.World.Map
                 }
             }
 
+            // check that the tile linked to is in the correct relation to this one x/y/z-wise
             int[] properNeighbor = Directions.GetNeighboring(direction, x, y, z);
 
             if (properNeighbor[0] != neighbor.GetX() || properNeighbor[1] != neighbor.GetY() || properNeighbor[2] != neighbor.GetZ())
@@ -128,6 +133,7 @@ namespace TCPGameServer.World.Map
                 Output.Print("[" + area.GetName() + "(" + ID + ")] link to tile that's not adjacent. Possible error (" + Directions.ToString(direction) + ")");
             }
 
+            // set the flag to show this tile has a neighbor in the given direction
             hasNeighbor[direction] = true;
         }
 
