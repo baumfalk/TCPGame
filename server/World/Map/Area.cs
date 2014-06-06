@@ -20,8 +20,6 @@ namespace TCPGameServer.World.Map
 
         private String gitPath = @"../../../map/";
 
-        private bool idMismatch = false;
-
         public Area(World world, String name)
         {
             Output.Print("Loading area " + name);
@@ -46,12 +44,10 @@ namespace TCPGameServer.World.Map
                 int z = int.Parse(fileReader.ReadLine());
                 links[n] = fileReader.ReadLine();
 
-                if (n != id) idMismatch = true;
+                if (n != id) Output.Print("ID mismatch (ID = " + n + ", file ID = " + id + "), map file incorrect. Bad links expected.");
 
-                tiles[n] = new Tile(type, representation, x, y, z, this, world);
+                tiles[n] = new Tile(type, representation, x, y, z, id, this, world);
             }
-
-            if (idMismatch) Output.Print("ID mismatch, map file incorrect. Bad links expected.");
 
             for (int n = 0; n < numTiles; n++)
             {
@@ -59,8 +55,7 @@ namespace TCPGameServer.World.Map
 
                 for (int direction = 0; direction < 6; direction++)
                 {
-                    // should add a position mismatch for coordinates, and check if tiles are linked
-                    // to each other
+                    // should add a position mismatch for coordinates
 
                     if (link[direction].Contains(';'))
                     {
@@ -79,6 +74,11 @@ namespace TCPGameServer.World.Map
                     }
                 }
             }
+        }
+
+        public String GetName()
+        {
+            return name;
         }
 
         public Tile GetTile(int ID)

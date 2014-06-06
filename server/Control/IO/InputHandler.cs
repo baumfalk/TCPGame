@@ -100,6 +100,8 @@ namespace TCPGameServer.Control.IO
             // if something is a movement command, move the player in the appropriate direction
             if (isMovementCommand)
             {
+                // we know it's a movement command. Try to parse as short string, if
+                // unsuccesful, parse as long string
                 int direction = Directions.fromShortString(command);
                 if (direction == -1) direction = Directions.fromString(command);
 

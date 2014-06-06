@@ -33,6 +33,7 @@ namespace TCPGameServer.World.Map
             return area;
         }
 
+        // get a tile in the world
         public Tile GetTile(String areaName, int TileID)
         {
             Area area = getArea(areaName);

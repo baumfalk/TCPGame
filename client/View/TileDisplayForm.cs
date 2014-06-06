@@ -46,8 +46,8 @@ namespace TCPGameClient.View
         private void TileDisplayForm_Load(object sender, EventArgs e)
         {
             // set base size
-            sizeX = 16;
-            sizeY = 16;
+            sizeX = 64;
+            sizeY = 64;
 
             // imagebuffer loads images with default size 64x64
             imageBuffer = new ImageBuffer(sizeX, sizeY);
@@ -119,7 +119,7 @@ namespace TCPGameClient.View
                         Image imToDraw = imageBuffer.GetImage(fieldRepresentation);
 
                         // draw the image onto the bitmap
-                        g.DrawImage(imToDraw, centerX + x * sizeX - (sizeX / 2), centerY + y * sizeY - sizeY / 2, sizeX, sizeY);
+                        g.DrawImage(imToDraw, centerX + x * sizeX - (sizeX / 2), centerY - y * sizeY + sizeY / 2, sizeX, sizeY);
                     }
                 }
             }
@@ -138,7 +138,7 @@ namespace TCPGameClient.View
 
                     Image imToDraw = imageBuffer.GetImage(creatureRepresentation);
 
-                    g.DrawImage(imToDraw, centerX + xPos * sizeX - sizeX / 4, centerY + yPos * sizeY - sizeY / 4, sizeX / 2, sizeY / 2);
+                    g.DrawImage(imToDraw, centerX + xPos * sizeX - sizeX / 4, centerY - yPos * sizeY + sizeY / 4 * 3, sizeX / 2, sizeY / 2);
                 }
             }
 

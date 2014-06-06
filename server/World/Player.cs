@@ -61,7 +61,7 @@ namespace TCPGameServer.World
             body.SetPlayer(null);
             if (body.GetPosition() != null)
             {
-                body.GetPosition().vacate();
+                body.GetPosition().Vacate();
             }
         }
 

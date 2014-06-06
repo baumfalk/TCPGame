@@ -92,7 +92,7 @@ namespace TCPGameServer.World
         {
             List<Tile> tilesToSend = new List<Tile>();
             
-            centerTile.setColor(depth);
+            centerTile.SetColor(depth);
 
             Queue<Tile> tileQueue = new Queue<Tile>();
             tileQueue.Enqueue(centerTile);
@@ -102,7 +102,7 @@ namespace TCPGameServer.World
             foreach (Tile tile in tilesToSend)
             {
                 // set color back to unexplored status
-                tile.setColor(0);
+                tile.SetColor(0);
             }
 
             return tilesToSend;
@@ -113,7 +113,7 @@ namespace TCPGameServer.World
             while (tileQueue.Count > 0)
             {
                 Tile activeTile = tileQueue.Dequeue();
-                int depth = activeTile.getColor();
+                int depth = activeTile.GetColor();
 
                 if (depth == 0) return;
 
@@ -123,10 +123,10 @@ namespace TCPGameServer.World
                 {
                     if (activeTile.HasNeighbor(direction))
                     {
-                        Tile neighbor = activeTile.getNeighbor(direction);
-                        if (neighbor.getColor() == 0)
+                        Tile neighbor = activeTile.GetNeighbor(direction);
+                        if (neighbor.GetColor() == 0)
                         {
-                            neighbor.setColor(depth - 1);
+                            neighbor.SetColor(depth - 1);
 
                             tileQueue.Enqueue(neighbor);
                         }

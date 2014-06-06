@@ -4,14 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.Map
 {
     public class Tile
     {
+        // area and world the tile is part of
+        private int ID;
         private Area area;
         private World world;
 
+        // the neighbors that are already linked up
         private Tile[] neighbors;
+
+        // struct designating a link to another area
         private struct AreaLink
         {
             public String areaName;
@@ -23,23 +30,34 @@ namespace TCPGameServer.World.Map
                 this.targetID = targetID;
             }
         }
+        // neighbors in other areas will be put in here
         private AreaLink[] areaLinks;
 
+        // a tile has a neighbor when it's directly linked or when a tile
+        // in another area will be linked on load
         private bool[] hasNeighbor;
 
+        // types are things like "floor" or "wall", which may have different
+        // representations but the same behavior
         private String type;
+        // representation is a string key for a specific image
         private String representation;
 
+        // the occupant of the tile. Null means noone is there.
         private Creature occupant = null;
 
+        // coordinates which can be used to calculate distances
         private int x;
         private int y;
         private int z;
 
+        // used in BFS to find neighboring tiles to a certain depth
         private int color;
 
-        public Tile(String type, String representation, int x, int y, int z, Area area, World world)
+        // fills fields and initializes arrays
+        public Tile(String type, String representation, int x, int y, int z, int ID, Area area, World world)
         {
+            // fill fields from arguments
             this.type = type;
             this.representation = representation;
 
@@ -47,24 +65,27 @@ namespace TCPGameServer.World.Map
             this.y = y;
             this.z = z;
 
+            this.ID = ID;
             this.area = area;
             this.world = world;
 
+            // create the neighbor-arrays (6 directions)
             hasNeighbor = new bool[6];
             neighbors = new Tile[6];
             areaLinks = new AreaLink[6];
         }
 
-        public void setColor(int color)
+        // the "color" of the tile can be used to find neighbors to a certain depth
+        public void SetColor(int color)
         {
             this.color = color;
         }
-
-        public int getColor()
+        public int GetColor()
         {
             return color;
         }
 
+        // create a link to a tile in a different area
         public void CreateAreaLink(int direction, String areaName, int id)
         {
             areaLinks[direction] = new AreaLink(areaName, id);
@@ -72,75 +93,97 @@ namespace TCPGameServer.World.Map
             hasNeighbor[direction] = true;
         }
 
+        // create a link to a tile. If it has a link but that link is not this tile,
+        // output a message
         public void Link(int direction, Tile neighbor)
         {
             neighbors[direction] = neighbor;
 
+            if (neighbor.HasNeighbor(Directions.inverse(direction)))
+            {
+                if (neighbor.GetNeighbor(Directions.inverse(direction)) != this)
+                {
+                    Output.Print("[" + area.GetName() + "(" + ID + ")] no linkback (" + Directions.toString(direction));
+                }
+            }
+
             hasNeighbor[direction] = true;
         }
 
-        public bool hasOccupant()
+        // checks if this tile has an occupant
+        public bool HasOccupant()
         {
             return (occupant != null);
         }
 
-        public Creature getOccupant()
+        // gets the occupant
+        public Creature GetOccupant()
         {
             return occupant;
         }
 
-        public void setOccupant(Creature occupant)
+        // sets the occupant and sets this tile as it's position
+        public void SetOccupant(Creature occupant)
         {
             this.occupant = occupant;
             occupant.SetPosition(this);
         }
 
-        public void vacate()
+        // clears the occupant from this tile
+        public void Vacate()
         {
             this.occupant = null;
         }
 
-        public int getX()
+        // the x/y/z location in the world
+        public int GetX()
         {
             return x;
         }
-
-        public int getY()
+        public int GetY()
         {
             return y;
         }
-
-        public int getZ()
+        public int GetZ()
         {
             return z;
         }
 
-        //0 = north, 1 = east, 2 = up, 3 = south, 4 = west, 5 = down
+        // check if this tile has a neighbor
         public bool HasNeighbor(int direction)
         {
             return hasNeighbor[direction];
         }
 
-        public Tile getNeighbor(int direction)
+        // get the neighbor if it's linked, if it's in another area, get that tile from
+        // that area and link it up (loading the area if it's not in memory).
+        public Tile GetNeighbor(int direction)
         {
-            if (neighbors[direction] == null)
-            {            
+            // if there is a neighbor but it's not linked, it's an area link
+            if (neighbors[direction] == null && hasNeighbor[direction])
+            {
+                // get the right area link
                 AreaLink areaLink = areaLinks[direction];
 
+                // get the neighboring tile by requesting it from the world object
                 Tile neighbor = world.GetTile(areaLink.areaName, areaLink.targetID);
 
+                // link this tile, and link back right away so this code won't have
+                // to run twice.
                 Link(direction, neighbor);
                 neighbor.Link(Directions.inverse(direction), this);
             }
             return neighbors[direction];
         }
 
-        public String getRepresentation()
+        // get the image key for this tile
+        public String GetRepresentation()
         {
             return representation;
         }
 
-        public bool isPassable()
+        // check if this tile is passable
+        public bool IsPassable()
         {
             if (type.Equals("wall")) return false;
             return true;

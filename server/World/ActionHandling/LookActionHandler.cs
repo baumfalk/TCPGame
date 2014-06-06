@@ -31,17 +31,17 @@ namespace TCPGameServer.World.ActionHandling
 
             List<Tile> tilesToSend = world.getSurroundingTiles(playerLocation, 5);
 
-            if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.getX() + "," + playerLocation.getY() + "," + playerLocation.getZ());
+            if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.GetX() + "," + playerLocation.GetY() + "," + playerLocation.GetZ());
 
             foreach (Tile toSend in tilesToSend)
             {
-                if (includeTiles) player.AddMessage("TILE,DETECTED," + toSend.getX() + "," + toSend.getY() + "," + toSend.getZ() + "," + toSend.getRepresentation());
+                if (includeTiles) player.AddMessage("TILE,DETECTED," + toSend.GetX() + "," + toSend.GetY() + "," + toSend.GetZ() + "," + toSend.GetRepresentation());
 
-                if (toSend.hasOccupant() && (!(toSend == playerLocation) || includePlayer))
+                if (toSend.HasOccupant() && (!(toSend == playerLocation) || includePlayer))
                 {
-                    Creature occupant = toSend.getOccupant();
+                    Creature occupant = toSend.GetOccupant();
 
-                    player.AddMessage("CREATURE,DETECTED," + toSend.getX() + "," + toSend.getY() + "," + toSend.getZ() + "," + occupant.GetRepresentation());
+                    player.AddMessage("CREATURE,DETECTED," + toSend.GetX() + "," + toSend.GetY() + "," + toSend.GetZ() + "," + occupant.GetRepresentation());
                 }
             }
         }
