@@ -4,12 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TCPGameServer.World
+namespace TCPGameServer.World.Map
 {
-    // 
     public class Tile
     {
+        private Area area;
+        private World world;
+
         private Tile[] neighbors;
+        private struct AreaLink
+        {
+            public String areaName;
+            public int targetID;
+
+            public AreaLink(String areaName, int targetID)
+            {
+                this.areaName = areaName;
+                this.targetID = targetID;
+            }
+        }
+        private AreaLink[] areaLinks;
+
+        private bool[] hasNeighbor;
+
         private String type;
         private String representation;
 
@@ -21,7 +38,7 @@ namespace TCPGameServer.World
 
         private int color;
 
-        public Tile(String type, String representation, int x, int y, int z)
+        public Tile(String type, String representation, int x, int y, int z, Area area, World world)
         {
             this.type = type;
             this.representation = representation;
@@ -30,7 +47,12 @@ namespace TCPGameServer.World
             this.y = y;
             this.z = z;
 
+            this.area = area;
+            this.world = world;
+
+            hasNeighbor = new bool[6];
             neighbors = new Tile[6];
+            areaLinks = new AreaLink[6];
         }
 
         public void setColor(int color)
@@ -43,15 +65,18 @@ namespace TCPGameServer.World
             return color;
         }
 
-        public void link(int direction, Tile neighbor)
+        public void CreateAreaLink(int direction, String areaName, int id)
         {
-            neighbors[direction] = neighbor;
-            neighbor.backLink(Directions.inverse(direction), this);
+            areaLinks[direction] = new AreaLink(areaName, id);
+
+            hasNeighbor[direction] = true;
         }
 
-        protected void backLink(int direction, Tile neighbor)
+        public void Link(int direction, Tile neighbor)
         {
             neighbors[direction] = neighbor;
+
+            hasNeighbor[direction] = true;
         }
 
         public bool hasOccupant()
@@ -91,13 +116,22 @@ namespace TCPGameServer.World
         }
 
         //0 = north, 1 = east, 2 = up, 3 = south, 4 = west, 5 = down
-        public bool hasNeighbor(int direction)
+        public bool HasNeighbor(int direction)
         {
-            return (direction >= 0 && direction < neighbors.Length && neighbors[direction] != null);
+            return hasNeighbor[direction];
         }
 
         public Tile getNeighbor(int direction)
         {
+            if (neighbors[direction] == null)
+            {            
+                AreaLink areaLink = areaLinks[direction];
+
+                Tile neighbor = world.GetTile(areaLink.areaName, areaLink.targetID);
+
+                Link(direction, neighbor);
+                neighbor.Link(Directions.inverse(direction), this);
+            }
             return neighbors[direction];
         }
 

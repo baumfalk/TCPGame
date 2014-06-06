@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.World.Map;
+
 namespace TCPGameServer.World.ActionHandling
 {
     class MoveActionHandler
@@ -21,7 +23,7 @@ namespace TCPGameServer.World.ActionHandling
 
             int direction = int.Parse(splitCommand[1]);
 
-            if (position.hasNeighbor(direction))
+            if (position.HasNeighbor(direction))
             {
                 Tile neighbor = position.getNeighbor(direction);
 

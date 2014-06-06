@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.World.Map;
+
 namespace TCPGameServer.World.ActionHandling
 {
     class LookActionHandler

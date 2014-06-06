@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 
 using TCPGameServer.World.ActionHandling;
+using TCPGameServer.World.Map;
+
 using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World
 {
     public class Model
     {
-        private Tile[,,] tiles = new Tile[40, 8, 2];
+        private Map.World theWorld = new Map.World();
 
         private List<Player> players;
 
@@ -25,20 +27,6 @@ namespace TCPGameServer.World
             actionHandler = new ActionHandler(this);
 
             createModel();
-        }
-
-        // dit moet onderverdeeld worden in areas oid
-        public Tile FindTileAt(int x, int y, int z)
-        {
-            foreach (Tile tile in tiles)
-            {
-                if (x == tile.getX() && y == tile.getY() && z == tile.getZ())
-                {
-                    return tile;
-                }
-            }
-
-            return null;
         }
 
         public void doUpdate()
@@ -78,12 +66,6 @@ namespace TCPGameServer.World
             {
                 removePlayer(disconnected);
             }
-
-            // look if necessary
-            foreach (Player player in players)
-            {
-                //actionHandler.Handle(player, "LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
-            }
         }
 
         public void addPlayer(Player player)
@@ -99,6 +81,11 @@ namespace TCPGameServer.World
         public List<Player> getPlayers()
         {
             return players;
+        }
+
+        public Tile GetTile(String area, int TileID)
+        {
+            return theWorld.GetTile(area, TileID);
         }
 
         public List<Tile> getSurroundingTiles(Tile centerTile, int depth)
@@ -134,7 +121,7 @@ namespace TCPGameServer.World
 
                 for (int direction = 0; direction < 6; direction++)
                 {
-                    if (activeTile.hasNeighbor(direction))
+                    if (activeTile.HasNeighbor(direction))
                     {
                         Tile neighbor = activeTile.getNeighbor(direction);
                         if (neighbor.getColor() == 0)
@@ -151,47 +138,7 @@ namespace TCPGameServer.World
 
         private void createModel()
         {
-            Random rand = new Random();
-
-            for (int x = 0; x < 10; x++)
-            {
-                for (int y = 0; y < 8; y++)
-                {
-                    String type;
-
-                    if (x == 0 || x == 9 || y == 0 || y == 7)
-                    {
-                        type = "wall";
-                    }
-                    else if ((x == 1 && y == 1) || (x == 8 && y == 6))
-                    {
-                        type = "stairs";
-                    }
-                    else
-                    {
-                        String prefix = (rand.NextDouble() < 0.5) ? "" : "2";
-
-                        type = prefix + "floor";
-                    }
-
-                    tiles[x, y, 0] = new Tile(type, type, x, y, 0);
-                    tiles[x, y, 1] = new Tile(type, type, x, y, 1);
-
-                    if (x != 0)
-                    {
-                        tiles[x, y, 0].link(Directions.WEST, tiles[x - 1, y, 0]);
-                        tiles[x, y, 1].link(Directions.WEST, tiles[x - 1, y, 1]);
-                    }
-                    if (y != 0)
-                    {
-                        tiles[x, y, 0].link(Directions.NORTH, tiles[x, y - 1, 0]);
-                        tiles[x, y, 1].link(Directions.NORTH, tiles[x, y - 1, 1]);
-                    }
-                }
-            }
-
-            tiles[1, 1, 0].link(Directions.UP, tiles[1, 1, 1]);
-            tiles[8, 6, 0].link(Directions.UP, tiles[8, 6, 1]);
+            Map.World world = new Map.World();
         }
     }
 }

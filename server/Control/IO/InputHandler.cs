@@ -78,9 +78,9 @@ namespace TCPGameServer.Control.IO
         private static void HandleLogin(String command, Player player)
         {
             // place the player on the map
-            if (command.Equals("geerten")) player.AddImmediateCommand("PLAYER,PLACE,4,4,0");
-            else if (command.Equals("jetze")) player.AddImmediateCommand("PLAYER,PLACE,4,3,0");
-            else player.AddImmediateCommand("PLAYER,PLACE,2,2,0");
+            if (command.Equals("geerten")) player.AddImmediateCommand("PLAYER,PLACE,start,0");
+            else if (command.Equals("jetze")) player.AddImmediateCommand("PLAYER,PLACE,start,1");
+            else player.AddImmediateCommand("PLAYER,PLACE,start,2");
 
             player.SetName(command);
             // tell the model the player is logged in

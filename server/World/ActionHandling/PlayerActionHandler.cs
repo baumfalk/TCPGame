@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.World.Map;
+
 namespace TCPGameServer.World.ActionHandling
 {
     class PlayerActionHandler
@@ -20,11 +22,10 @@ namespace TCPGameServer.World.ActionHandling
             switch (splitCommand[1])
             {
                 case "PLACE":
-                    int x = int.Parse(splitCommand[2]);
-                    int y = int.Parse(splitCommand[3]);
-                    int z = int.Parse(splitCommand[4]);
+                    String area = splitCommand[2];
+                    int ID = int.Parse(splitCommand[3]);
 
-                    Tile position = world.FindTileAt(x, y, z);
+                    Tile position = world.GetTile(area, ID);
 
                     position.setOccupant(player.GetBody());
 
