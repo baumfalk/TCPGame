@@ -16,7 +16,7 @@ namespace TCPGameServer.Control.IO
         public static void Print(string message)
         {
             if (!Controller.headless) ServerOutputWindow.Print(message);
-            else Console.WriteLine(message);
+            Console.WriteLine(message);
 
             log.Add(message);
         }

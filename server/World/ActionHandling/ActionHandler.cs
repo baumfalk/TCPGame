@@ -16,7 +16,7 @@ namespace TCPGameServer.World.ActionHandling
         private MoveActionHandler moveActionHandler;
         private PlayerActionHandler playerActionHandler;
         private LookActionHandler lookActionHandler;
-
+        private SayActionHandler sayActionHandler;
         public ActionHandler(Model world)
         {
             this.world = world;
@@ -25,6 +25,7 @@ namespace TCPGameServer.World.ActionHandling
             moveActionHandler = new MoveActionHandler(world);
             playerActionHandler = new PlayerActionHandler(world);
             lookActionHandler = new LookActionHandler(world);
+            sayActionHandler = new SayActionHandler(world);
         }
 
         public void Handle(Player player, String command)
@@ -45,6 +46,9 @@ namespace TCPGameServer.World.ActionHandling
                     return;
                 case "LOOK":
                     lookActionHandler.Handle(player, splitCommand);
+                    return;
+                case "SAY":
+                    sayActionHandler.Handle(player, splitCommand);
                     return;
             }
         }

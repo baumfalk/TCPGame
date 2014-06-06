@@ -24,6 +24,9 @@ namespace TCPGameClient.View
         // controller running everything
         private Controller control;
 
+        // for the incoming chatmessages
+        public ChatMessages cmView;
+
         // image buffer containing preloaded images
         private ImageBuffer imageBuffer;
 
@@ -51,6 +54,9 @@ namespace TCPGameClient.View
 
             // controller is created, this "starts the program"
             control = new Controller(this);
+
+            cmView = new ChatMessages();
+            cmView.Show();
         }
 
         public void SetZoom(int zoomLevelX, int zoomLevelY)

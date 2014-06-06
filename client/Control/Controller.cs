@@ -104,6 +104,11 @@ namespace TCPGameClient.Control
                 tdView.Stop();
             }
 
+            if (updateData.Any(x => x.StartsWith("MESSAGE_FROM")))
+            {
+                tdView.cmView.addMessage(updateData.Find(x => x.StartsWith("MESSAGE_FROM")));
+            }
+
             // update local model using the data sent
             worldModel.Update(updateData);
 

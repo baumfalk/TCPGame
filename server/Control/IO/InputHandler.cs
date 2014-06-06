@@ -82,6 +82,7 @@ namespace TCPGameServer.Control.IO
             else if (command.Equals("jetze")) player.AddImmediateCommand("PLAYER,PLACE,4,3,0");
             else player.AddImmediateCommand("PLAYER,PLACE,2,2,0");
 
+            player.SetName(command);
             // tell the model the player is logged in
             player.AddImmediateCommand("LOGIN,COMPLETE");
 
@@ -109,7 +110,36 @@ namespace TCPGameServer.Control.IO
             else if (command.Equals("l") || command.Equals("look"))
             {
                 addLook(false, true, player);
-            } 
+            }
+            else if (command.StartsWith("say"))
+            {
+                // split the string in at most three pieces
+                string[] splittedString = command.Split(new char[]{' '},3);
+               
+                // no recipient specified. Assume it was meant for everybody
+                if (splittedString.Length == 2)
+                {
+                    player.AddImmediateCommand("SAY,ALL," + splittedString[1]);
+                }
+                // recipient specified
+                else if (splittedString.Length == 3)
+                {
+                    // meant for everyone
+                    if (splittedString[1].Equals("all"))
+                    {
+                        player.AddImmediateCommand("SAY,ALL," + splittedString[2]);
+
+                    }
+                    // meant for a specific recipient
+                    else
+                    {
+                        player.AddImmediateCommand("SAY," + splittedString[1] + "," + splittedString[2]);
+
+                    }
+                }
+                 
+
+            }
         }
 
         private static void addLook(bool includeTiles, bool includePlayer, Player player)

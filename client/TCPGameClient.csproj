@@ -49,6 +49,12 @@
     <Compile Include="Control\NetConnector.cs" />
     <Compile Include="Model\Creature.cs" />
     <Compile Include="Model\Field.cs" />
+    <Compile Include="View\ChatMessages.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\ChatMessages.Designer.cs">
+      <DependentUpon>ChatMessages.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\ImageBuffer.cs" />
     <Compile Include="Model\LocalModel.cs" />
     <Compile Include="View\TileDisplayForm.cs">
@@ -59,6 +65,9 @@
     </Compile>
     <Compile Include="Client.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="View\ChatMessages.resx">
+      <DependentUpon>ChatMessages.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\TileDisplayForm.resx">
       <DependentUpon>TileDisplayForm.cs</DependentUpon>
     </EmbeddedResource>

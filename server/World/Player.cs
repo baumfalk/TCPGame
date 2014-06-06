@@ -43,10 +43,11 @@ namespace TCPGameServer.World
 
         // flag to show a player is disconnected
         private bool disconnected = false;
-
+        private string name = "anon";
         public Player(Creature body)
         {
             this.body = body;
+         
 
             body.SetPlayer(this);
 
@@ -58,7 +59,10 @@ namespace TCPGameServer.World
         public void Remove()
         {
             body.SetPlayer(null);
-            body.GetPosition().vacate();
+            if (body.GetPosition() != null)
+            {
+                body.GetPosition().vacate();
+            }
         }
 
         public bool IsDisconnected()
@@ -148,6 +152,16 @@ namespace TCPGameServer.World
         public Creature GetBody()
         {
             return body;
+        }
+
+        public void SetName(string name)
+        {
+            this.name = name;
+        }
+
+        public string GetName()
+        {
+            return name;
         }
     }
 }
