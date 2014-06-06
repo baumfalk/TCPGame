@@ -108,7 +108,7 @@ namespace TCPGameServer.Control.IO
             } // look if the command is to look
             else if (command.Equals("l") || command.Equals("look"))
             {
-                addLook(true, true, player);
+                addLook(false, true, player);
             } 
         }
 

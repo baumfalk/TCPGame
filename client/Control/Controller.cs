@@ -61,6 +61,33 @@ namespace TCPGameClient.Control
                 if (connectInfo.Length > 2) port = int.Parse(connectInfo[2]);
 
                 Connect();
+            } // intercept a zoom command
+            else if (input.StartsWith("zoom"))
+            {
+                // default values
+                int zoomLevelX = -1;
+                int zoomLevelY = -1;
+
+                String[] zoomInfo = input.Split(' ');
+
+                // try to parse the rest of the info to integers
+                if (zoomInfo.Length > 1) int.TryParse(zoomInfo[1], out zoomLevelX);
+                if (zoomInfo.Length > 2) int.TryParse(zoomInfo[2], out zoomLevelY);
+
+                // if a value hasn't been set, use 64. Don't accept values above 128 or below 16
+                if (zoomLevelX == -1) zoomLevelX = 64;
+                if (zoomLevelX < 16) zoomLevelX = 16;
+                if (zoomLevelX > 128) zoomLevelX = 128;
+
+                if (zoomLevelY == -1) zoomLevelY = zoomLevelX;
+                if (zoomLevelY < 16) zoomLevelY = 16;
+                if (zoomLevelY > 128) zoomLevelY = 128;
+
+                // set the new zoom level
+                tdView.SetZoom(zoomLevelX, zoomLevelY);
+
+                // redraw the model
+                tdView.DrawModel(worldModel);
             }
             else
             {

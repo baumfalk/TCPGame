@@ -63,7 +63,7 @@ namespace TCPGameClient.View
         }
 
         //creates a default image
-        private void SetDefault(int defaultWidth, int defaultHeight)
+        public void SetDefault(int defaultWidth, int defaultHeight)
         {
             // the image is just a red square
             defaultImage = new Bitmap(defaultWidth, defaultHeight);

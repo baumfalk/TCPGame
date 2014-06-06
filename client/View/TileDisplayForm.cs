@@ -18,7 +18,8 @@ namespace TCPGameClient.View
     public partial class TileDisplayForm : Form
     {
         // base size
-        int baseSize;
+        int sizeX;
+        int sizeY;
 
         // controller running everything
         private Controller control;
@@ -42,13 +43,22 @@ namespace TCPGameClient.View
         private void TileDisplayForm_Load(object sender, EventArgs e)
         {
             // set base size
-            baseSize = 16;
+            sizeX = 16;
+            sizeY = 16;
 
             // imagebuffer loads images with default size 64x64
-            imageBuffer = new ImageBuffer(baseSize, baseSize);
+            imageBuffer = new ImageBuffer(sizeX, sizeY);
 
             // controller is created, this "starts the program"
             control = new Controller(this);
+        }
+
+        public void SetZoom(int zoomLevelX, int zoomLevelY)
+        {
+            sizeX = zoomLevelX;
+            sizeY = zoomLevelY;
+
+            imageBuffer.SetDefault(sizeX, sizeY);
         }
 
         // draws the model onto the form
@@ -73,8 +83,8 @@ namespace TCPGameClient.View
 
             // number of tiles to draw. Intentionally overestimates the amount needed to make sure the space
             // gets filled
-            int tilesX = pictureBox1.Width / baseSize + 2;
-            int tilesY = pictureBox1.Height / baseSize + 2;
+            int tilesX = pictureBox1.Width / sizeX + 2;
+            int tilesY = pictureBox1.Height / sizeY + 2;
 
             // position of the player on the grid (always in the center)
             int playerPositionX = theModel.GetGridSizeX() / 2 + 1;
@@ -103,7 +113,7 @@ namespace TCPGameClient.View
                         Image imToDraw = imageBuffer.GetImage(fieldRepresentation);
 
                         // draw the image onto the bitmap
-                        g.DrawImage(imToDraw, centerX + x * baseSize - (baseSize / 2), centerY + y * baseSize - baseSize / 2, baseSize, baseSize);
+                        g.DrawImage(imToDraw, centerX + x * sizeX - (sizeX / 2), centerY + y * sizeY - sizeY / 2, sizeX, sizeY);
                     }
                 }
             }
@@ -122,7 +132,7 @@ namespace TCPGameClient.View
 
                     Image imToDraw = imageBuffer.GetImage(creatureRepresentation);
 
-                    g.DrawImage(imToDraw, centerX + xPos * baseSize - baseSize / 4, centerY + yPos * baseSize - baseSize / 4, baseSize / 2, baseSize / 2);
+                    g.DrawImage(imToDraw, centerX + xPos * sizeX - sizeX / 4, centerY + yPos * sizeY - sizeY / 4, sizeX / 2, sizeY / 2);
                 }
             }
 
