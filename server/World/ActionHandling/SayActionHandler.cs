@@ -21,9 +21,7 @@ namespace TCPGameServer.World.ActionHandling
             {
                 // send to everybody except the sender
                 case "ALL":
-                    foreach(Player otherPlayer in world.getPlayers()) {
-                        if (otherPlayer.Equals(player))
-                            continue;
+                    foreach(Player otherPlayer in world.getPlayers()) {                     
                         otherPlayer.AddMessage("MESSAGE_FROM,"+player.GetName()+","+splitCommand[2]);
                     }
                     return;
@@ -33,8 +31,8 @@ namespace TCPGameServer.World.ActionHandling
                     if (foundPlayer == null || foundPlayer.Equals(player)) 
                         return;
 
-                    foundPlayer.AddMessage("MESSAGE_FROM," + player.GetName() + "," + splitCommand[2]);
-
+                    foundPlayer.AddMessage("MESSAGE_FROM," + player.GetName() + " (private)," + splitCommand[2]);
+                    player.AddMessage("MESSAGE_FROM," + player.GetName() + " (private to "+foundPlayer.GetName()+")," + splitCommand[2]);
                     return;
             }
         }
