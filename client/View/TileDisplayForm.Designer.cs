@@ -62,6 +62,7 @@
             this.Name = "TileDisplayForm";
             this.Text = "TCPGame Client";
             this.Load += new System.EventHandler(this.TileDisplayForm_Load);
+            this.ResizeEnd += new System.EventHandler(this.TileDisplayForm_ResizeEnd);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

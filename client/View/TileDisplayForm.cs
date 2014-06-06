@@ -185,5 +185,10 @@ namespace TCPGameClient.View
                 Close();
             }
         }
+
+        private void TileDisplayForm_ResizeEnd(object sender, EventArgs e)
+        {
+            control.Redraw();
+        }
     }
 }

@@ -32,7 +32,8 @@ namespace TCPGameServer.Control
         // connects new clients to user objects
         private NetServer server;
 
-        // flags to disallow updates while another update is ongoing
+        // flags to sync threads and disallow updates while another update is ongoing
+        private bool timer_block = false;
         private bool update_block = false;
         private bool newuser_block = false;
 
@@ -41,6 +42,8 @@ namespace TCPGameServer.Control
 
         public Controller(bool headless_mode)
         {
+            Thread.CurrentThread.Name = "Main Thread";
+
             // set the headless flag
             headless = headless_mode;
 
@@ -81,6 +84,8 @@ namespace TCPGameServer.Control
         // create an output window
         private void OpenWindow()
         {
+            Thread.CurrentThread.Name = "UI Thread";
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new ServerOutputWindow());
@@ -111,6 +116,10 @@ namespace TCPGameServer.Control
         // ticker handling when to update everything
         private void Ticker()
         {
+            Thread.CurrentThread.Name = "Ticker Thread";
+
+            new Thread(Update).Start();
+
             // while running, we want to run updates
             while (running)
             {
@@ -120,15 +129,15 @@ namespace TCPGameServer.Control
                 // wait 100ms
                 Thread.Sleep(100);
 
+                // tell the update it doesn't have to wait for the timer anymore
+                timer_block = false;
+
                 // wait until the last update is finished, if needed
                 while (update_block)
                 {
                     Thread.Sleep(1);
                 }
-
-                // run the update on a different thread, so the ticker doesn't
-                // get blocked
-                new Thread(Update).Start();
+                update_block = true;
             }
         }
 
@@ -139,23 +148,32 @@ namespace TCPGameServer.Control
         // since the last tick, and adding new users / removing disconnected
         // users. After that the flag is unset
         private void Update() {
-            // set the blocking flag
-            update_block = true;
+            Thread.CurrentThread.Name = "Update Thread";
 
-            // handle input from the clients since the last tick
-            HandleUserInput();
+            while (running)
+            {
+                // handle input from the clients since the last tick
+                HandleUserInput();
 
-            // update the world from game state and input
-            UpdateWorld();
+                // update the world from game state and input
+                UpdateWorld();
 
-            // send output, return disconnects
-            List<User> disconnectedUsers = DoUserOutputAndReturnDisconnects();
+                // send output, return disconnects
+                List<User> disconnectedUsers = DoUserOutputAndReturnDisconnects();
 
-            // add new users, disconnect users no longer in the game
-            UpdateUsers(disconnectedUsers);
+                // add new users, disconnect users no longer in the game
+                UpdateUsers(disconnectedUsers);
 
-            // unset the blocking flag
-            update_block = false;
+                // tell the timer it doesn't have to wait for the update to finish anymore
+                update_block = false;
+                
+                // wait until the timer is finished, then set the flag again.
+                while (timer_block)
+                {
+                    Thread.Sleep(1);
+                }
+                timer_block = true;
+            }
         }
 
         // get each user to handle it's input and put it in the correct command

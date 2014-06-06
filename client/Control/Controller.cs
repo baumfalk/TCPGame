@@ -87,7 +87,7 @@ namespace TCPGameClient.Control
                 tdView.SetZoom(zoomLevelX, zoomLevelY);
 
                 // redraw the model
-                tdView.DrawModel(worldModel);
+                Redraw();
             }
             else
             {
@@ -108,6 +108,13 @@ namespace TCPGameClient.Control
             worldModel.Update(updateData);
 
             // update view
+            Redraw();
+        }
+
+        public void Redraw()
+        {
+            Debug.Print("redrawing");
+
             tdView.DrawModel(worldModel);
         }
     }
