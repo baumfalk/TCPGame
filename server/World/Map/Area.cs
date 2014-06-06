@@ -18,7 +18,7 @@ namespace TCPGameServer.World.Map
         private Tile[] tiles;
         private String[] links;
 
-        private String gitPath = @"..\..\..\map\";
+        private String gitPath = @"../../../map/";
 
         private bool idMismatch = false;
 
