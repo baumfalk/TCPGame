@@ -60,15 +60,11 @@ namespace TCPGameClient.Model
             return creatures;
         }
 
-        // updates based on strings sent to the controller by the server. Is not very
-        // robust yet, the following two inputs are possible at the moment:
 
-        // N,Player,Position,x,y 
-        // N,Tile,Detected,x,y,representation
-
-        // N indicates an order in which commands are sent from the server. Player position changes to x, y.
-        public void Update(List<String> updateData)
+        public bool Update(List<String> updateData)
         {
+            bool DoRedraw = false;
+
             updatingCreatures = false;
 
             // loop through all strings we received
@@ -84,18 +80,23 @@ namespace TCPGameClient.Model
                         break;
                     case "PLAYER":
                         UpdatePlayer(inputPart);
+                        DoRedraw = true;
                         break;
                     case "TILE":
                         UpdateTile(inputPart);
+                        DoRedraw = true;
                         break;
                     case "CREATURE":
                         UpdateCreature(inputPart);
+                        DoRedraw = true;
                         break;
                     default:
-                        // do nothing on unknown input for now
+                        
                         break;
                 }
             }
+
+            return DoRedraw;
         }
 
         // checks if a field position is in bounds

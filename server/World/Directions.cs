@@ -18,13 +18,28 @@ namespace TCPGameServer.World
         public const int DOWN = 5;
 
         // inverse direction
-        public static int inverse(int direction)
+        public static int Inverse(int direction)
         {
             return (direction + 3) % 6;
         }
 
+        // get the x, y and z coordinates for a move of one position in any direction
+        public static int[] GetNeighboring(int direction, int x, int y, int z)
+        {
+            switch (direction)
+            {
+                case 0: return new int[] { x, y + 1, z };
+                case 1: return new int[] { x + 1, y, z };
+                case 2: return new int[] { x, y, z + 1 };
+                case 3: return new int[] { x, y - 1, z };
+                case 4: return new int[] { x - 1, y, z };
+                case 5: return new int[] { x, y, z - 1 };
+                default: return new int[] { -1, -1, -1 };
+            }
+        }
+
         // convert int to a long string version of the direction
-        public static String toString(int direction)
+        public static String ToString(int direction)
         {
             switch (direction)
             {
@@ -39,7 +54,7 @@ namespace TCPGameServer.World
         }
 
         // convert int to a short string version of the direction
-        public static String toShortString(int direction)
+        public static String ToShortString(int direction)
         {
             switch (direction)
             {
@@ -54,7 +69,7 @@ namespace TCPGameServer.World
         }
 
         // convert long string version of the direction to int
-        public static int fromString(String direction)
+        public static int FromString(String direction)
         {
             switch (direction)
             {
@@ -69,7 +84,7 @@ namespace TCPGameServer.World
         }
 
         // convert short string version of the direction to int
-        public static int fromShortString(String direction)
+        public static int FromShortString(String direction)
         {
             switch (direction)
             {

@@ -97,6 +97,7 @@ namespace TCPGameClient.Control
 
         public void DoUpdate(List<String> updateData)
         {
+            // stop everything on a quit command
             if (updateData.Contains("QUIT"))
             {
                 Disconnect();
@@ -104,16 +105,17 @@ namespace TCPGameClient.Control
                 tdView.Stop();
             }
 
+            // pass on chat messages to the chat message window
             if (updateData.Any(x => x.StartsWith("MESSAGE_FROM")))
             {
                 tdView.cmView.addMessage(updateData.Find(x => x.StartsWith("MESSAGE_FROM")));
             }
 
             // update local model using the data sent
-            worldModel.Update(updateData);
+            bool doRedraw = worldModel.Update(updateData);
 
             // update view
-            Redraw();
+            if (doRedraw) Redraw();
         }
 
         public void Redraw()

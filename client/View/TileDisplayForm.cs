@@ -192,7 +192,7 @@ namespace TCPGameClient.View
             }
         }
 
-        private void TileDisplayForm_ResizeEnd(object sender, EventArgs e)
+        private void TileDisplayForm_SizeChanged(object sender, EventArgs e)
         {
             control.Redraw();
 		}

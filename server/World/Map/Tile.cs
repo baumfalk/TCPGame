@@ -85,6 +85,20 @@ namespace TCPGameServer.World.Map
             return color;
         }
 
+        // world, area and ID can be requested
+        public int GetID()
+        {
+            return ID;
+        }
+        public Area GetArea()
+        {
+            return area;
+        }
+        public World GetWorld()
+        {
+            return world;
+        }
+
         // create a link to a tile in a different area
         public void CreateAreaLink(int direction, String areaName, int id)
         {
@@ -99,12 +113,19 @@ namespace TCPGameServer.World.Map
         {
             neighbors[direction] = neighbor;
 
-            if (neighbor.HasNeighbor(Directions.inverse(direction)))
+            if (neighbor.HasNeighbor(Directions.Inverse(direction)))
             {
-                if (neighbor.GetNeighbor(Directions.inverse(direction)) != this)
+                if (neighbor.GetNeighbor(Directions.Inverse(direction)) != this)
                 {
-                    Output.Print("[" + area.GetName() + "(" + ID + ")] no linkback (" + Directions.toString(direction));
+                    Output.Print("[" + area.GetName() + "(" + ID + ")] no linkback (" + Directions.ToString(direction) + ")");
                 }
+            }
+
+            int[] properNeighbor = Directions.GetNeighboring(direction, x, y, z);
+
+            if (properNeighbor[0] != neighbor.GetX() || properNeighbor[1] != neighbor.GetY() || properNeighbor[2] != neighbor.GetZ())
+            {
+                Output.Print("[" + area.GetName() + "(" + ID + ")] link to tile that's not adjacent. Possible error (" + Directions.ToString(direction) + ")");
             }
 
             hasNeighbor[direction] = true;
@@ -171,7 +192,7 @@ namespace TCPGameServer.World.Map
                 // link this tile, and link back right away so this code won't have
                 // to run twice.
                 Link(direction, neighbor);
-                neighbor.Link(Directions.inverse(direction), this);
+                neighbor.Link(Directions.Inverse(direction), this);
             }
             return neighbors[direction];
         }

@@ -95,15 +95,15 @@ namespace TCPGameServer.Control.IO
         private static void HandleNormal(String command, Player player)
         {
             // something is a movement command if it can be parsed to a direction
-            bool isMovementCommand = Directions.fromShortString(command) > -1 || Directions.fromString(command) > -1;
+            bool isMovementCommand = Directions.FromShortString(command) > -1 || Directions.FromString(command) > -1;
 
             // if something is a movement command, move the player in the appropriate direction
             if (isMovementCommand)
             {
                 // we know it's a movement command. Try to parse as short string, if
                 // unsuccesful, parse as long string
-                int direction = Directions.fromShortString(command);
-                if (direction == -1) direction = Directions.fromString(command);
+                int direction = Directions.FromShortString(command);
+                if (direction == -1) direction = Directions.FromString(command);
 
                 player.AddBlockingCommand("MOVE," + direction);
 
