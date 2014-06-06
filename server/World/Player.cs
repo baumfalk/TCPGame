@@ -58,6 +58,7 @@ namespace TCPGameServer.World
         public void Remove()
         {
             body.SetPlayer(null);
+            body.GetPosition().vacate();
         }
 
         public bool IsDisconnected()

@@ -189,6 +189,34 @@ namespace TCPGameClient.View
         private void TileDisplayForm_ResizeEnd(object sender, EventArgs e)
         {
             control.Redraw();
+		}
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up && !e.Shift)
+            {
+                control.SendInput("n");
+            }
+            else if (e.KeyCode == Keys.Down && !e.Shift)
+            {
+                control.SendInput("s");
+            }
+            else if (e.KeyCode == Keys.Left)
+            {
+                control.SendInput("w");
+            } 
+            else if (e.KeyCode == Keys.Right)
+            {
+                control.SendInput("e");
+            }
+            else if (e.KeyCode == Keys.Up && e.Shift)
+            {
+                control.SendInput("u");
+            }
+            else if (e.KeyCode == Keys.Down && e.Shift)
+            {
+                control.SendInput("d");
+            }
         }
     }
 }
