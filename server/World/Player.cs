@@ -47,7 +47,6 @@ namespace TCPGameServer.World
         public Player(Creature body)
         {
             this.body = body;
-         
 
             body.SetPlayer(this);
 
@@ -63,6 +62,7 @@ namespace TCPGameServer.World
             {
                 body.GetPosition().Vacate();
             }
+            SetDisconnected(true);
         }
 
         public bool IsDisconnected()
