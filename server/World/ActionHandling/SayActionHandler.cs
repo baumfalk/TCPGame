@@ -21,13 +21,13 @@ namespace TCPGameServer.World.ActionHandling
             {
                 // send to everybody except the sender
                 case "ALL":
-                    foreach(Player otherPlayer in model.getPlayers()) {
+                    foreach(Player otherPlayer in model.getCopyOfPlayerList()) {
                         otherPlayer.AddMessage("MESSAGE_FROM," + player.GetName() + "," + splitCommand[2], tick);
                     }
                     return;
                 // try to send to specific player (cannot be self)
                 default:
-                    Player foundPlayer = model.getPlayers().Find(x => x.GetName().Equals(splitCommand[1]));
+                    Player foundPlayer = model.getCopyOfPlayerList().Find(x => x.GetName().Equals(splitCommand[1]));
                     if (foundPlayer == null || foundPlayer.Equals(player)) 
                         return;
 

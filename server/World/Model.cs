@@ -15,12 +15,16 @@ namespace TCPGameServer.World
 {
     public class Model
     {
+        // the map. Loads and unloads areas and tiles when needed
         private Map.World theWorld = new Map.World();
 
+        // the list of player objects
         private List<Player> players;
 
+        // handles actions by players
         private ActionHandler actionHandler;
 
+        // constructor initializes fields and creates the world
         public Model() {
             players = new List<Player>();
 
@@ -31,10 +35,28 @@ namespace TCPGameServer.World
 
         public void doUpdate(int tick)
         {
+            // remove players that have been disconnected since last update
+            RemoveDisconnectedPlayers();
+
+            // handle blocking commands (like movement)
+            HandleBlockingCommands(tick);
+
+            // handle immediate commands (like vision)
+            HandleImmediateCommands(tick);
+
+            // unload areas that have been inactive
+            UnloadInactiveAreas(tick);
+        }
+
+        // adds all disconnected players to a list and removes them from the
+        // player list
+        private void RemoveDisconnectedPlayers()
+        {
+            // create list to hold the disconnected players
             List<Player> disconnectedPlayers = new List<Player>();
 
-            // er zijn nog geen updates die zonder player interaction gebeuren, maar die moeten hier
-
+            // loop through all players, if one is disconnected, add him to
+            // the list and output a message saying so
             foreach (Player player in players)
             {
                 if (player.IsDisconnected())
@@ -42,9 +64,22 @@ namespace TCPGameServer.World
                     Output.Print(player.GetName() + " has disconnected");
 
                     disconnectedPlayers.Add(player);
-                    continue;
                 }
+            }
 
+            // remove all disconnected players from the player list
+            foreach (Player disconnected in disconnectedPlayers)
+            {
+                removePlayer(disconnected);
+            }
+        }
+
+        // handles blocking commands. Only one blocking command per player
+        // is handled per tick
+        private void HandleBlockingCommands(int tick)
+        {
+            foreach (Player player in players)
+            {
                 // handle one blocking command per tick
                 if (player.HasNextBlockingCommand())
                 {
@@ -52,7 +87,15 @@ namespace TCPGameServer.World
 
                     actionHandler.Handle(player, command, tick);
                 }
+            }
+        }
 
+        // handles immediate commands. All immediate commands per player
+        // are handled each tick
+        private void HandleImmediateCommands(int tick)
+        {
+            foreach (Player player in players)
+            {
                 // handle all immediate commands
                 while (player.HasImmediateCommands())
                 {
@@ -61,12 +104,11 @@ namespace TCPGameServer.World
                     actionHandler.Handle(player, command, tick);
                 }
             }
+        }
 
-            foreach (Player disconnected in disconnectedPlayers)
-            {
-                removePlayer(disconnected);
-            }
-
+        // unloads inactive areas
+        private void UnloadInactiveAreas(int tick)
+        {
             // unload inactive areas every 10 minutes
             if (tick % 6000 == 0)
             {
@@ -81,74 +123,28 @@ namespace TCPGameServer.World
             }
         }
 
+        // the player list can be added to and a copy can be retrieved. Removal
+        // can only be done internally.
         public void addPlayer(Player player)
         {
             players.Add(player);
         }
-
-        public void removePlayer(Player player)
+        public List<Player> getCopyOfPlayerList()
+        {
+            return new List<Player>(players);
+        }
+        private void removePlayer(Player player)
         {
             players.Remove(player);
         }
 
-        public List<Player> getPlayers()
-        {
-            return players;
-        }
-
+        // gets a tile in the model by area and ID
         public Tile GetTile(String area, int TileID)
         {
             return theWorld.GetTile(area, TileID);
         }
 
-        public List<Tile> getSurroundingTiles(Tile centerTile, int depth)
-        {
-            List<Tile> tilesToSend = new List<Tile>();
-            
-            centerTile.SetColor(depth);
-
-            Queue<Tile> tileQueue = new Queue<Tile>();
-            tileQueue.Enqueue(centerTile);
-
-            BFS_To_Depth(tileQueue, tilesToSend);
-
-            foreach (Tile tile in tilesToSend)
-            {
-                // set color back to unexplored status
-                tile.SetColor(0);
-            }
-
-            return tilesToSend;
-        }
-
-        private void BFS_To_Depth(Queue<Tile> tileQueue, List<Tile> tilesToSend)
-        {
-            while (tileQueue.Count > 0)
-            {
-                Tile activeTile = tileQueue.Dequeue();
-                int depth = activeTile.GetColor();
-
-                if (depth == 0) return;
-
-                tilesToSend.Add(activeTile);
-
-                for (int direction = 0; direction < 6; direction++)
-                {
-                    if (activeTile.HasNeighbor(direction))
-                    {
-                        Tile neighbor = activeTile.GetNeighbor(direction);
-                        if (neighbor.GetColor() == 0)
-                        {
-                            neighbor.SetColor(depth - 1);
-
-                            tileQueue.Enqueue(neighbor);
-                        }
-                    }
-                }
-            }
-            
-        }
-
+        // creating a world is just a matter of creating the object at the moment
         private void createWorld()
         {
             Map.World world = new Map.World();

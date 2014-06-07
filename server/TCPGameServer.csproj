@@ -69,6 +69,7 @@
     <Compile Include="World\Creature.cs" />
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Map\Area.cs" />
+    <Compile Include="World\Map\Geography.cs" />
     <Compile Include="World\Map\IO\AreaReader.cs" />
     <Compile Include="World\Map\IO\AreaWriter.cs" />
     <Compile Include="World\Map\World.cs" />

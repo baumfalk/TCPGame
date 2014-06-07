@@ -83,6 +83,8 @@ namespace TCPGameClient.Control
 
                 // set stream to be the client's networkstream
                 stream = client.GetStream();
+
+                Debug.Print("connected to server");
             }
             catch (IOException e)
             {
