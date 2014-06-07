@@ -17,7 +17,7 @@ namespace TCPGameServer.World.ActionHandling
             this.model = model;
         }
 
-        public void Handle(Player player, String[] splitCommand)
+        public void Handle(Player player, String[] splitCommand, int tick)
         {
             switch (splitCommand[1])
             {
@@ -29,6 +29,7 @@ namespace TCPGameServer.World.ActionHandling
 
                     position.SetOccupant(player.GetBody());
 
+                    player.AddImmediateCommand("LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
                     return;
             }
         }

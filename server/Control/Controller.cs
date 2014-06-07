@@ -43,6 +43,7 @@ namespace TCPGameServer.Control
         public Controller(bool headless_mode)
         {
             Thread.CurrentThread.Name = "Main Thread";
+            Thread UIThread = null;
 
             // set the headless flag
             headless = headless_mode;
@@ -50,7 +51,8 @@ namespace TCPGameServer.Control
             // if the application is not headless, create a UI-thread and run the window on it
             if (!headless)
             {
-                new Thread(OpenWindow).Start();
+                UIThread = new Thread(OpenWindow);
+                UIThread.Start();
             }
 
             // list of active users
@@ -71,8 +73,9 @@ namespace TCPGameServer.Control
             // start the Ticker on it's own thread
             new Thread(Ticker).Start();
 
-            // wait while the running flag is set
-            while (running)
+            // wait while the running flag is set. To be safe, also check if the UI
+            // thread is alive when headless.
+            while (running && (headless || UIThread.IsAlive))
             {
                 Thread.Sleep(1000);
             }
@@ -188,7 +191,7 @@ namespace TCPGameServer.Control
 
         // ask the model to update
         private void UpdateWorld() {
-            model.doUpdate();
+            model.doUpdate(tick);
         }
 
         // send output, and return which players are disconnected
@@ -203,7 +206,7 @@ namespace TCPGameServer.Control
                 {
                     // we can only check if people are online if we send them data
                     // now and then.
-                    if ((tick % 100) == 0) user.AddMessage("PING (" + tick + ")");
+                    if ((tick % 100) == 0) user.AddMessage("PING", tick);
 
                     user.SendMessages(tick);
                 }

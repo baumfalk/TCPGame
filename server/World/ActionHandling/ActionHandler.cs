@@ -28,7 +28,7 @@ namespace TCPGameServer.World.ActionHandling
             sayActionHandler = new SayActionHandler(model);
         }
 
-        public void Handle(Player player, String command)
+        public void Handle(Player player, String command, int tick)
         {
             String[] splitCommand = command.Split(',');
 
@@ -36,19 +36,19 @@ namespace TCPGameServer.World.ActionHandling
             switch (splitCommand[0])
             {
                 case "LOGIN":
-                    loginActionHandler.Handle(player, splitCommand);
+                    loginActionHandler.Handle(player, splitCommand, tick);
                     return;
                 case "MOVE":
-                    moveActionHandler.Handle(player, splitCommand);
+                    moveActionHandler.Handle(player, splitCommand, tick);
                     return;
                 case "PLAYER":
-                    playerActionHandler.Handle(player, splitCommand);
+                    playerActionHandler.Handle(player, splitCommand, tick);
                     return;
                 case "LOOK":
-                    lookActionHandler.Handle(player, splitCommand);
+                    lookActionHandler.Handle(player, splitCommand, tick);
                     return;
                 case "SAY":
-                    sayActionHandler.Handle(player, splitCommand);
+                    sayActionHandler.Handle(player, splitCommand, tick);
                     return;
             }
         }

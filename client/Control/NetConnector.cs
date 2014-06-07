@@ -35,15 +35,15 @@ namespace TCPGameClient.Control
         {
             // assign controller
             this.control = control;
-
-            // create the client
-            client = new TcpClient();
         }
 
         public void Connect(String IP, int port)
         {
+            // create the client
+            client = new TcpClient();
+
+            // parse the IP and port
             bool validIP =  IPAddress.TryParse(IP, out this.IP);
-            //if (!validIP) this.IP = Dns.GetHostEntry(IP);
             this.port = port;
 
             // don't try to connect if already connected.
@@ -87,6 +87,13 @@ namespace TCPGameClient.Control
             catch (IOException e)
             {
                 Debug.Print("exception on finishing connection");
+                Debug.Print(e.Message);
+
+                Disconnect();
+            }
+            catch (SocketException e)
+            {
+                Debug.Print("failure to connect");
                 Debug.Print(e.Message);
 
                 Disconnect();

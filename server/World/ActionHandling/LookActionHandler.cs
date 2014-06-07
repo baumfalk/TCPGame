@@ -17,7 +17,7 @@ namespace TCPGameServer.World.ActionHandling
             this.model = model;
         }
 
-        public void Handle(Player player, String[] splitCommand)
+        public void Handle(Player player, String[] splitCommand, int tick)
         {
             if (player.GetCommandState() != Player.COMMANDSTATE_NORMAL) return;
 
@@ -31,17 +31,17 @@ namespace TCPGameServer.World.ActionHandling
 
             List<Tile> tilesToSend = model.getSurroundingTiles(playerLocation, 10);
 
-            if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.GetX() + "," + playerLocation.GetY() + "," + playerLocation.GetZ());
+            if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.GetX() + "," + playerLocation.GetY() + "," + playerLocation.GetZ(), tick);
 
             foreach (Tile toSend in tilesToSend)
             {
-                if (includeTiles) player.AddMessage("TILE,DETECTED," + toSend.GetX() + "," + toSend.GetY() + "," + toSend.GetZ() + "," + toSend.GetRepresentation());
+                if (includeTiles) player.AddMessage("TILE,DETECTED," + toSend.GetX() + "," + toSend.GetY() + "," + toSend.GetZ() + "," + toSend.GetRepresentation(), tick);
 
                 if (toSend.HasOccupant() && (!(toSend == playerLocation) || includePlayer))
                 {
                     Creature occupant = toSend.GetOccupant();
 
-                    player.AddMessage("CREATURE,DETECTED," + toSend.GetX() + "," + toSend.GetY() + "," + toSend.GetZ() + "," + occupant.GetRepresentation());
+                    player.AddMessage("CREATURE,DETECTED," + toSend.GetX() + "," + toSend.GetY() + "," + toSend.GetZ() + "," + occupant.GetRepresentation(), tick);
                 }
             }
         }

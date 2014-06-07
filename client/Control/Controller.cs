@@ -52,7 +52,6 @@ namespace TCPGameClient.Control
         // handle input from the form. Usually this will just be passed on to the server
         public void SendInput(String input)
         {
-            
             if (input.StartsWith("connect"))
             {
                 String[] connectInfo = input.Split(' ');
@@ -98,7 +97,7 @@ namespace TCPGameClient.Control
         public void DoUpdate(List<String> updateData)
         {
             // stop everything on a quit command
-            if (updateData.Contains("QUIT"))
+            if (updateData.Contains("0,QUIT"))
             {
                 Disconnect();
 

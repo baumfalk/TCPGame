@@ -21,7 +21,7 @@ namespace TCPGameServer.Control.IO
             foreach (String command in commands)
             {
                 // for now we'll just add every command to the log
-                Output.Print(command + " received from user");
+                Output.Print(command + " received from " + player.GetName());
 
                 // shutdown and log commands can be given irrespective of state. At
                 // some point these need to be behind the login, but not during
@@ -37,9 +37,14 @@ namespace TCPGameServer.Control.IO
                 {
                     Output.Print("Sending log to user");
 
-                    foreach (string message in Output.GetLog())
+                    // don't want to iterate over a collection in use, so copy it
+                    String[] log = Output.GetLog().ToArray();
+
+                    foreach (string message in log)
                     {
-                        player.AddMessage("LOG: " + message);
+                        // sent with minvalue as tick argument, since it never needs to
+                        // be handled by the client.
+                        player.AddMessage("LOG: " + message, int.MinValue);
                     }
                 }
                 else if (command.Equals("quit"))
@@ -71,7 +76,7 @@ namespace TCPGameServer.Control.IO
         // a message to the log.
         private static void HandleIdle(String command, Player player)
         {
-            Output.Print("user is idle but sending commands");
+            Output.Print(player.GetName() + " is idle but sending commands");
         }
 
         // TODO: make login dynamic, reading from a file
@@ -86,9 +91,6 @@ namespace TCPGameServer.Control.IO
             player.SetName(command);
             // tell the model the player is logged in
             player.AddImmediateCommand("LOGIN,COMPLETE");
-
-            // look around
-            addLook(true, true, player);
         }
 
         // handle "normal" logins. This should probably be split at some point, like the actionhandlers in
@@ -107,12 +109,10 @@ namespace TCPGameServer.Control.IO
                 if (direction == -1) direction = Directions.FromString(command);
 
                 player.AddBlockingCommand("MOVE," + direction);
-
-                addLook(true, true, player);
             } // look if the command is to look
             else if (command.Equals("l") || command.Equals("look"))
             {
-                addLook(false, true, player);
+                player.AddBlockingCommand("LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
             }
             else if (command.StartsWith("say"))
             {
@@ -140,11 +140,6 @@ namespace TCPGameServer.Control.IO
                     }
                 }
             }
-        }
-
-        private static void addLook(bool includeTiles, bool includePlayer, Player player)
-        {
-            player.AddImmediateCommand("LOOK,TILES_" + ((includeTiles) ? "INCLUDED" : "EXCLUDED") + ",PLAYER_" + ((includePlayer) ? "INCLUDED" : "EXCLUDED"));
         }
     }
 }

@@ -158,14 +158,14 @@ namespace TCPGameServer.Network
         }
 
         // format a queue of strings and send them across the link
-        public void SendMessages(Queue<String> messagesFromModel, int tick)
+        public void SendMessages(Queue<String> messagesFromModel)
         {
             // if we have no messages to send, don't try sending messages.
             if (messagesFromModel.Count == 0) return;
 
             // format the queue to a string with semicolons after each item. Prefix with the tick they were
             // sent.
-            String message = "(" + tick + ");" + MessageFormatting.FormatMessageQueue(messagesFromModel);
+            String message = MessageFormatting.FormatMessageQueue(messagesFromModel);
 
             // convert the message to a byte array
             byte[] messageInBytes = Encoding.ASCII.GetBytes(message);

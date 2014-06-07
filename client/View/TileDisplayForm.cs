@@ -55,6 +55,7 @@ namespace TCPGameClient.View
             // controller is created, this "starts the program"
             control = new Controller(this);
 
+            // create and show chat message form
             cmView = new ChatMessages();
             cmView.Show();
         }

@@ -12,7 +12,7 @@ namespace TCPGameServer.World.ActionHandling
         {
             this.model = model;
         }
-        public void Handle(Player player, String[] splitCommand)
+        public void Handle(Player player, String[] splitCommand, int tick)
         {
             // we need a recipient and a message (first index just contains "say")
             if (!splitCommand[0].Equals("SAY")) return;
@@ -21,8 +21,8 @@ namespace TCPGameServer.World.ActionHandling
             {
                 // send to everybody except the sender
                 case "ALL":
-                    foreach(Player otherPlayer in model.getPlayers()) {                     
-                        otherPlayer.AddMessage("MESSAGE_FROM,"+player.GetName()+","+splitCommand[2]);
+                    foreach(Player otherPlayer in model.getPlayers()) {
+                        otherPlayer.AddMessage("MESSAGE_FROM," + player.GetName() + "," + splitCommand[2], tick);
                     }
                     return;
                 // try to send to specific player (cannot be self)
@@ -31,8 +31,8 @@ namespace TCPGameServer.World.ActionHandling
                     if (foundPlayer == null || foundPlayer.Equals(player)) 
                         return;
 
-                    foundPlayer.AddMessage("MESSAGE_FROM," + player.GetName() + " (private)," + splitCommand[2]);
-                    player.AddMessage("MESSAGE_FROM," + player.GetName() + " (private to "+foundPlayer.GetName()+")," + splitCommand[2]);
+                    foundPlayer.AddMessage("MESSAGE_FROM," + player.GetName() + " (private)," + splitCommand[2], tick);
+                    player.AddMessage("MESSAGE_FROM," + player.GetName() + " (private to " + foundPlayer.GetName() + ")," + splitCommand[2], tick);
                     return;
             }
         }

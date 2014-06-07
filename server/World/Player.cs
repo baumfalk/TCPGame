@@ -83,6 +83,7 @@ namespace TCPGameServer.World
 
         public void AddBlockingCommand(String command)
         {
+            Output.Print("(" + name + ") adding blocking command: " + command);
             blockingCommands.Enqueue(command);
         }
 
@@ -105,7 +106,7 @@ namespace TCPGameServer.World
 
         public void AddImmediateCommand(String command)
         {
-            Output.Print("adding immediate command: " + command);
+            Output.Print("(" + name + ") adding immediate command: " + command);
             immediateCommands.Enqueue(command);
         }
 
@@ -126,9 +127,9 @@ namespace TCPGameServer.World
             }
         }
 
-        public void AddMessage(String message)
+        public void AddMessage(String message, int tick)
         {
-            messages.Enqueue(message);
+            messages.Enqueue(tick + "," + message);
         }
 
         public bool HasMessages()

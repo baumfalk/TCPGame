@@ -36,16 +36,16 @@ namespace TCPGameServer.Control
 
             // start the login procedure
             player.SetCommandState(Player.COMMANDSTATE_LOGIN);
-            AddMessage("LOGIN,MESSAGE,please input your character name");
+            AddMessage("LOGIN,MESSAGE,please input your character name", int.MinValue);
         }
 
         // removing the user tells the player and the client to remove themselves
         public void Remove()
         {
             Queue<String> quitQueue = new Queue<String>();
-            quitQueue.Enqueue("QUIT");
+            quitQueue.Enqueue("0,QUIT");
 
-            client.SendMessages(quitQueue, 0);
+            client.SendMessages(quitQueue);
 
             player.Remove();
             client.Remove();
@@ -68,9 +68,9 @@ namespace TCPGameServer.Control
 
         // messages from the server could be kept in a separate list, but for now we
         // just add them to the messages the player object maintains.
-        public void AddMessage(String message)
+        public void AddMessage(String message, int tick)
         {
-            player.AddMessage(message);
+            player.AddMessage(message, tick);
         }
 
         // get the message queue the player object maintains, and pass it to the client
@@ -78,7 +78,7 @@ namespace TCPGameServer.Control
         {
             Queue<String> messages = player.GetMessages();
 
-            client.SendMessages(messages, tick);
+            client.SendMessages(messages);
         }
 
         // data should be sent with separate lines separated by semicolons. It will be passed

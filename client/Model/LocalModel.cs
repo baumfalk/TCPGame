@@ -60,7 +60,6 @@ namespace TCPGameClient.Model
             return creatures;
         }
 
-
         public bool Update(List<String> updateData)
         {
             bool DoRedraw = false;
@@ -74,7 +73,7 @@ namespace TCPGameClient.Model
                 String[] inputPart = input.Split(',');
 
                 // switch on the type of input, let other methods handle them.
-                switch (inputPart[0])
+                switch (inputPart[1])
                 {
                     case "LOGIN":
                         break;
@@ -120,11 +119,11 @@ namespace TCPGameClient.Model
         // handles player-type updates. Only "position" update exists at the moment.
         private void UpdatePlayer(String[] inputPart)
         {
-            if (inputPart[1].Equals("POSITION"))
+            if (inputPart[2].Equals("POSITION"))
             {
-                int newX = int.Parse(inputPart[2]);
-                int newY = int.Parse(inputPart[3]);
-                int newZ = int.Parse(inputPart[4]);
+                int newX = int.Parse(inputPart[3]);
+                int newY = int.Parse(inputPart[4]);
+                int newZ = int.Parse(inputPart[5]);
 
                 // if we have moved, we should shift our map (which is player-centered)
                 if (newX != currentX || newY != currentY || newZ != currentZ) ShiftMap(newX, newY, newZ);
@@ -181,13 +180,13 @@ namespace TCPGameClient.Model
                 updatingCreatures = true;
             }
 
-            if (inputPart[1].Equals("DETECTED"))
+            if (inputPart[2].Equals("DETECTED"))
             {
                 // get position and representation from the input
-                int xPos = int.Parse(inputPart[2]);
-                int yPos = int.Parse(inputPart[3]);
-                int zPos = int.Parse(inputPart[4]);
-                String representation = inputPart[5];
+                int xPos = int.Parse(inputPart[3]);
+                int yPos = int.Parse(inputPart[4]);
+                int zPos = int.Parse(inputPart[5]);
+                String representation = inputPart[6];
 
                 // calculate position relative to the player
                 int relPosX = xPos - currentX;
@@ -202,13 +201,13 @@ namespace TCPGameClient.Model
         // handles "tile" type updates. Only "detection" updates exist at the moment.
         private void UpdateTile(String[] inputPart)
         {
-            if (inputPart[1].Equals("DETECTED"))
+            if (inputPart[2].Equals("DETECTED"))
             {
                 // get position and representation from the input
-                int xPos = int.Parse(inputPart[2]);
-                int yPos = int.Parse(inputPart[3]);
-                int zPos = int.Parse(inputPart[4]);
-                String representation = inputPart[5];
+                int xPos = int.Parse(inputPart[3]);
+                int yPos = int.Parse(inputPart[4]);
+                int zPos = int.Parse(inputPart[5]);
+                String representation = inputPart[6];
 
                 // calculate position relative to the center of the map
                 int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);

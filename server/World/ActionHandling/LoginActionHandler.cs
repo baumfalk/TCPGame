@@ -15,7 +15,7 @@ namespace TCPGameServer.World.ActionHandling
             this.model = model;
         }
 
-        public void Handle(Player player, String[] splitCommand)
+        public void Handle(Player player, String[] splitCommand, int tick)
         {
             switch (splitCommand[1])
             {

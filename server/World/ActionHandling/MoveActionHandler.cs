@@ -17,7 +17,7 @@ namespace TCPGameServer.World.ActionHandling
             this.model = model;
         }
 
-        public void Handle(Player player, String[] splitCommand)
+        public void Handle(Player player, String[] splitCommand, int tick)
         {
             // get the player position
             Tile position = player.GetBody().GetPosition();
@@ -36,6 +36,8 @@ namespace TCPGameServer.World.ActionHandling
                 if (neighbor.IsPassable() && !neighbor.HasOccupant()) {
                     position.Vacate();
                     neighbor.SetOccupant(player.GetBody());
+
+                    player.AddImmediateCommand("LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
                 }
             }
         }
