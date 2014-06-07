@@ -8,11 +8,11 @@ namespace TCPGameServer.World.ActionHandling
 {
     class LoginActionHandler
     {
-        private Model world;
+        private Model model;
 
-        public LoginActionHandler(Model world)
+        public LoginActionHandler(Model model)
         {
-            this.world = world;
+            this.model = model;
         }
 
         public void Handle(Player player, String[] splitCommand)

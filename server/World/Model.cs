@@ -21,12 +21,14 @@ namespace TCPGameServer.World
 
         private ActionHandler actionHandler;
 
+        private int tick;
+
         public Model() {
             players = new List<Player>();
 
             actionHandler = new ActionHandler(this);
 
-            createModel();
+            createWorld();
         }
 
         public void doUpdate()
@@ -39,7 +41,7 @@ namespace TCPGameServer.World
             {
                 if (player.IsDisconnected())
                 {
-                    Output.Print("player is disconnected");
+                    Output.Print(player.GetName() + " has disconnected");
 
                     disconnectedPlayers.Add(player);
                     continue;
@@ -65,6 +67,20 @@ namespace TCPGameServer.World
             foreach (Player disconnected in disconnectedPlayers)
             {
                 removePlayer(disconnected);
+            }
+
+            tick++;
+            // unload inactive areas every 10 minutes
+            if (tick % 6000 == 0)
+            {
+                foreach (Player player in players)
+                {
+                    // set the areas players are in to be active, so they
+                    // don't get unloaded when people are standing still
+                    player.GetBody().GetPosition().GetArea().SetActive();
+                }
+
+                theWorld.UnloadInactiveAreas();
             }
         }
 
@@ -136,7 +152,7 @@ namespace TCPGameServer.World
             
         }
 
-        private void createModel()
+        private void createWorld()
         {
             Map.World world = new Map.World();
         }

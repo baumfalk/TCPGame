@@ -28,7 +28,7 @@ namespace TCPGameServer.Control
         private List<User> newUsers;
 
         // the model
-        private Model world;
+        private Model model;
         // connects new clients to user objects
         private NetServer server;
 
@@ -60,7 +60,7 @@ namespace TCPGameServer.Control
             newUsers = new List<User>();
 
             // the model
-            world = new Model();
+            model = new Model();
 
             // create the server
             server = new NetServer(this, 8888);
@@ -100,7 +100,7 @@ namespace TCPGameServer.Control
         // register a player to the model. Usually done when a user has finished login.
         public void RegisterPlayer(Player player)
         {
-            world.addPlayer(player);
+            model.addPlayer(player);
         }
 
         // add a new user. Won't alter the new user list while it's being worked on.
@@ -188,7 +188,7 @@ namespace TCPGameServer.Control
 
         // ask the model to update
         private void UpdateWorld() {
-            world.doUpdate();
+            model.doUpdate();
         }
 
         // send output, and return which players are disconnected

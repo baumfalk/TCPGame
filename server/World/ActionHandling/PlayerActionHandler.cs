@@ -10,11 +10,11 @@ namespace TCPGameServer.World.ActionHandling
 {
     class PlayerActionHandler
     {
-        private Model world;
+        private Model model;
 
-        public PlayerActionHandler(Model world)
+        public PlayerActionHandler(Model model)
         {
-            this.world = world;
+            this.model = model;
         }
 
         public void Handle(Player player, String[] splitCommand)
@@ -25,7 +25,7 @@ namespace TCPGameServer.World.ActionHandling
                     String area = splitCommand[2];
                     int ID = int.Parse(splitCommand[3]);
 
-                    Tile position = world.GetTile(area, ID);
+                    Tile position = model.GetTile(area, ID);
 
                     position.SetOccupant(player.GetBody());
 

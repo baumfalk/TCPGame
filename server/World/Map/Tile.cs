@@ -137,6 +137,24 @@ namespace TCPGameServer.World.Map
             hasNeighbor[direction] = true;
         }
 
+        // unlink a tile
+        public void Unlink(int direction)
+        {
+            // remove the link, and the flag showing there is a link. We don't have to
+            // remove an area link struct, since it won't be checked when the flag is false
+            // or an actual link exists.
+            neighbors[direction] = null;
+            hasNeighbor[direction] = false;
+        }
+
+        // unlink an area link when an area is unloaded
+        public void UnlinkAreaOnUnload(int direction)
+        {
+            // if this link has been used, it's been "proper" linked. Remove that
+            // link, but keep areaLinks and hasNeighbor as they are.
+            neighbors[direction] = null;
+        }
+
         // checks if this tile has an occupant
         public bool HasOccupant()
         {
@@ -154,6 +172,9 @@ namespace TCPGameServer.World.Map
         {
             this.occupant = occupant;
             occupant.SetPosition(this);
+
+            // this area is active at this point
+            area.SetActive();
         }
 
         // clears the occupant from this tile
@@ -203,21 +224,29 @@ namespace TCPGameServer.World.Map
             return neighbors[direction];
         }
 
+        // Get the text of a link, used when saving an area
         public String GetLinkText(int direction)
         {
+            // check if there's a neighbor
             if (hasNeighbor[direction])
             {
+                // if there is, check if it's in the same area (either it's not linked yet if another
+                // area hasn't been loaded, or the area name is different.
                 if (neighbors[direction] != null && neighbors[direction].GetArea().Equals(area))
                 {
+                    // if it's in the same area, return the ID of the target tile
                     return neighbors[direction].ID.ToString();
                 }
                 else
                 {
+                    // if it's in a different area, return the area name and the target ID separated
+                    // by a semicolon
                     return areaLinks[direction].areaName + ";" + areaLinks[direction].targetID;
                 }
             }
             else
             {
+                // if there's no link, return -1
                 return "-1";
             }
         }

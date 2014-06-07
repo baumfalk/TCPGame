@@ -7,10 +7,10 @@ namespace TCPGameServer.World.ActionHandling
 {
     class SayActionHandler
     {
-        private Model world;
-        public SayActionHandler(Model world)
+        private Model model;
+        public SayActionHandler(Model model)
         {
-            this.world = world;
+            this.model = model;
         }
         public void Handle(Player player, String[] splitCommand)
         {
@@ -21,13 +21,13 @@ namespace TCPGameServer.World.ActionHandling
             {
                 // send to everybody except the sender
                 case "ALL":
-                    foreach(Player otherPlayer in world.getPlayers()) {                     
+                    foreach(Player otherPlayer in model.getPlayers()) {                     
                         otherPlayer.AddMessage("MESSAGE_FROM,"+player.GetName()+","+splitCommand[2]);
                     }
                     return;
                 // try to send to specific player (cannot be self)
                 default:
-                    Player foundPlayer = world.getPlayers().Find(x => x.GetName().Equals(splitCommand[1]));
+                    Player foundPlayer = model.getPlayers().Find(x => x.GetName().Equals(splitCommand[1]));
                     if (foundPlayer == null || foundPlayer.Equals(player)) 
                         return;
 

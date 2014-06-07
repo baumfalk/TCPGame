@@ -10,11 +10,11 @@ namespace TCPGameServer.World.ActionHandling
 {
     class LookActionHandler
     {
-        private Model world;
+        private Model model;
 
-        public LookActionHandler(Model world)
+        public LookActionHandler(Model model)
         {
-            this.world = world;
+            this.model = model;
         }
 
         public void Handle(Player player, String[] splitCommand)
@@ -29,7 +29,7 @@ namespace TCPGameServer.World.ActionHandling
 
             Tile playerLocation = player.GetBody().GetPosition();
 
-            List<Tile> tilesToSend = world.getSurroundingTiles(playerLocation, 10);
+            List<Tile> tilesToSend = model.getSurroundingTiles(playerLocation, 10);
 
             if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.GetX() + "," + playerLocation.GetY() + "," + playerLocation.GetZ());
 

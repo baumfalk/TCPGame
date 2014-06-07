@@ -10,22 +10,22 @@ namespace TCPGameServer.World.ActionHandling
 {
     class ActionHandler
     {
-        private Model world;
+        private Model model;
 
         private LoginActionHandler loginActionHandler;
         private MoveActionHandler moveActionHandler;
         private PlayerActionHandler playerActionHandler;
         private LookActionHandler lookActionHandler;
         private SayActionHandler sayActionHandler;
-        public ActionHandler(Model world)
+        public ActionHandler(Model model)
         {
-            this.world = world;
+            this.model = model;
 
-            loginActionHandler = new LoginActionHandler(world);
-            moveActionHandler = new MoveActionHandler(world);
-            playerActionHandler = new PlayerActionHandler(world);
-            lookActionHandler = new LookActionHandler(world);
-            sayActionHandler = new SayActionHandler(world);
+            loginActionHandler = new LoginActionHandler(model);
+            moveActionHandler = new MoveActionHandler(model);
+            playerActionHandler = new PlayerActionHandler(model);
+            lookActionHandler = new LookActionHandler(model);
+            sayActionHandler = new SayActionHandler(model);
         }
 
         public void Handle(Player player, String command)

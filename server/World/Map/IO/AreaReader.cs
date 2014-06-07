@@ -20,7 +20,7 @@ namespace TCPGameServer.World.Map.IO
         // path, based on where the files are in the git repository
         private static String gitPath = @"../../../map/";
 
-        // load an area from file, based on it's name
+        // load an area from file, based on its name
         public static Tile[] Load(String name, Area area, World world)
         {
             Output.Print("Loading area " + name);

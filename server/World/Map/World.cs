@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.Map
 {
     public class World
@@ -21,6 +23,48 @@ namespace TCPGameServer.World.Map
             loadedAreas = new Dictionary<String, Area>();
         }
 
+        // for now, we will unload areas that have seen no activity for thirty
+        // minutes or more when this method is called (every 10 minutes).
+        public void UnloadInactiveAreas()
+        {
+            // a buffer, we don't want to alter the dictionary while we're
+            // iterating through it's entries
+            List<KeyValuePair<String, Area>> unloadList = new List<KeyValuePair<String,Area>>();
+
+            // loop through all the loaded areas
+            foreach (KeyValuePair<String, Area> entry in loadedAreas) {
+                // take the area
+                Area area = entry.Value;
+
+                // check the period the area has been inactive
+                TimeSpan inactivity = area.GetLastActivity();
+
+                // if it's more than 30 minutes, add it to the unload buffer
+                if (inactivity.TotalMinutes > 30) unloadList.Add(entry);
+            }
+
+            // unload and remove each area that's in the buffer
+            foreach (KeyValuePair<String, Area> entry in unloadList)
+            {
+                entry.Value.Unload();
+                loadedAreas.Remove(entry.Key);
+            }
+        }
+
+        // checks if an area is loaded
+        public bool IsLoaded(String areaName)
+        {
+            return loadedAreas.ContainsKey(areaName);
+        }
+
+        // get a tile in the world
+        public Tile GetTile(String areaName, int TileID)
+        {
+            Area area = getArea(areaName);
+
+            return area.GetTile(TileID);
+        }
+
         // get an area from the dictionary if it's in there. If not, load
         // it and add it.
         private Area getArea(String areaName)
@@ -35,14 +79,6 @@ namespace TCPGameServer.World.Map
             }
 
             return area;
-        }
-
-        // get a tile in the world
-        public Tile GetTile(String areaName, int TileID)
-        {
-            Area area = getArea(areaName);
-
-            return area.GetTile(TileID);
         }
 
         // get the random number generator seed

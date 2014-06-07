@@ -159,7 +159,7 @@ namespace TCPGameServer.World
 
         public void SetName(string name)
         {
-            this.name = name;
+            if (name != "") this.name = name;
         }
 
         public string GetName()

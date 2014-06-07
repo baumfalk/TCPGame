@@ -10,11 +10,11 @@ namespace TCPGameServer.World.ActionHandling
 {
     class MoveActionHandler
     {
-        private Model world;
+        private Model model;
 
-        public MoveActionHandler(Model world)
+        public MoveActionHandler(Model model)
         {
-            this.world = world;
+            this.model = model;
         }
 
         public void Handle(Player player, String[] splitCommand)

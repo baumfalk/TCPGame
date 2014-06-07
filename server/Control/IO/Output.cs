@@ -15,6 +15,10 @@ namespace TCPGameServer.Control.IO
         // output to the window, or to the debug stream if headless. Also added to the log.
         public static void Print(string message)
         {
+            DateTime timeStamp = DateTime.Now;
+
+            message = "[ " + timeStamp.ToLongTimeString() + " ] " + message;
+
             if (!Controller.headless) ServerOutputWindow.Print(message);
             Console.WriteLine(message);
 
@@ -24,6 +28,10 @@ namespace TCPGameServer.Control.IO
         // special output, only when not headless. Useful for debugging.
         public static void Debug(string message)
         {
+            DateTime timeStamp = DateTime.Now;
+
+            message = "[" + timeStamp.ToLongTimeString() + "] " + message;
+
             if (!Controller.headless) {
                 ServerOutputWindow.Print(message);
                 log.Add(message);
