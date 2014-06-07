@@ -64,13 +64,21 @@ namespace TCPGameClient.Model
         {
             bool DoRedraw = false;
 
-            updatingCreatures = false;
+            int tick = 0;
 
             // loop through all strings we received
             foreach (String input in updateData)
             {
                 // split the inputs
                 String[] inputPart = input.Split(',');
+
+                // creature information is complete per tick. If we received
+                // multiple ticks, reset creatures when handling later ones.
+                if (tick != int.Parse(inputPart[0]))
+                {
+                    tick = int.Parse(inputPart[0]);
+                    updatingCreatures = false;
+                }
 
                 // switch on the type of input, let other methods handle them.
                 switch (inputPart[1])
