@@ -38,11 +38,15 @@ namespace TCPGameServer.World
         // constants for the different command states
         public const int COMMANDSTATE_IDLE = 0;
         public const int COMMANDSTATE_LOGIN = 1;
-        public const int COMMANDSTATE_NORMAL = 2;
-        public const int COMMANDSTATE_DISCONNECTED = 3;
+        public const int COMMANDSTATE_PLACEMENT = 2;
+        public const int COMMANDSTATE_NORMAL = 3;
+        public const int COMMANDSTATE_DISCONNECTED = 4;
 
         // flag to show a player is disconnected
         private bool disconnected = false;
+
+        // blocking queue delay
+        private int blockDelay = 0;
 
         // unique identifier
         private string name = "anon";
@@ -81,19 +85,30 @@ namespace TCPGameServer.World
             else commandState = COMMANDSTATE_NORMAL;
         }
 
+        public void AddBlockingDelay(int ticks)
+        {
+            blockDelay += ticks;
+        }
+
         public void AddBlockingCommand(String[] cmdAndParameters)
         {
-            Output.Print("(" + name + ") adding blocking command: " + cmdAndParameters);
+            Output.Print("(" + name + ") adding blocking command: " + cmdAndParameters[0]);
             blockingCommands.Enqueue(cmdAndParameters);
         }
 
         public bool HasNextBlockingCommand()
         {
-            return blockingCommands.Count > 0;
+            return blockingCommands.Count > 0 || blockDelay > 0;
         }
 
         public String[] GetNextBlockingCommand()
         {
+            if (blockDelay > 0)
+            {
+                blockDelay--;
+                return new String[] { "DELAY" };
+            }
+
             if (HasNextBlockingCommand())
             {
                 return blockingCommands.Dequeue();

@@ -205,6 +205,13 @@ namespace TCPGameServer.Network
 
                 if (connected) Disconnect();
             }
+            catch (SocketException e)
+            {
+                Output.Print("object disposed on write");
+                Output.Print(e.Message);
+
+                if (connected) Disconnect();
+            }
         }
     }
 }

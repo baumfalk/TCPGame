@@ -17,12 +17,14 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String[] splitCommand, int tick)
         {
-            switch (splitCommand[1])
+            String name = player.GetName();
+            String subCommand = splitCommand[1];
+
+            switch (subCommand)
             {
-                case "COMPLETE":
-                    player.SetCommandState(Player.COMMANDSTATE_NORMAL);
-                    player.AddMessage("MESSAGE,LOGIN,welcome " + player.GetName() + "!", tick);
-                    model.AddModelCommand(new String[] { "SAY", player.GetName() + " has logged in" });
+                case "COMPLETE": // when done logging in, let people know
+                    player.AddMessage("MESSAGE,LOGIN,welcome " + name + "!", tick);
+                    model.AddModelCommand(new String[] { "SAY", name + " has logged in" });
                     return;
             }
         }

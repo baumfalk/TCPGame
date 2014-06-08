@@ -17,6 +17,7 @@ namespace TCPGameServer.World.ActionHandling
         private PlayerActionHandler playerActionHandler;
         private LookActionHandler lookActionHandler;
         private MessageActionHandler messageActionHandler;
+
         public ActionHandler(Model model)
         {
             this.model = model;
@@ -26,6 +27,7 @@ namespace TCPGameServer.World.ActionHandling
             playerActionHandler = new PlayerActionHandler(model);
             lookActionHandler = new LookActionHandler(model);
             messageActionHandler = new MessageActionHandler(model);
+
         }
 
         public void Handle(Player player, String [] cmdAndParameters, int tick)
@@ -48,6 +50,8 @@ namespace TCPGameServer.World.ActionHandling
                 case "SAY":
                 case "WHISPER":
                     messageActionHandler.Handle(player, cmdAndParameters, tick);
+                    return;
+                case "DELAY":
                     return;
             }
         }

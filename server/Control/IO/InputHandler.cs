@@ -124,7 +124,7 @@ namespace TCPGameServer.Control.IO
 
                 player.AddImmediateCommand(new String[] { "SAY", splittedString[1] });
             }
-            else if (command.ToLower().StartsWith("whisper")) // format: whisper *recipient* *message*
+            else if (command.ToLower().StartsWith("whisper") || command.ToLower().StartsWith("tell")) // format: whisper *recipient* *message*
             {
                 // split the string in three
                 string[] splittedString = command.Split(new char[] { ' ' }, 3);

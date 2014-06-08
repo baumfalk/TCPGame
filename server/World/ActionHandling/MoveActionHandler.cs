@@ -33,11 +33,12 @@ namespace TCPGameServer.World.ActionHandling
 
                 // if it's passable and empty, vacate the tile the player is on
                 // and move the player to the new position
-                if (neighbor.IsPassable() && !neighbor.HasOccupant()) {
+                if (neighbor.IsPassable() && !neighbor.HasOccupant())
+                {
                     position.Vacate();
                     neighbor.SetOccupant(player.GetBody());
 
-                    player.AddImmediateCommand(new String[]{"LOOK","TILES_INCLUDED","PLAYER_INCLUDED"});
+                    player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
                 }
             }
         }
