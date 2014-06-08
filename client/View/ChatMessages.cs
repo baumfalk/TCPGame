@@ -39,8 +39,8 @@ namespace TCPGameClient.View
             else
             {
                 // if this is the right thread, just write it down.
-                String[] message = rawMessage.Split(',');
-                this.txtMessages.Text += message[1] + ": " + message[2] + "\r\n";
+                String[] message = rawMessage.Split(new char[]{','},4); // split in 4 parts: time, command, to, and message.
+                this.txtMessages.Text += message[2] + ": " + message[3] + "\r\n";
             }
         }
     }

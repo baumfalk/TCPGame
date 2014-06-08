@@ -16,7 +16,7 @@ namespace TCPGameServer.World.ActionHandling
         private MoveActionHandler moveActionHandler;
         private PlayerActionHandler playerActionHandler;
         private LookActionHandler lookActionHandler;
-        private SayActionHandler sayActionHandler;
+        private MessageActionHandler messageActionHandler;
         public ActionHandler(Model model)
         {
             this.model = model;
@@ -25,30 +25,29 @@ namespace TCPGameServer.World.ActionHandling
             moveActionHandler = new MoveActionHandler(model);
             playerActionHandler = new PlayerActionHandler(model);
             lookActionHandler = new LookActionHandler(model);
-            sayActionHandler = new SayActionHandler(model);
+            messageActionHandler = new MessageActionHandler(model);
         }
 
-        public void Handle(Player player, String command, int tick)
+        public void Handle(Player player, String [] cmdAndParameters, int tick)
         {
-            String[] splitCommand = command.Split(',');
-
             // hand off command handling to specialized classes
-            switch (splitCommand[0])
+            switch (cmdAndParameters[0])
             {
                 case "LOGIN":
-                    loginActionHandler.Handle(player, splitCommand, tick);
+                    loginActionHandler.Handle(player, cmdAndParameters, tick);
                     return;
                 case "MOVE":
-                    moveActionHandler.Handle(player, splitCommand, tick);
+                    moveActionHandler.Handle(player, cmdAndParameters, tick);
                     return;
                 case "PLAYER":
-                    playerActionHandler.Handle(player, splitCommand, tick);
+                    playerActionHandler.Handle(player, cmdAndParameters, tick);
                     return;
                 case "LOOK":
-                    lookActionHandler.Handle(player, splitCommand, tick);
+                    lookActionHandler.Handle(player, cmdAndParameters, tick);
                     return;
                 case "SAY":
-                    sayActionHandler.Handle(player, splitCommand, tick);
+                case "WHISPER":
+                    messageActionHandler.Handle(player, cmdAndParameters, tick);
                     return;
             }
         }

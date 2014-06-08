@@ -83,14 +83,14 @@ namespace TCPGameServer.Control.IO
         private static void HandleLogin(String command, Player player)
         {
             // place the player on the map
-            if (command.Equals("geerten")) player.AddImmediateCommand("PLAYER,PLACE,start,0");
-            else if (command.Equals("jetze")) player.AddImmediateCommand("PLAYER,PLACE,start,1");
-            else player.AddImmediateCommand("PLAYER,PLACE,start,2");
+            if (command.Equals("geerten")) player.AddImmediateCommand(new String[] {"PLAYER","PLACE","start","0"});
+            else if (command.Equals("jetze")) player.AddImmediateCommand(new String[] {"PLAYER","PLACE","start","1"});
+            else player.AddImmediateCommand(new String[] {"PLAYER","PLACE","start","2"});
 
             // set the player's name to whatever he used to log in
             player.SetName(command);
             // tell the model the player is logged in
-            player.AddImmediateCommand("LOGIN,COMPLETE");
+            player.AddImmediateCommand(new String[] {"LOGIN","COMPLETE"});
         }
 
         // handle "normal" logins. This should probably be split at some point, like the actionhandlers in
@@ -108,37 +108,31 @@ namespace TCPGameServer.Control.IO
                 int direction = Directions.FromShortString(command);
                 if (direction == -1) direction = Directions.FromString(command);
 
-                player.AddBlockingCommand("MOVE," + direction);
+                player.AddBlockingCommand(new String[]{"MOVE" , ""+direction});
             } // look if the command is to look
             else if (command.Equals("l") || command.Equals("look"))
             {
-                player.AddBlockingCommand("LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
+                player.AddBlockingCommand(new String[]{"LOOK","TILES_INCLUDED","PLAYER_INCLUDED"});
             }
-            else if (command.StartsWith("say"))
+            else if (command.ToLower().StartsWith("say")) // formay say *message*
             {
-                // split the string in at most three pieces
-                string[] splittedString = command.Split(new char[]{' '},3);
+                // split the string in two
+                string[] splittedString = command.Split(new char[]{' '},2);
                
-                // no recipient specified. Assume it was meant for everybody
-                if (splittedString.Length == 2)
-                {
-                    player.AddImmediateCommand("SAY,ALL," + splittedString[1]);
-                }
-                // recipient specified
-                else if (splittedString.Length == 3)
-                {
-                    // meant for everyone
-                    if (splittedString[1].Equals("all"))
-                    {
-                        player.AddImmediateCommand("SAY,ALL," + splittedString[2]);
+                // invalid command
+                if (splittedString.Length < 2) return;
+              
+                player.AddImmediateCommand(new String[] {"SAY",splittedString[1]});
+            }
+            else if (command.ToLower().StartsWith("whisper")) // format: whisper *recipient* *message*
+            {
+                // split the string in three
+                string[] splittedString = command.Split(new char[] { ' ' }, 3);
 
-                    }
-                    // meant for a specific recipient
-                    else
-                    {
-                        player.AddImmediateCommand("SAY," + splittedString[1] + "," + splittedString[2]);
-                    }
-                }
+                // invalid command
+                if (splittedString.Length < 3) return;
+
+                player.AddImmediateCommand(new String[] { "WHISPER", splittedString[1], splittedString[2] });
             }
         }
     }

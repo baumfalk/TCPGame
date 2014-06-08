@@ -18,13 +18,13 @@ namespace TCPGameServer.World
 
         // a queue of blocking commands (like walking, we don't want players to move infinite
         // distances in zero time if they just send enough commands at once.)
-        private Queue<String> blockingCommands;
+        private Queue<String[]> blockingCommands;
 
         // a queue of immediate commands (like getting inventory information, which can be
         // done at any time, even when blocking commands are queued). You may want to limit
         // the number of immediate commands that will be handled in a tick, but in theory
         // they should just be handled and the results returned on the next tick.
-        private Queue<String> immediateCommands;
+        private Queue<String[]> immediateCommands;
 
         // a queue of messages to send to the client, queried by the user linked to this
         // player object every tick.
@@ -53,8 +53,8 @@ namespace TCPGameServer.World
 
             body.SetPlayer(this);
 
-            blockingCommands = new Queue<String>();
-            immediateCommands = new Queue<String>();
+            blockingCommands = new Queue<String[]>();
+            immediateCommands = new Queue<String[]>();
             messages = new Queue<String>();
         }
 
@@ -81,10 +81,10 @@ namespace TCPGameServer.World
             else commandState = COMMANDSTATE_NORMAL;
         }
 
-        public void AddBlockingCommand(String command)
+        public void AddBlockingCommand(String[] cmdAndParameters)
         {
-            Output.Print("(" + name + ") adding blocking command: " + command);
-            blockingCommands.Enqueue(command);
+            Output.Print("(" + name + ") adding blocking command: " + cmdAndParameters);
+            blockingCommands.Enqueue(cmdAndParameters);
         }
 
         public bool HasNextBlockingCommand()
@@ -92,7 +92,7 @@ namespace TCPGameServer.World
             return blockingCommands.Count > 0;
         }
 
-        public String GetNextBlockingCommand()
+        public String[] GetNextBlockingCommand()
         {
             if (HasNextBlockingCommand())
             {
@@ -100,14 +100,14 @@ namespace TCPGameServer.World
             }
             else
             {
-                return "";
+                return null;
             }
         }
 
-        public void AddImmediateCommand(String command)
+        public void AddImmediateCommand(String [] cmdAndParameters)
         {
-            Output.Print("(" + name + ") adding immediate command: " + command);
-            immediateCommands.Enqueue(command);
+            Output.Print("(" + name + ") adding immediate command: " + cmdAndParameters[0]);
+            immediateCommands.Enqueue(cmdAndParameters);
         }
 
         public bool HasImmediateCommands()
@@ -115,7 +115,7 @@ namespace TCPGameServer.World
             return (immediateCommands.Count > 0);
         }
 
-        public String GetNextImmediateCommand()
+        public String[] GetNextImmediateCommand()
         {
             if (HasImmediateCommands())
             {
@@ -123,7 +123,7 @@ namespace TCPGameServer.World
             }
             else
             {
-                return "";
+                return null;
             }
         }
 

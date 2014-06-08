@@ -83,9 +83,9 @@ namespace TCPGameServer.World
                 // handle one blocking command per tick
                 if (player.HasNextBlockingCommand())
                 {
-                    String command = player.GetNextBlockingCommand();
+                    String [] cmdAndParameters = player.GetNextBlockingCommand();
 
-                    actionHandler.Handle(player, command, tick);
+                    actionHandler.Handle(player, cmdAndParameters, tick);
                 }
             }
         }
@@ -99,8 +99,8 @@ namespace TCPGameServer.World
                 // handle all immediate commands
                 while (player.HasImmediateCommands())
                 {
-                    String command = player.GetNextImmediateCommand();
-
+                    String [] command = player.GetNextImmediateCommand();
+                    if (null == command) continue;
                     actionHandler.Handle(player, command, tick);
                 }
             }

@@ -105,9 +105,9 @@ namespace TCPGameClient.Control
             }
 
             // pass on chat messages to the chat message window
-            if (updateData.Any(x => x.StartsWith("MESSAGE_FROM")))
+            if (updateData.Any(x => x.Contains("MESSAGE_FROM")))
             {
-                tdView.cmView.addMessage(updateData.Find(x => x.StartsWith("MESSAGE_FROM")));
+                tdView.cmView.addMessage(updateData.Find(x => x.Contains("MESSAGE_FROM")));
             }
 
             // update local model using the data sent

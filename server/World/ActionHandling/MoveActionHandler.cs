@@ -37,7 +37,7 @@ namespace TCPGameServer.World.ActionHandling
                     position.Vacate();
                     neighbor.SetOccupant(player.GetBody());
 
-                    player.AddImmediateCommand("LOOK,TILES_INCLUDED,PLAYER_INCLUDED");
+                    player.AddImmediateCommand(new String[]{"LOOK","TILES_INCLUDED","PLAYER_INCLUDED"});
                 }
             }
         }
