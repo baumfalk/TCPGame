@@ -62,106 +62,130 @@ namespace TCPGameServer.World
             messages = new Queue<String>();
         }
 
+        // remove the player from the world
         public void Remove()
         {
-            body.SetPlayer(null);
+            // if the player was on the map, remove him
             if (body.GetPosition() != null)
             {
                 body.GetPosition().Vacate();
             }
+            // set the player's disconnected state to true
             SetDisconnected(true);
         }
 
+        // disconnected state can be set and retrieved
+        public void SetDisconnected(bool disconnected)
+        {
+            this.disconnected = disconnected;
+
+            // if disconnected, set the commandstate to disconnected, if not,
+            // set it back to normal
+            if (disconnected) commandState = COMMANDSTATE_DISCONNECTED;
+            else commandState = COMMANDSTATE_NORMAL;
+        }
         public bool IsDisconnected()
         {
             return disconnected;
         }
 
-        public void SetDisconnected(bool disconnected)
-        {
-            this.disconnected = disconnected;
-
-            if (disconnected) commandState = COMMANDSTATE_DISCONNECTED;
-            else commandState = COMMANDSTATE_NORMAL;
-        }
-
+        // blocking delay is handled before the next item in the blocking command
+        // queue. Allows for commands to take longer than a single tick.
         public void AddBlockingDelay(int ticks)
         {
             blockDelay += ticks;
         }
 
-        public void AddBlockingCommand(String[] cmdAndParameters)
-        {
-            Output.Print("(" + name + ") adding blocking command: " + cmdAndParameters[0]);
-            blockingCommands.Enqueue(cmdAndParameters);
-        }
-
+        // blocking commands are handled one per tick. If blockDelay is positive, a delay
+        // command is handled instead of the command in the queue.
         public bool HasNextBlockingCommand()
         {
-            return blockingCommands.Count > 0 || blockDelay > 0;
+            // a blocking command is available if there are commands in the queue,
+            // blockdelay is positive, or both
+            return blockingCommands.Count + blockDelay > 0;
         }
+        public void AddBlockingCommand(String[] cmdAndParameters)
+        {
+            // all commands are put in the log for now
+            Output.Print("(" + name + ") adding blocking command: " + cmdAndParameters[0]);
 
+            // put the command in the queue
+            blockingCommands.Enqueue(cmdAndParameters);
+        }
         public String[] GetNextBlockingCommand()
         {
+            // if the blockDelay is positive, return a delay command
             if (blockDelay > 0)
             {
                 blockDelay--;
                 return new String[] { "DELAY" };
             }
 
+            // otherwise return the next command in the queue. Return null if no such
+            // command exists, although it should never happen
             if (HasNextBlockingCommand())
             {
                 return blockingCommands.Dequeue();
             }
             else
             {
+                Output.Print("(" + name + ") game tried to dequeue command while blocking queue was empty");
+
                 return null;
             }
         }
 
-        public void AddImmediateCommand(String [] cmdAndParameters)
-        {
-            Output.Print("(" + name + ") adding immediate command: " + cmdAndParameters[0]);
-            immediateCommands.Enqueue(cmdAndParameters);
-        }
 
+        // immediate commands are all handled each tick. 
         public bool HasImmediateCommands()
         {
+            // simply check if there are items in the queue
             return (immediateCommands.Count > 0);
         }
+        public void AddImmediateCommand(String [] cmdAndParameters)
+        {
+            // all commands are put in the log for now
+            Output.Print("(" + name + ") adding immediate command: " + cmdAndParameters[0]);
 
+            // add the command from the queue
+            immediateCommands.Enqueue(cmdAndParameters);
+        }
         public String[] GetNextImmediateCommand()
         {
+            // return the next command in the queue. Return null if no such
+            // command exists, although it should never happen
             if (HasImmediateCommands())
             {
                 return immediateCommands.Dequeue();
             }
             else
             {
+                Output.Print("(" + name + ") game tried to dequeue command while immediate queue was empty");
+
                 return null;
             }
         }
 
-        public void AddMessage(String message, int tick)
-        {
-            messages.Enqueue(tick + "," + message);
-        }
-
+        // messages are sent across the connection to the player
         public bool HasMessages()
         {
             return (messages.Count > 0);
         }
-
+        public void AddMessage(String message, int tick)
+        {
+            messages.Enqueue(tick + "," + message);
+        }
         public Queue<String> GetMessages()
         {
             return messages;
         }
 
+        // command state regulates which commands are valid at any time. The constants
+        // at the top of this file should be used.
         public void SetCommandState(int commandState)
         {
             this.commandState = commandState;
         }
-
         public int GetCommandState()
         {
             return commandState;
@@ -173,11 +197,11 @@ namespace TCPGameServer.World
             return body;
         }
 
+        // sets or gets the player's name
         public void SetName(string name)
         {
             if (name != "") this.name = name;
         }
-
         public string GetName()
         {
             return name;
