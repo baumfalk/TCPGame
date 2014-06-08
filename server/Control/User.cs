@@ -36,7 +36,7 @@ namespace TCPGameServer.Control
 
             // start the login procedure
             player.SetCommandState(Player.COMMANDSTATE_LOGIN);
-            AddMessage("LOGIN,MESSAGE,please input your character name", int.MinValue);
+            AddMessage("MESSAGE,LOGIN,please input your character name", int.MinValue);
         }
 
         // removing the user tells the player and the client to remove themselves

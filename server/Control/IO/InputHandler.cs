@@ -110,7 +110,7 @@ namespace TCPGameServer.Control.IO
 
                 player.AddBlockingCommand(new String[]{"MOVE" , ""+direction});
             } // look if the command is to look
-            else if (command.Equals("l") || command.Equals("look"))
+            else if (command.ToLower().Equals("l") || command.ToLower().Equals("look"))
             {
                 player.AddBlockingCommand(new String[]{"LOOK","TILES_INCLUDED","PLAYER_INCLUDED"});
             }

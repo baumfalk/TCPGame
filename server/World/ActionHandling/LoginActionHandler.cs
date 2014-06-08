@@ -21,6 +21,7 @@ namespace TCPGameServer.World.ActionHandling
             {
                 case "COMPLETE":
                     player.SetCommandState(Player.COMMANDSTATE_NORMAL);
+                    player.AddMessage("MESSAGE,LOGIN,welcome " + player.GetName() + "!", tick);
                     return;
             }
         }

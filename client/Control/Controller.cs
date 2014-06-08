@@ -18,6 +18,8 @@ namespace TCPGameClient.Control
         private TileDisplayForm tdView;
         // the local model
         private LocalModel worldModel;
+        // the inputhandler
+        private InputHandler inputHandler;
         // the network connector which communicates with the server
         private NetConnector connection;
 
@@ -33,13 +35,18 @@ namespace TCPGameClient.Control
             // we need to locally model the world to display it
             worldModel = new LocalModel(101,101,101);
 
+            inputHandler = new InputHandler(this, worldModel);
+
             // connect to the world-server
             connection = new NetConnector(this);
         }
 
         // connect to the server
-        public void Connect()
+        public void Connect(String[] connectInfo)
         {
+            if (connectInfo.Length > 1) IP = connectInfo[1];
+            if (connectInfo.Length > 2) port = int.Parse(connectInfo[2]);
+
             connection.Connect(IP, port);
         }
 
@@ -49,79 +56,50 @@ namespace TCPGameClient.Control
             connection.Disconnect();
         }
 
+        // ends the program
+        public void Stop()
+        {
+            Disconnect();
+
+            tdView.Stop();
+        }
+
         // handle input from the form. Usually this will just be passed on to the server
         public void SendInput(String input)
         {
-            if (input.StartsWith("connect"))
-            {
-                String[] connectInfo = input.Split(' ');
+            // let the inputhandler check for special commands that can be handled
+            // client-side (such as "connect"). Returns true if nothing has been intercepted
+            // and the data should be sent to the server.
+            bool continueToSend = inputHandler.HandleUserInput(input);
 
-                if (connectInfo.Length > 1) IP = connectInfo[1];
-                if (connectInfo.Length > 2) port = int.Parse(connectInfo[2]);
-
-                Connect();
-            } // intercept a zoom command
-            else if (input.StartsWith("zoom"))
-            {
-                // default values
-                int zoomLevelX = -1;
-                int zoomLevelY = -1;
-
-                String[] zoomInfo = input.Split(' ');
-
-                // try to parse the rest of the info to integers
-                if (zoomInfo.Length > 1) int.TryParse(zoomInfo[1], out zoomLevelX);
-                if (zoomInfo.Length > 2) int.TryParse(zoomInfo[2], out zoomLevelY);
-
-                // if a value hasn't been set, use 64. Don't accept values above 128 or below 16
-                if (zoomLevelX == -1) zoomLevelX = 64;
-                if (zoomLevelX < 16) zoomLevelX = 16;
-                if (zoomLevelX > 128) zoomLevelX = 128;
-
-                if (zoomLevelY == -1) zoomLevelY = zoomLevelX;
-                if (zoomLevelY < 16) zoomLevelY = 16;
-                if (zoomLevelY > 128) zoomLevelY = 128;
-
-                // set the new zoom level
-                tdView.SetZoom(zoomLevelX, zoomLevelY);
-
-                // redraw the model
-                Redraw();
-            }
-            else
-            {
-                connection.SendData(input);
-            }
+            // if we have to send, send.
+            if (continueToSend) connection.SendData(input);
         }
 
         public void DoUpdate(List<String> updateData)
         {
-            // stop everything on a quit command
-            if (updateData.Contains("0,QUIT"))
-            {
-                Disconnect();
-
-                tdView.Stop();
-            }
-
-            // pass on chat messages to the chat message window
-            if (updateData.Any(x => x.Contains("MESSAGE_FROM")))
-            {
-                tdView.cmView.addMessage(updateData.Find(x => x.Contains("MESSAGE_FROM")));
-            }
-
-            // update local model using the data sent
-            bool doRedraw = worldModel.Update(updateData);
-
+            // let the inputhandler handle the data sent by the server. Returns true if
+            // a redraw is warranted.
+            bool doRedraw = inputHandler.HandleServerInput(updateData);
+                
             // update view
             if (doRedraw) Redraw();
         }
 
+        public void SetZoom(int sizeX, int sizeY)
+        {
+            tdView.SetZoom(sizeX, sizeY);
+        }
+
+        // redraw the view
         public void Redraw()
         {
-            Debug.Print("redrawing");
-
             tdView.DrawModel(worldModel);
+        }
+
+        public void AddMessage(String message)
+        {
+            tdView.cmView.addMessage(message);
         }
     }
 }

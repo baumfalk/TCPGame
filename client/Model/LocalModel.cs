@@ -24,8 +24,6 @@ namespace TCPGameClient.Model
         private Field[, ,] map;
         private List<Creature> creatures;
 
-        private bool updatingCreatures;
-
         // constructor allows the controller to give a grid size, which is
         // the area that will be "remembered"
         public LocalModel(int gridSizeX, int gridSizeY, int gridSizeZ)
@@ -38,20 +36,22 @@ namespace TCPGameClient.Model
             creatures = new List<Creature>();
         }
 
-        // view needs to know how big the grid is to properly center it
-        public int GetGridSizeX()
+        // clear the creature list
+        public void ResetCreatures()
         {
-            return gridSizeX;
+            creatures = new List<Creature>();
         }
 
-        public int GetGridSizeY()
+        // add a new creature to the map
+        public void AddCreature(int xPos, int yPos, int zPos, String representation)
         {
-            return gridSizeY;
-        }
+            // calculate position relative to the player
+            int relPosX = xPos - currentX;
+            int relPosY = yPos - currentY;
+            int relPosZ = zPos - currentZ;
 
-        public int GetGridSizeZ()
-        {
-            return gridSizeZ;
+            // add creature to creature list
+            creatures.Add(new Creature(relPosX, relPosY, relPosZ, representation));
         }
 
         // returns the list of nearby creatures
@@ -60,87 +60,21 @@ namespace TCPGameClient.Model
             return creatures;
         }
 
-        public bool Update(List<String> updateData)
+        public void AddTile(int xPos, int yPos, int zPos, String representation)
         {
-            bool DoRedraw = false;
+            // calculate position relative to the center of the map
+            int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);
+            int mapPosY = gridSizeY / 2 + 1 + (yPos - currentY);
+            int mapPosZ = gridSizeZ / 2 + 1 + (zPos - currentZ);
 
-            int tick = 0;
-
-            // loop through all strings we received
-            foreach (String input in updateData)
-            {
-                // split the inputs
-                String[] inputPart = input.Split(',');
-
-                // creature information is complete per tick. If we received
-                // multiple ticks, reset creatures when handling later ones.
-                if (tick != int.Parse(inputPart[0]))
-                {
-                    tick = int.Parse(inputPart[0]);
-                    updatingCreatures = false;
-                }
-
-                // switch on the type of input, let other methods handle them.
-                switch (inputPart[1])
-                {
-                    case "LOGIN":
-                        break;
-                    case "PLAYER":
-                        UpdatePlayer(inputPart);
-                        DoRedraw = true;
-                        break;
-                    case "TILE":
-                        UpdateTile(inputPart);
-                        DoRedraw = true;
-                        break;
-                    case "CREATURE":
-                        UpdateCreature(inputPart);
-                        DoRedraw = true;
-                        break;
-                    default:
-                        
-                        break;
-                }
-            }
-
-            return DoRedraw;
+            // add tile to the grid
+            map[mapPosX, mapPosY, mapPosZ] = new Field(representation);
         }
 
-        // checks if a field position is in bounds
-        private bool IsInBounds(int x, int y, int z)
-        {
-            return (x >= 0 && y >= 0 && z >= 0 && x < gridSizeX && y < gridSizeY && z < gridSizeZ);
-        }
-
-        // checks if a field exists
-        public bool HasFieldAtPosition(int x, int y, int z)
-        {
-            return (IsInBounds(x, y, z) && map[x, y, z] != null);
-        }
-
-        // returns field at a position
-        public Field GetFieldAtPosition(int x, int y, int z)
-        {
-            return map[x, y, z];
-        }
-
-        // handles player-type updates. Only "position" update exists at the moment.
-        private void UpdatePlayer(String[] inputPart)
-        {
-            if (inputPart[2].Equals("POSITION"))
-            {
-                int newX = int.Parse(inputPart[3]);
-                int newY = int.Parse(inputPart[4]);
-                int newZ = int.Parse(inputPart[5]);
-
-                // if we have moved, we should shift our map (which is player-centered)
-                if (newX != currentX || newY != currentY || newZ != currentZ) ShiftMap(newX, newY, newZ);
-            }
-        }
 
         // shift the map. This is needed when the player moves, since the map is centered
         // on the player.
-        private void ShiftMap(int newX, int newY, int newZ)
+        public void ShiftMap(int newX, int newY, int newZ)
         {
             // the shift we need to make is the difference of the old (current) position 
             // with the new one
@@ -148,8 +82,11 @@ namespace TCPGameClient.Model
             int shiftY = currentY - newY;
             int shiftZ = currentZ - newZ;
 
+            // a shift of 0 just returns the same grid, so don't do all the work
+            if (shiftX == 0 && shiftY == 0 && shiftZ == 0) return;
+
             // create a new grid
-            Field[,,] newMap = new Field[gridSizeX, gridSizeY, gridSizeZ];
+            Field[, ,] newMap = new Field[gridSizeX, gridSizeY, gridSizeZ];
 
             // loop over the old grid
             for (int x = 0; x < gridSizeX; x++)
@@ -178,53 +115,38 @@ namespace TCPGameClient.Model
             currentZ = newZ;
         }
 
-        // handles "creature" type updates. Only "detection" updates exist at the moment.
-        private void UpdateCreature(String[] inputPart)
+        // view needs to know how big the grid is to properly center it
+        public int GetGridSizeX()
         {
-            // if we get creature updates we'll clear the list and redo it completely.
-            if (!updatingCreatures)
-            {
-                creatures = new List<Creature>();
-                updatingCreatures = true;
-            }
-
-            if (inputPart[2].Equals("DETECTED"))
-            {
-                // get position and representation from the input
-                int xPos = int.Parse(inputPart[3]);
-                int yPos = int.Parse(inputPart[4]);
-                int zPos = int.Parse(inputPart[5]);
-                String representation = inputPart[6];
-
-                // calculate position relative to the player
-                int relPosX = xPos - currentX;
-                int relPosY = yPos - currentY;
-                int relPosZ = zPos - currentZ;
-
-                // add creature to the list
-                creatures.Add(new Creature(relPosX, relPosY, relPosZ, representation));
-            }
+            return gridSizeX;
         }
 
-        // handles "tile" type updates. Only "detection" updates exist at the moment.
-        private void UpdateTile(String[] inputPart)
+        public int GetGridSizeY()
         {
-            if (inputPart[2].Equals("DETECTED"))
-            {
-                // get position and representation from the input
-                int xPos = int.Parse(inputPart[3]);
-                int yPos = int.Parse(inputPart[4]);
-                int zPos = int.Parse(inputPart[5]);
-                String representation = inputPart[6];
+            return gridSizeY;
+        }
 
-                // calculate position relative to the center of the map
-                int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);
-                int mapPosY = gridSizeY / 2 + 1 + (yPos - currentY);
-                int mapPosZ = gridSizeZ / 2 + 1 + (zPos - currentZ);
+        public int GetGridSizeZ()
+        {
+            return gridSizeZ;
+        }
 
-                // add tile to the grid
-                map[mapPosX, mapPosY, mapPosZ] = new Field(representation);
-            }
+        // checks if a field position is in bounds
+        private bool IsInBounds(int x, int y, int z)
+        {
+            return (x >= 0 && y >= 0 && z >= 0 && x < gridSizeX && y < gridSizeY && z < gridSizeZ);
+        }
+
+        // checks if a field exists
+        public bool HasFieldAtPosition(int x, int y, int z)
+        {
+            return (IsInBounds(x, y, z) && map[x, y, z] != null);
+        }
+
+        // returns field at a position
+        public Field GetFieldAtPosition(int x, int y, int z)
+        {
+            return map[x, y, z];
         }
     }
 }
