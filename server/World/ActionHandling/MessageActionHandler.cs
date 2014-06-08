@@ -31,7 +31,7 @@ namespace TCPGameServer.World.ActionHandling
         private void HandleWhisperCommand(Player player, String[] splitCommand, int tick)
         {
             Player foundPlayer = model.getCopyOfPlayerList().Find(x => x.GetName().Equals(splitCommand[1]));
-            if (foundPlayer == null || foundPlayer.Equals(player)) return;
+            if (foundPlayer == default(Player) || foundPlayer.Equals(player)) return;
 
             foundPlayer.AddMessage("MESSAGE," + player.GetName() + " (private)," + splitCommand[2], tick);
             player.AddMessage("MESSAGE," + player.GetName() + " (private to " + foundPlayer.GetName() + ")," + splitCommand[2], tick);
