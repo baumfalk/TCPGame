@@ -15,14 +15,16 @@ namespace TCPGameServer.World.ActionHandling
         public void Handle(Player player, String[] splitCommand, int tick)
         {
             if (splitCommand[0].Equals("SAY")) HandleSayCommand(player, splitCommand, tick);
-            else if (splitCommand[0].Equals("WHISPER")) HandleWhisperCommand(player,splitCommand,tick);
+            else if (splitCommand[0].Equals("WHISPER")) HandleWhisperCommand(player, splitCommand, tick);
         }
 
         private void HandleSayCommand(Player player, String[] splitCommand, int tick)
         {
+            String name = (player == null) ? "" : player.GetName();
+
             foreach (Player otherPlayer in model.getCopyOfPlayerList())
             {
-                otherPlayer.AddMessage("MESSAGE," + player.GetName() + "," + splitCommand[1], tick);
+                otherPlayer.AddMessage("MESSAGE," + name + "," + splitCommand[1], tick);
             }
         }
 

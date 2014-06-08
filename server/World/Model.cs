@@ -24,9 +24,14 @@ namespace TCPGameServer.World
         // handles actions by players
         private ActionHandler actionHandler;
 
+        // commands (mostly messages) originating from the model
+        private Queue<String[]> modelCommands;
+
         // constructor initializes fields and creates the world
         public Model() {
             players = new List<Player>();
+
+            modelCommands = new Queue<String[]>();
 
             actionHandler = new ActionHandler(this);
 
@@ -44,6 +49,9 @@ namespace TCPGameServer.World
             // handle immediate commands (like vision)
             HandleImmediateCommands(tick);
 
+            // handle model commands (like "player has logged on" messages)
+            HandleModelCommands(tick);
+
             // unload areas that have been inactive
             UnloadInactiveAreas(tick);
         }
@@ -56,12 +64,14 @@ namespace TCPGameServer.World
             List<Player> disconnectedPlayers = new List<Player>();
 
             // loop through all players, if one is disconnected, add him to
-            // the list and output a message saying so
+            // the list and output a message saying so to the log and to the other players
             foreach (Player player in players)
             {
                 if (player.IsDisconnected())
                 {
                     Output.Print(player.GetName() + " has disconnected");
+
+                    AddModelCommand(new String[] { "SAY", player.GetName() + " has disconnected" });
 
                     disconnectedPlayers.Add(player);
                 }
@@ -100,9 +110,21 @@ namespace TCPGameServer.World
                 while (player.HasImmediateCommands())
                 {
                     String [] command = player.GetNextImmediateCommand();
-                    if (null == command) continue;
+                    
                     actionHandler.Handle(player, command, tick);
                 }
+            }
+        }
+
+        // handles model commands. These are like immediate commands, but
+        // have no player sending them
+        private void HandleModelCommands(int tick)
+        {
+            while (modelCommands.Count > 0)
+            {
+                String[] cmdAndParameters = modelCommands.Dequeue();
+
+                actionHandler.Handle(null, cmdAndParameters, tick);
             }
         }
 
@@ -121,6 +143,12 @@ namespace TCPGameServer.World
 
                 theWorld.UnloadInactiveAreas();
             }
+        }
+
+        // add a model command
+        public void AddModelCommand(String[] command)
+        {
+            modelCommands.Enqueue(command);
         }
 
         // the player list can be added to and a copy can be retrieved. Removal

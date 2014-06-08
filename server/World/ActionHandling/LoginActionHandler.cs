@@ -22,6 +22,7 @@ namespace TCPGameServer.World.ActionHandling
                 case "COMPLETE":
                     player.SetCommandState(Player.COMMANDSTATE_NORMAL);
                     player.AddMessage("MESSAGE,LOGIN,welcome " + player.GetName() + "!", tick);
+                    model.AddModelCommand(new String[] { "SAY", player.GetName() + " has logged in" });
                     return;
             }
         }

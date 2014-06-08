@@ -83,14 +83,14 @@ namespace TCPGameServer.Control.IO
         private static void HandleLogin(String command, Player player)
         {
             // place the player on the map
-            if (command.Equals("geerten")) player.AddImmediateCommand(new String[] {"PLAYER","PLACE","start","0"});
-            else if (command.Equals("jetze")) player.AddImmediateCommand(new String[] {"PLAYER","PLACE","start","1"});
-            else player.AddImmediateCommand(new String[] {"PLAYER","PLACE","start","2"});
+            if (command.Equals("geerten")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "start", "0" });
+            else if (command.Equals("jetze")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "start", "1" });
+            else player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "start", "2" });
 
             // set the player's name to whatever he used to log in
             player.SetName(command);
             // tell the model the player is logged in
-            player.AddImmediateCommand(new String[] {"LOGIN","COMPLETE"});
+            player.AddImmediateCommand(new String[] { "LOGIN", "COMPLETE" });
         }
 
         // handle "normal" logins. This should probably be split at some point, like the actionhandlers in
@@ -108,21 +108,21 @@ namespace TCPGameServer.Control.IO
                 int direction = Directions.FromShortString(command);
                 if (direction == -1) direction = Directions.FromString(command);
 
-                player.AddBlockingCommand(new String[]{"MOVE" , ""+direction});
+                player.AddBlockingCommand(new String[] { "MOVE", "" + direction });
             } // look if the command is to look
             else if (command.ToLower().Equals("l") || command.ToLower().Equals("look"))
             {
-                player.AddBlockingCommand(new String[]{"LOOK","TILES_INCLUDED","PLAYER_INCLUDED"});
+                player.AddBlockingCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
             }
             else if (command.ToLower().StartsWith("say")) // formay say *message*
             {
                 // split the string in two
-                string[] splittedString = command.Split(new char[]{' '},2);
+                string[] splittedString = command.Split(new char[] { ' ' }, 2);
                
                 // invalid command
                 if (splittedString.Length < 2) return;
-              
-                player.AddImmediateCommand(new String[] {"SAY",splittedString[1]});
+
+                player.AddImmediateCommand(new String[] { "SAY", splittedString[1] });
             }
             else if (command.ToLower().StartsWith("whisper")) // format: whisper *recipient* *message*
             {
