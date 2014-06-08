@@ -8,23 +8,30 @@ namespace TCPGameServer.World.ActionHandling
     class MessageActionHandler
     {
         private Model model;
+
         public MessageActionHandler(Model model)
         {
             this.model = model;
         }
+
         public void Handle(Player player, String[] splitCommand, int tick)
         {
-            if (splitCommand[0].Equals("SAY")) HandleSayCommand(player, splitCommand, tick);
-            else if (splitCommand[0].Equals("WHISPER")) HandleWhisperCommand(player, splitCommand, tick);
+            String command = splitCommand[0];
+
+            if (command.Equals("SAY")) HandleSayCommand(player, splitCommand, tick);
+            else if (command.Equals("WHISPER")) HandleWhisperCommand(player, splitCommand, tick);
         }
 
         private void HandleSayCommand(Player player, String[] splitCommand, int tick)
         {
-            String name = (player == null) ? "" : player.GetName();
+            // if no name is supplied, this is a server message.
+            String name = (player == null) ? "SERVER" : player.GetName();
+            String message = splitCommand[1];
 
+            // send the message to everyone
             foreach (Player otherPlayer in model.getCopyOfPlayerList())
             {
-                otherPlayer.AddMessage("MESSAGE," + name + "," + splitCommand[1], tick);
+                otherPlayer.AddMessage("MESSAGE," + name + "," + message, tick);
             }
         }
 
@@ -41,7 +48,7 @@ namespace TCPGameServer.World.ActionHandling
             // if not found, tell the sender that the player is not online
             if (foundPlayer == default(Player))
             {
-                player.AddMessage("MESSAGE,," + recipient + " is not online", tick);
+                player.AddMessage("MESSAGE,SERVER," + recipient + " is not online", tick);
                 return;
             }
 
