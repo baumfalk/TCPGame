@@ -24,16 +24,16 @@ namespace TCPGameServer.World
             this.representation = representation;
         }
 
+        // a creature can be a player. Methods to check if this is the case, and make
+        // it the case. (Or not).
         public bool IsPlayer()
         {
             return (player != null);
         }
-
         public void SetPlayer(Player player)
         {
             this.player = player;
         }
-
         public Player GetPlayer()
         {
             return player;

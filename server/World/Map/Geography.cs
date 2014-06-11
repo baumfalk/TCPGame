@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.Map
 {
     class Geography

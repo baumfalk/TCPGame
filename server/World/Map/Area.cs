@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.World.Map.IO;
+using TCPGameServer.World.Map.Generation;
+
 using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.Map
@@ -28,9 +30,15 @@ namespace TCPGameServer.World.Map
             this.world = world;
             this.name = name;
 
-            // load the tiles from the area reader
-            tiles = AreaReader.Load(name, this, world);
-
+            if (AreaReader.Exists(name))
+            {
+                // load the tiles from the area reader
+                tiles = AreaReader.Load(name, this, world);
+            }
+            else
+            {
+                tiles = AreaGenerator.Generate(world.GetSeed(), name,0,0);
+            }
             // the area is obviously active upon creation
             SetActive();
         }

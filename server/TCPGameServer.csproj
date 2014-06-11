@@ -69,6 +69,8 @@
     <Compile Include="World\Creature.cs" />
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Map\Area.cs" />
+    <Compile Include="World\Map\Generation\AreaGenerator.cs" />
+    <Compile Include="World\Map\Generation\PerlinNoise.cs" />
     <Compile Include="World\Map\Geography.cs" />
     <Compile Include="World\Map\IO\AreaReader.cs" />
     <Compile Include="World\Map\IO\AreaWriter.cs" />
@@ -102,9 +104,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="World\Map\Generation\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

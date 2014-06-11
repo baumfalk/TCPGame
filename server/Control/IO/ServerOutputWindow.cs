@@ -69,23 +69,24 @@ namespace TCPGameServer.Control.IO
             // if this request comes from another thread than the one that created the
             // form (which should be the case), we need to tell the thread that did create
             // it to come write something in the textbox. That's what we're doing here.
-            if (this.textBox1.InvokeRequired)
+
+            try
             {
-                try
+                if (this.textBox1.InvokeRequired)
                 {
                     SetTextCallback d = new SetTextCallback(addMessageToTextbox);
                     this.Invoke(d, new object[] { message });
                 }
-                catch (ObjectDisposedException e)
+                else
                 {
-                    System.Diagnostics.Debug.Print("form was disposed on write");
-                    System.Diagnostics.Debug.Print(e.Message);
+                    // if this is the right thread, just write it down.
+                    textBox1.AppendText(message + "\n");
                 }
-            } 
-            else
+            }
+            catch (ObjectDisposedException e)
             {
-                // if this is the right thread, just write it down.
-                textBox1.AppendText(message + "\n");
+                System.Diagnostics.Debug.Print("form was disposed on write");
+                System.Diagnostics.Debug.Print(e.Message);
             }
         }
 
