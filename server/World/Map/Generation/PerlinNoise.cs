@@ -10,9 +10,13 @@ namespace TCPGameServer.World.Map.Generation
 {
     class PerlinNoise
     {
-        public static Bitmap GetNoisyBitmap(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter)
+        public static Bitmap GetNoisyBitmapRGB(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter, bool normalize)
         {
-            int[][] returnmap = PerlinNoise.Noise(seed, width, height, octaves, ampvar, smoothInbetween, smoothAfter);
+            Random rnd = new Random(seed);
+
+            int[][] returnmapR = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
+            int[][] returnmapG = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
+            int[][] returnmapB = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
 
             Bitmap bmpNoise = new Bitmap(width, height);
 
@@ -22,7 +26,34 @@ namespace TCPGameServer.World.Map.Generation
             {
                 for (int y = 0; y < height; y++)
                 {
-                    int value = returnmap[x][y];
+                    int valueR = (int) (returnmapR[x][y]);
+                    int valueG = (int) (returnmapG[x][y]);
+                    int valueB = (int) (returnmapB[x][y]);
+
+                    Color c = Color.FromArgb(valueR, valueG, valueB);
+
+                    g.FillRectangle(new SolidBrush(c), x, y, 1, 1);
+                }
+            }
+
+            g.Dispose();
+
+            return bmpNoise;
+        }
+
+        public static Bitmap GetNoisyBitmap(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter, bool normalize)
+        {
+            int[][] returnmap = PerlinNoise.Noise(seed, width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
+
+            Bitmap bmpNoise = new Bitmap(width, height);
+
+            Graphics g = Graphics.FromImage(bmpNoise);
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    int value = (int) (returnmap[x][y]);
 
                     Color c = Color.FromArgb(value, value, value);
 
@@ -35,16 +66,16 @@ namespace TCPGameServer.World.Map.Generation
             return bmpNoise;
         }
 
-        public static int[][] Noise(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter)
+        public static int[][] Noise(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter, bool normalize)
         {
-            int[][][] bytemap = new int[5][][];
-
             Random rnd = new Random(seed);
 
             int resolutie = 1;
 
             if (octaves < 1) octaves = 1;
-            if (octaves > 32) octaves = 32;
+            if (octaves > 16) octaves = 16;
+
+            if (ampvar < 0) ampvar = -1 / ampvar;
 
             double varTotal = 0.0d;
             for (int n = 0; n < octaves; n++)
@@ -52,20 +83,15 @@ namespace TCPGameServer.World.Map.Generation
                 varTotal += Math.Pow(ampvar, n);
             }
 
-            Output.Print("varTotal = " + varTotal);
+            int[][][] bytemap = new int[octaves][][];
 
             double amplitude = 255 / varTotal;
 
             // octaves
             for (int n = 0; n < octaves; n++)
             {
-                Output.Print("amplitude = " + amplitude);
-
                 int vakjesX = width / resolutie + 2;
                 int vakjesY = height / resolutie + 2;
-
-                Output.Print("vakjesX = " + vakjesX);
-                Output.Print("vakjesY = " + vakjesY);
 
                 bytemap[n] = new int[vakjesX][];
 
@@ -90,6 +116,8 @@ namespace TCPGameServer.World.Map.Generation
             int[][] returnmap = SumInterpolatedMaps(bytemap, octaves);
 
             if (smoothAfter) returnmap = Smooth(returnmap, width, height, 255);
+
+            if (normalize) returnmap = Normalize(returnmap, width, height, 255);
 
             return returnmap;
         }
@@ -127,11 +155,11 @@ namespace TCPGameServer.World.Map.Generation
             int width = bytemap[0].Length;
             int height = bytemap[0][0].Length;
 
-            int[][] returnmap = new int[width][];
+            int[][] returnmap = new int[width - 2][];
 
             for (int x = 1; x < width - 1; x++)
             {
-                returnmap[x - 1] = new int[height];
+                returnmap[x - 1] = new int[height - 2];
 
                 for (int y = 1; y < height - 1; y++)
                 {
@@ -152,14 +180,7 @@ namespace TCPGameServer.World.Map.Generation
                         int above = Interpolate(topleft, topright, xPart, false);
                         int below = Interpolate(bottomleft, bottomright, xPart, false);
 
-                        //Output.Print("topleft = " + topleft + ", topright = " + topright + ", above = " + above);
-                        //Output.Print("bottomleft = " + bottomleft + ", bottomright = " + bottomright + ", below = " + below);
-
                         returnmap[x - 1][y - 1] += Interpolate(above, below, yPart, false);
-
-                        //Output.Print("interpolate of above and below gives " + returnmap[x - 1][y - 1]);
-
-                        System.Diagnostics.Debug.Assert(returnmap[x - 1][y - 1] <= 255);
 
                         resolutie *= 4;
                     }
@@ -191,6 +212,41 @@ namespace TCPGameServer.World.Map.Generation
                 returnval = (int)(first * (1 - f) + second * f);
             }
             return returnval;
+        }
+
+        private static int[][] Normalize(int[][] bytemap, int width, int height, int maxval)
+        {
+            int minInMap = int.MaxValue;
+            int maxInMap = int.MinValue;
+
+            
+
+            for (int x = 0; x < width; x++)
+            {
+                
+
+                for (int y = 0; y < height; y++)
+                {
+                    if (bytemap[x][y] < minInMap) minInMap = bytemap[x][y];
+                    if (bytemap[x][y] > maxInMap) maxInMap = bytemap[x][y];
+                }
+            }
+
+            int[][] returnmap = new int[width][];
+
+            double multVal = maxval / (double) (maxInMap - minInMap);
+
+            for (int x = 0; x < width; x++)
+            {
+                returnmap[x] = new int[height];
+
+                for (int y = 0; y < height; y++)
+                {
+                    returnmap[x][y] = (int) ((bytemap[x][y] - minInMap) * multVal);
+                }
+            }
+
+            return returnmap;
         }
     }
 }
