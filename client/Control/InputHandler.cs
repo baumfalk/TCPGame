@@ -113,7 +113,7 @@ namespace TCPGameClient.Control
                         DoRedraw = true;
                         break;
                     default:
-
+                        System.Diagnostics.Debug.Print("NOT HANDLED: " + input);
                         break;
                 }
             }
