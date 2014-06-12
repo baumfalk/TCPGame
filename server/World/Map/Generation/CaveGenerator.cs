@@ -46,8 +46,6 @@ namespace TCPGameServer.World.Map.Generation
             tiles = new Tile[100, 100];
             tileFront = new PriorityQueue<int>();
 
-            PerlinBitmaps.SaveBitmapFromNoisemap(valuemap, 100, 100, @"d:\temp\save.bmp");
-
             this.entrances = new Tile[entrances.Length];
             toConnect = new List<Tile>();
    
