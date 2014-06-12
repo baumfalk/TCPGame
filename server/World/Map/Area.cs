@@ -21,6 +21,8 @@ namespace TCPGameServer.World.Map
         // list of tiles
         private Tile[] tiles;
 
+        private Tile defaultTile; 
+
         // a counter that checks how many ticks an area has been inactive
         private DateTime LastActivity;
 
@@ -30,6 +32,8 @@ namespace TCPGameServer.World.Map
             this.world = world;
             this.name = name;
 
+            defaultTile = new Tile("floor", "floor", int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue, this, world);
+
             if (AreaReader.Exists(name))
             {
                 // load the tiles from the area reader
@@ -37,7 +41,10 @@ namespace TCPGameServer.World.Map
             }
             else
             {
-                tiles = AreaGenerator.Generate(world.GetSeed(), name,0,0);
+                // should not happen
+                Output.Print("loading area (" + name + ") that does not exist");
+                
+                tiles = new Tile[0];
             }
             // the area is obviously active upon creation
             SetActive();
@@ -52,6 +59,8 @@ namespace TCPGameServer.World.Map
         // get a tile from the area by ID
         public Tile GetTile(int ID)
         {
+            if (ID >= tiles.Length) return defaultTile;
+
             return tiles[ID];
         }
 

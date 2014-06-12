@@ -94,9 +94,9 @@ namespace TCPGameClient.View
             int tilesY = pictureBox1.Height / sizeY + 2;
 
             // position of the player on the grid (always in the center)
-            int playerPositionX = theModel.GetGridSizeX() / 2 + 1;
-            int playerPositionY = theModel.GetGridSizeY() / 2 + 1;
-            int playerPositionZ = theModel.GetGridSizeZ() / 2 + 1;
+            int playerPositionX = theModel.GetGridSizeX() / 2;
+            int playerPositionY = theModel.GetGridSizeY() / 2;
+            int playerPositionZ = theModel.GetGridSizeZ() / 2;
 
             // draws a 2D grid around the player.
             int minX = -tilesX / 2;

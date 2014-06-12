@@ -32,30 +32,6 @@ namespace TCPGameServer.World
 
         // constructor initializes fields and creates the world
         public Model() {
-            /*
-             * test for the perlin noise
-             * 
-             * fields in order:
-             * seed = random number generator seed
-             * width = width of the output
-             * height = height of the output
-             * octaves = number of "layers" of ever lower-frequency noise (less = less "pattern" and more "noise")
-             * smoothInBetween = smooth each layer
-             * smoothAfter = smooth the result after all layers are added together
-             * normalize = normalize values from 0 to 255
-             */
-
-            /*
-            Output.Print("start generation");
-             
-            System.Drawing.Bitmap bmpSave = PerlinNoise.GetNoisyBitmap(0, 512, 512, 5, 1.0d, false, true, true);
-            // System.Drawing.Bitmap bmpSave = PerlinNoise.GetNoisyBitmapRGB(0, 512, 512, 5, 1.0d, false, true, true);
-
-            bmpSave.Save(@"d:\temp\bmpSave.bmp");
-
-            Output.Print("end generation");
-             */
-
             players = new List<Player>();
 
             modelCommands = new Queue<String[]>();

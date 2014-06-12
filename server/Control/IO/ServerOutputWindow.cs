@@ -43,14 +43,22 @@ namespace TCPGameServer.Control.IO
         // invokes this method to close it down on the right thread
         private void DoShutdown()
         {
-            if (this.InvokeRequired)
+            try
             {
-                ShutdownCallback d = new ShutdownCallback(DoShutdown);
-                this.Invoke(d, new object[0]);
+                if (this.InvokeRequired)
+                {
+                    ShutdownCallback d = new ShutdownCallback(DoShutdown);
+                    this.Invoke(d, new object[0]);
+                }
+                else
+                {
+                    Close();
+                }
             }
-            else
+            catch (ObjectDisposedException e)
             {
-                Close();
+                System.Diagnostics.Debug.Print("form was already disposed on shutdown call");
+                System.Diagnostics.Debug.Print(e.Message);
             }
         }
 

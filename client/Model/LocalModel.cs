@@ -62,13 +62,15 @@ namespace TCPGameClient.Model
 
         public void AddTile(int xPos, int yPos, int zPos, String representation)
         {
+            
+
             // calculate position relative to the center of the map
-            int mapPosX = gridSizeX / 2 + 1 + (xPos - currentX);
-            int mapPosY = gridSizeY / 2 + 1 + (yPos - currentY);
-            int mapPosZ = gridSizeZ / 2 + 1 + (zPos - currentZ);
+            int mapPosX = gridSizeX / 2 + (xPos - currentX);
+            int mapPosY = gridSizeY / 2 + (yPos - currentY);
+            int mapPosZ = gridSizeZ / 2 + (zPos - currentZ);
 
             // add tile to the grid
-            map[mapPosX, mapPosY, mapPosZ] = new Field(representation);
+            if (IsInBounds(mapPosX, mapPosY, mapPosZ)) map[mapPosX, mapPosY, mapPosZ] = new Field(representation);
         }
 
 

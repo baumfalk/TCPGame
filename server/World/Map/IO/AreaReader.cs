@@ -6,6 +6,8 @@ using System.Text;
 using System.IO;
 using TCPGameServer.Control.IO;
 
+using TCPGameServer.World.Map.Generation;
+
 namespace TCPGameServer.World.Map.IO
 {
     class AreaReader
@@ -28,12 +30,10 @@ namespace TCPGameServer.World.Map.IO
         // load an area from file, based on its name
         public static Tile[] Load(String name, Area area, World world)
         {
-            Output.Print("Loading area " + name);
-
             AreaReader.area = area;
             AreaReader.world = world;
 
-            // the filename is the area name plus a .are extension
+            // the filename is the area name plus an .are extension
             StreamReader fileReader = new StreamReader(gitPath + name + ".are");
 
             // the number of tiles is on the first line of the file
@@ -42,19 +42,51 @@ namespace TCPGameServer.World.Map.IO
             // initialize the tiles array
             tiles = new Tile[numTiles];
 
-            // parse the tiles from the file, returning a string array with links.
-            // These need to be added after creating all the tiles, so the objects
-            // to link all exist.
-            String[] links = ParseTiles(numTiles, fileReader);
+            // check if this is a complete area or a stub
+            String fileType = fileReader.ReadLine();
+
+            String[] links;
+            if (fileType.Equals("Stub"))
+            {
+                Output.Print("Generating area " + name);
+
+                GenerateFromStub(numTiles, fileReader);
+            }
+            else if (fileType.Equals("Complete"))
+            {
+                Output.Print("Loading area " + name);
+
+                // parse the tiles from the file, returning a string array with links.
+                // These need to be added after creating all the tiles, so the objects
+                // to link all exist.
+                links = ParseTiles(numTiles, fileReader);
+
+                // link up the tiles, based on the link array we received from the
+                // tile parser or generator.
+                LinkTiles(numTiles, links);
+            }
+            else
+            {
+                Output.Print("invalid area file");
+            }
 
             // close the streamreader
             fileReader.Close();
 
-            // link up the tiles, based on the link array we received from the
-            // tile parser.
-            LinkTiles(numTiles, links);
-
             return tiles;
+        }
+
+        private static void GenerateFromStub(int numTiles, StreamReader fileReader)
+        {
+            String areaType = fileReader.ReadLine();
+
+            int seed = int.Parse(fileReader.ReadLine());
+
+            String[] links = ParseTiles(numTiles, fileReader);
+
+            AreaGenerator areaGenerator = new AreaGenerator();
+
+            areaGenerator.Generate(seed, areaType, tiles, -50, -50, 3, area, world);
         }
 
         // parse the tiles from file, creating the objects and adding them to the

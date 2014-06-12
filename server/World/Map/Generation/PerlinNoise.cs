@@ -10,179 +10,160 @@ namespace TCPGameServer.World.Map.Generation
 {
     class PerlinNoise
     {
-        public static Bitmap GetNoisyBitmapRGB(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter, bool normalize)
+        public static int[][] Noise(int seed, int width, int height, int octaves, double frequencyIncrease, double persistence, bool smoothInbetween, bool smoothAfter, bool bowl, bool normalize)
         {
             Random rnd = new Random(seed);
 
-            int[][] returnmapR = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
-            int[][] returnmapG = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
-            int[][] returnmapB = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
+            // first pass, we always handle single pixels
+            int frequency = 1;
 
-            Bitmap bmpNoise = new Bitmap(width, height);
-
-            Graphics g = Graphics.FromImage(bmpNoise);
-
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    int valueR = (int) (returnmapR[x][y]);
-                    int valueG = (int) (returnmapG[x][y]);
-                    int valueB = (int) (returnmapB[x][y]);
-
-                    Color c = Color.FromArgb(valueR, valueG, valueB);
-
-                    g.FillRectangle(new SolidBrush(c), x, y, 1, 1);
-                }
-            }
-
-            g.Dispose();
-
-            return bmpNoise;
-        }
-
-        public static Bitmap GetNoisyBitmap(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter, bool normalize)
-        {
-            int[][] returnmap = PerlinNoise.Noise(seed, width, height, octaves, ampvar, smoothInbetween, smoothAfter, normalize);
-
-            Bitmap bmpNoise = new Bitmap(width, height);
-
-            Graphics g = Graphics.FromImage(bmpNoise);
-
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    int value = (int) (returnmap[x][y]);
-
-                    Color c = Color.FromArgb(value, value, value);
-
-                    g.FillRectangle(new SolidBrush(c), x, y, 1, 1);
-                }
-            }
-
-            g.Dispose();
-
-            return bmpNoise;
-        }
-
-        public static int[][] Noise(int seed, int width, int height, int octaves, double ampvar, bool smoothInbetween, bool smoothAfter, bool normalize)
-        {
-            Random rnd = new Random(seed);
-
-            int resolutie = 1;
-
+            // don't let octaves get below 1 (in which case no layers would be created) or above 16 (which is already absurdly high).
             if (octaves < 1) octaves = 1;
             if (octaves > 16) octaves = 16;
 
-            if (ampvar < 0) ampvar = -1 / ampvar;
+            // don't let persistence be 0 or negative, don't allow it above 20 (in which case you'll pretty much only see the top layer).
+            if (persistence <= 0.0d) persistence = 0.01d;
+            if (persistence > 20.0d) persistence = 20.0d;
 
-            double varTotal = 0.0d;
-            for (int n = 0; n < octaves; n++)
+            // the amplitude of the noise wave function is persistence^i, where i is the octave being handled. When we add all waves
+            // together, the maximum value should be 255, so we divide 255 by the total maximum of all waves.
+            double maximumWaveHeight;
+            if (persistence == 1.0d)
             {
-                varTotal += Math.Pow(ampvar, n);
+                maximumWaveHeight = octaves;
+            }
+            else
+            {
+                maximumWaveHeight = (Math.Pow(persistence, octaves) - 1) / (persistence - 1);
             }
 
-            int[][][] bytemap = new int[octaves][][];
+            double amplitude = 255 / maximumWaveHeight;
 
-            double amplitude = 255 / varTotal;
-
-            // octaves
+            // valuemap[octave][x][y]
+            int[][][] valuemap = new int[octaves][][];
+            
             for (int n = 0; n < octaves; n++)
             {
-                int vakjesX = width / resolutie + 2;
-                int vakjesY = height / resolutie + 2;
+                // we only need a certain number of values for each layer, depending on the size of the map and the frequency. For example,
+                // if the frequency is 16, that means a "pixel" on that layer is 16x16 pixels on layer 0. The image is only a certain size,
+                // so we can use fewer fields on higher frequencies. We do need 1 extra field to account for possible issues with integer
+                // division and 1 more because we're dealing with gradients
+                int numValuesOnX = width / frequency + 2;
+                int numValuesOnY = height / frequency + 2;
 
-                bytemap[n] = new int[vakjesX][];
+                valuemap[n] = new int[numValuesOnX][];
 
-                for (int x = 0; x < vakjesX; x++)
+                for (int x = 0; x < numValuesOnX; x++)
                 {
-                    bytemap[n][x] = new int[vakjesY];
+                    valuemap[n][x] = new int[numValuesOnY];
 
-                    for (int y = 0; y < vakjesY; y++)
+                    for (int y = 0; y < numValuesOnY; y++)
                     {
+                        // we fill all the fields with random values from 0 to the amplitude
+
                         int rand = (int)(rnd.NextDouble() * amplitude);
 
-                        bytemap[n][x][y] = rand;
+                        valuemap[n][x][y] = rand;
                     }
                 }
 
-                if (smoothInbetween) bytemap[n] = Smooth(bytemap[n], vakjesX, vakjesY, amplitude);
+                // once all values are filled in, we have the option to smoothe out each layer
+                if (smoothInbetween) valuemap[n] = Smooth(valuemap[n], numValuesOnX, numValuesOnY, amplitude);
 
-                amplitude *= ampvar;
-                resolutie *= 4;
+                amplitude *= persistence;
+                frequency = (int) (frequency * frequencyIncrease);
             }
 
-            int[][] returnmap = SumInterpolatedMaps(bytemap, octaves);
+            // sum all interpolated gradient maps
+            int[][] returnmap = SumInterpolatedMaps(valuemap, width, height, octaves, frequencyIncrease);
 
+            // optionally, smoothe out the map after adding everything together
             if (smoothAfter) returnmap = Smooth(returnmap, width, height, 255);
 
+            // optionally, make the edges higher and the center shallower
+            if (bowl) returnmap = Bowl(returnmap, width, height, 255);
+
+            // optionally, make sure the values range from 0 to 255.
             if (normalize) returnmap = Normalize(returnmap, width, height, 255);
 
             return returnmap;
         }
 
-        private static int[][] Smooth(int[][] bytemap, int vakjesX, int vakjesY, double ampMax)
+        // smoothes out an intmap, making values lie closer to each other
+        private static int[][] Smooth(int[][] valuemap, int numValuesOnX, int numValuesOnY, double amplitude)
         {
-            int[][] returnmap = new int[vakjesX][];
+            int[][] returnmap = new int[numValuesOnX][];
 
-            for (int x = 0; x < vakjesX; x++)
+            for (int x = 0; x < numValuesOnX; x++)
             {
-                returnmap[x] = new int[vakjesY];
+                returnmap[x] = new int[numValuesOnY];
 
-                for (int y = 0; y < vakjesY; y++)
+                for (int y = 0; y < numValuesOnY; y++)
                 {
-                    if (x == 0 || y == 0 || x == vakjesX - 1 || y == vakjesY - 1)
-                    {
-                        returnmap[x][y] = (int)(ampMax / 2);
-                    }
-                    else
-                    {
-                        int corners = bytemap[x + 1][y + 1] + bytemap[x + 1][y - 1] + bytemap[x - 1][y + 1] + bytemap[x - 1][y - 1];
-                        int sides = bytemap[x + 1][y] + bytemap[x - 1][y] + bytemap[x][y + 1] + bytemap[x][y - 1];
-                        int center = bytemap[x][y];
+                    // smoothe out each value using the ones near it. Uses a helper function to make sure we're not querying values
+                    // outside the array. Squares with the average value are "simulated" outside the array.
 
-                        returnmap[x][y] = (corners + sides * 2 + center * 4) / 16;
-                    }
+                    int corners =
+                        GetSmoothingValue(x + 1, y + 1, valuemap, amplitude) +
+                        GetSmoothingValue(x + 1, y - 1, valuemap, amplitude) +
+                        GetSmoothingValue(x - 1, y + 1, valuemap, amplitude) +
+                        GetSmoothingValue(x - 1, y - 1, valuemap, amplitude);
+
+                    int sides =
+                        GetSmoothingValue(x + 1, y, valuemap, amplitude) +
+                        GetSmoothingValue(x - 1, y, valuemap, amplitude) +
+                        GetSmoothingValue(x, y + 1, valuemap, amplitude) +
+                        GetSmoothingValue(x, y - 1, valuemap, amplitude);
+
+                    int center = GetSmoothingValue(x, y, valuemap, amplitude);
+
+                    // each corner counts for 1/16th of the value, each side for 1/8th, and the center for 1/4th.
+                    returnmap[x][y] = (corners + sides * 2 + center * 4) / 16;
                 }
             }
 
             return returnmap;
         }
 
-        private static int[][] SumInterpolatedMaps(int[][][] bytemap, int octaves)
+        // makes sure values outside the array aren't queried, returns average amplitude for the "tiles" outside the map
+        private static int GetSmoothingValue(int x, int y, int[][] valuemap, double amplitude)
         {
-            int width = bytemap[0].Length;
-            int height = bytemap[0][0].Length;
+            if (x < 0 || y < 0 || x == valuemap.Length || y == valuemap[0].Length) return (int) (amplitude / 2);
 
-            int[][] returnmap = new int[width - 2][];
+            else return valuemap[x][y];
+        }
 
-            for (int x = 1; x < width - 1; x++)
+        
+        private static int[][] SumInterpolatedMaps(int[][][] bytemap, int width, int height, int octaves, double frequencyIncrease)
+        {
+            int[][] returnmap = new int[width][];
+
+            for (int x = 0; x < width; x++)
             {
-                returnmap[x - 1] = new int[height - 2];
+                returnmap[x] = new int[height];
 
-                for (int y = 1; y < height - 1; y++)
+                for (int y = 0; y < height; y++)
                 {
-                    returnmap[x - 1][y - 1] = 0;
+                    returnmap[x][y] = 0;
 
-                    int resolutie = 1;
+                    int frequency = 1;
 
                     for (int n = 0; n < octaves; n++)
                     {
-                        double xPart = x % resolutie / ((double)resolutie);
-                        double yPart = y % resolutie / ((double)resolutie);
+                        double xPart = x % frequency / ((double)frequency);
+                        double yPart = y % frequency / ((double)frequency);
 
-                        int topleft = bytemap[n][x / resolutie][y / resolutie];
-                        int topright = bytemap[n][x / resolutie + 1][y / resolutie];
-                        int bottomleft = bytemap[n][x / resolutie][y / resolutie + 1];
-                        int bottomright = bytemap[n][x / resolutie + 1][y / resolutie + 1];
+                        int topleft = bytemap[n][x / frequency][y / frequency];
+                        int topright = bytemap[n][x / frequency + 1][y / frequency];
+                        int bottomleft = bytemap[n][x / frequency][y / frequency + 1];
+                        int bottomright = bytemap[n][x / frequency + 1][y / frequency + 1];
 
                         int above = Interpolate(topleft, topright, xPart, false);
                         int below = Interpolate(bottomleft, bottomright, xPart, false);
 
-                        returnmap[x - 1][y - 1] += Interpolate(above, below, yPart, false);
+                        returnmap[x][y] += Interpolate(above, below, yPart, false);
 
-                        resolutie *= 4;
+                        frequency = (int) (frequency * frequencyIncrease);
                     }
                 }
             }
@@ -219,12 +200,8 @@ namespace TCPGameServer.World.Map.Generation
             int minInMap = int.MaxValue;
             int maxInMap = int.MinValue;
 
-            
-
             for (int x = 0; x < width; x++)
             {
-                
-
                 for (int y = 0; y < height; y++)
                 {
                     if (bytemap[x][y] < minInMap) minInMap = bytemap[x][y];
@@ -243,6 +220,53 @@ namespace TCPGameServer.World.Map.Generation
                 for (int y = 0; y < height; y++)
                 {
                     returnmap[x][y] = (int) ((bytemap[x][y] - minInMap) * multVal);
+                }
+            }
+
+            return returnmap;
+        }
+
+        private static int[][] Bowl(int[][] valuemap, int width, int height, int maxval)
+        {
+            int[][] returnmap = new int[width][];
+
+            for (int x = 0; x < width; x++)
+            {
+                returnmap[x] = new int[height];
+
+                for (int y = 0; y < height; y++)
+                {
+                    double xDist = Math.Abs(width / 2 - x);
+                    double yDist = Math.Abs(height / 2 - y);
+
+                    double distanceToCenter = Math.Pow(xDist, 2) + Math.Pow(yDist, 2);
+
+                    if (distanceToCenter == 0.0d)
+                    {
+                        returnmap[x][y] = (int) (0.5d * valuemap[x][y]);
+                        continue;
+                    }
+
+                    double yFromEdge = height / 2 - yDist;
+                    double xFromEdge = width / 2 - xDist;
+
+                    double distanceToEdge;
+                    if (yFromEdge < xFromEdge)
+                    {
+                         distanceToEdge = yFromEdge / (height / 2) * distanceToCenter;
+                    }
+                    else
+                    {
+                        distanceToEdge = xFromEdge / (width / 2) * distanceToCenter;
+                    }
+
+                    double fractionEdgeToCenter = distanceToEdge / distanceToCenter;
+
+                    double interpolation = Interpolate(255, 128, fractionEdgeToCenter, false);
+
+                    double multiplier = interpolation / 255.0d;
+
+                    returnmap[x][y] = (int) (valuemap[x][y] * multiplier);
                 }
             }
 

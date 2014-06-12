@@ -53,6 +53,7 @@
     <Compile Include="Control\IO\ServerOutputWindow.Designer.cs">
       <DependentUpon>ServerOutputWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="General\PriorityQueue.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Control\IO\InputHandler.cs" />
@@ -70,6 +71,8 @@
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Map\Area.cs" />
     <Compile Include="World\Map\Generation\AreaGenerator.cs" />
+    <Compile Include="World\Map\Generation\CaveGenerator.cs" />
+    <Compile Include="World\Map\Generation\PerlinBitmaps.cs" />
     <Compile Include="World\Map\Generation\PerlinNoise.cs" />
     <Compile Include="World\Map\Geography.cs" />
     <Compile Include="World\Map\IO\AreaReader.cs" />
