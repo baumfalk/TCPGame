@@ -8,7 +8,7 @@ namespace TCPGameServer.General
     // heap priority queue based on an arraylist
     class PriorityQueue<T>
     {
-        private class Node {
+        protected class Node {
             public int key;
             public T value;
 
@@ -19,6 +19,16 @@ namespace TCPGameServer.General
         }
 
         private List<Node> nodeList = new List<Node>();
+
+        public void Merge(PriorityQueue<T> toAdd)
+        {
+            List<Node> mergeList = toAdd.GetNodes();
+
+            foreach (Node node in mergeList)
+            {
+                Add(node.key, node.value);
+            }
+        }
 
         public void Add(int priority, T value)
         {
@@ -58,6 +68,11 @@ namespace TCPGameServer.General
             DoBubbleDown(0);
 
             return toReturn;
+        }
+
+        protected List<Node> GetNodes()
+        {
+            return nodeList;
         }
 
         private void DoBubbleDown(int index) 

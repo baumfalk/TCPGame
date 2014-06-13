@@ -20,9 +20,6 @@ namespace TCPGameServer.Control.IO
             // loop through all the commands that need to be handled
             foreach (String command in commands)
             {
-                // for now we'll just add every command to the log
-                Output.Print(command + " received from " + player.GetName());
-
                 // shutdown and log commands can be given irrespective of state. At
                 // some point these need to be behind the login, but not during
                 // development

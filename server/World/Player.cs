@@ -106,9 +106,6 @@ namespace TCPGameServer.World
         }
         public void AddBlockingCommand(String[] cmdAndParameters)
         {
-            // all commands are put in the log for now
-            Output.Print("(" + name + ") adding blocking command: " + cmdAndParameters[0]);
-
             // put the command in the queue
             blockingCommands.Enqueue(cmdAndParameters);
         }
@@ -144,9 +141,6 @@ namespace TCPGameServer.World
         }
         public void AddImmediateCommand(String [] cmdAndParameters)
         {
-            // all commands are put in the log for now
-            Output.Print("(" + name + ") adding immediate command: " + cmdAndParameters[0]);
-
             // add the command from the queue
             immediateCommands.Enqueue(cmdAndParameters);
         }

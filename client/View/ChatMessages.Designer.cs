@@ -33,12 +33,13 @@
             // 
             // txtMessages
             // 
+            this.txtMessages.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtMessages.Location = new System.Drawing.Point(0, 0);
             this.txtMessages.Multiline = true;
             this.txtMessages.Name = "txtMessages";
             this.txtMessages.ReadOnly = true;
-            this.txtMessages.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.txtMessages.Size = new System.Drawing.Size(223, 396);
+            this.txtMessages.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtMessages.Size = new System.Drawing.Size(225, 393);
             this.txtMessages.TabIndex = 0;
             // 
             // ChatMessages

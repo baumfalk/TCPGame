@@ -33,7 +33,9 @@ namespace TCPGameServer.World.Map.Generation
                     int value = (int)(noisemap[x][y]);
 
                     Color c;
-                    if (value > 255) c = Color.Blue;
+                    if (value == 256) c = Color.Blue;
+                    else if (value == 257) c = Color.Red;
+                    else if (value > 255) c = Color.Green;
                     else c = Color.FromArgb(value, value, value);
 
                     g.FillRectangle(new SolidBrush(c), x, y, 1, 1);

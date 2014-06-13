@@ -10,13 +10,13 @@ namespace TCPGameServer.World.Map.Generation
 {
     class CaveGenerator
     {
-        private Tile[] entrances;
-        private List<Tile> toConnect;
+        private List<int> toConnect;
+        private List<int>[] connected;
 
         private int[][] valuemap;
         private Tile[,] tiles;
         private int tileCount = 0;
-        private PriorityQueue<int> tileFront;
+        private PriorityQueue<int>[] tileFront;
 
         private int ID;
 
@@ -41,16 +41,18 @@ namespace TCPGameServer.World.Map.Generation
             this.area = area;
             this.world = world;
 
-            //valuemap = PerlinNoise.Noise(seed, 100, 100, 4, 2.5d, 0.75d, true, true, true, true);
-            valuemap = PerlinNoise.Noise(seed, 100, 100, 3, 4.0d, 5.50d, false, false, false, true);
-            tiles = new Tile[100, 100];
-            tileFront = new PriorityQueue<int>();
+            valuemap = PerlinNoise.Noise(seed, 100, 100, 3, 2.9299d, 1.50d, false, false, true, false);
 
-            this.entrances = new Tile[entrances.Length];
-            toConnect = new List<Tile>();
-   
+            tiles = new Tile[100, 100];
+            tileFront = new PriorityQueue<int>[entrances.Length];
+
+            connected = new List<int>[entrances.Length];
+            toConnect = new List<int>();
+            
             for (int n = 0; n < entrances.Length; n++)
             {
+                connected[n] = new List<int>();
+
                 int mapX = entrances[n].GetX() - bottomLeftX;
                 int mapY = entrances[n].GetY() - bottomLeftY;
                 int mapZ = entrances[n].GetZ() - bottomLeftZ;
@@ -64,15 +66,14 @@ namespace TCPGameServer.World.Map.Generation
                     this.bottomLeftZ = entrances[n].GetZ();
                 }
 
-                this.entrances[n] = entrances[n];
-                toConnect.Add(entrances[n]);
+                toConnect.Add(n);
+                connected[n].Add(n);
 
-                entrances[n].SetColor(ID);
                 valuemap[mapX][mapY] = 256 + ID;
+                tileFront[n] = new PriorityQueue<int>();
                 ID++;
                 tileCount++;
                 tiles[mapX, mapY] = entrances[n];
-                
             }
 
             for (int n = 0; n < entrances.Length; n++)
@@ -80,26 +81,49 @@ namespace TCPGameServer.World.Map.Generation
                 int mapX = entrances[n].GetX() - bottomLeftX;
                 int mapY = entrances[n].GetY() - bottomLeftY;
 
-                AddNeighbors(mapX * 100 + mapY, valuemap[mapX][mapY]);
+                AddNeighbors(mapX * 100 + mapY, entrances[n].GetID());
             }
 
             // decide on exits, also add them to toConnect
 
-            while (toConnect.Count > 1 || tileCount < 1000)
+            while (toConnect.Count > 1 || tileCount < 300)
             {
-                Expand("floor", "floor", true);
+                for (int n = 0; n < toConnect.Count; n++) {
+                    Expand(toConnect[n], "floor", "floor", true);
+                }
             }
 
-            while (tileFront.Count() > 0)
+            int remainingColor = toConnect[0];
+            while (tileFront[remainingColor].Count() > 0)
             {
-                Expand("wall", "wall", false);
+                Expand(remainingColor, "wall", "wall", false);
             }
-
-            // PerlinBitmaps.SaveBitmapFromNoisemap(valuemap, 100, 100, @"d:\temp\cave(" + seed +").bmp");
 
             Tile[] linkedTiles = LinkTiles();
 
             return linkedTiles;
+        }
+
+        private void Expand(int color, String type, String representation, bool expand)
+        {
+            int pointToAdd = tileFront[color].RemoveMin();
+
+            int mapX = pointToAdd / 100;
+            int mapY = pointToAdd % 100;
+            int realX = mapX + bottomLeftX;
+            int realY = mapY + bottomLeftY;
+            int realZ = bottomLeftZ;
+
+            tiles[mapX, mapY] = (new Tile(type, representation, realX, realY, realZ, ID++, area, world));
+
+            tileCount++;
+
+            if (mapX < minX) minX = mapX;
+            if (mapX > maxX) maxX = mapX;
+            if (mapY < minY) minY = mapY;
+            if (mapY > maxY) maxY = mapY;
+
+            if (expand) AddNeighbors(pointToAdd, color);
         }
 
         private void AddNeighbors(int index, int color)
@@ -118,33 +142,20 @@ namespace TCPGameServer.World.Map.Generation
 
             if (key > 255)
             {
+                key -= 256;
                 // check if it's different from this color. If so, merge colors and decrease ToConnect
+                if (!connected[color].Contains(key))
+                {
+                    tileFront[color].Merge(tileFront[key]);
+                    toConnect.Remove(key);
+                    connected[color].Add(key);
+                }
+                
                 return;
             }
-            valuemap[index / 100][index % 100] = color;
+            valuemap[index / 100][index % 100] = color + 256;
 
-            tileFront.Add(key, index);
-        }
-
-        private void Expand(String type, String representation, bool expand)
-        {
-            int pointToAdd = tileFront.RemoveMin();
-
-            int mapX = pointToAdd / 100;
-            int mapY = pointToAdd % 100;
-            int realX = mapX + bottomLeftX;
-            int realY = mapY + bottomLeftY;
-            int realZ = bottomLeftZ;
-
-            tiles[mapX, mapY] = (new Tile(type, representation, realX, realY, realZ, ID++, area, world));
-            tileCount++;
-
-            if (mapX < minX) minX = mapX;
-            if (mapX > maxX) maxX = mapX;
-            if (mapY < minY) minY = mapY;
-            if (mapY > maxY) maxY = mapY;
-
-            if (expand) AddNeighbors(pointToAdd, valuemap[pointToAdd / 100][pointToAdd % 100]);
+            tileFront[color].Add(key, index);
         }
 
         private Tile[] LinkTiles()
