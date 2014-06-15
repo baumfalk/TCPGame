@@ -234,7 +234,7 @@ namespace TCPGameServer.World.Map
                 // area hasn't been loaded, or the area name is different.
                 if (neighbors[direction] != null && neighbors[direction].GetArea().Equals(area))
                 {
-                    // if it's in the same area, return the ID of the target tile
+                    // if it's in the same area, return the ID of the target tile.
                     return neighbors[direction].ID.ToString();
                 }
                 else

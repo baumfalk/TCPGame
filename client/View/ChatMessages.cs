@@ -40,7 +40,7 @@ namespace TCPGameClient.View
             {
                 // if this is the right thread, just write it down.
                 String[] message = rawMessage.Split(new char[]{','},4); // split in 4 parts: time, command, from, and message.
-                this.txtMessages.Text += message[2] + ": " + message[3] + "\r\n";
+                this.txtMessages.AppendText(message[2] + ": " + message[3] + "\r\n");
             }
         }
     }

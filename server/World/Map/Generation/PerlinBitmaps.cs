@@ -38,7 +38,7 @@ namespace TCPGameServer.World.Map.Generation
                     else if (value > 255) c = Color.Green;
                     else c = Color.FromArgb(value, value, value);
 
-                    g.FillRectangle(new SolidBrush(c), x, y, 1, 1);
+                    g.FillRectangle(new SolidBrush(c), x, 99 - y, 1, 1);
                 }
             }
 

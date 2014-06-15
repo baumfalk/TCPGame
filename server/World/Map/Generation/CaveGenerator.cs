@@ -10,20 +10,25 @@ namespace TCPGameServer.World.Map.Generation
 {
     class CaveGenerator
     {
-        private List<int> toConnect;
-        private List<int>[] connected;
+        private Tile[] entrances;
 
-        private int[][] valuemap;
+        protected List<int> toConnect;
+        private List<int>[] connected;
+        private int[,] connectedBy;
+
+        protected int seed;
+        protected int[][] valuemap;
+
+        private Tile[] tileArray;
         private Tile[,] tiles;
         private int tileCount = 0;
         private PriorityQueue<int>[] tileFront;
+        private bool[][] isInFront;
 
-        private int ID;
-
-        private int minX;
-        private int maxX;
-        private int minY;
-        private int maxY;
+        private int minX = 100;
+        private int maxX = 0;
+        private int minY = 100;
+        private int maxY = 0;
 
         private int bottomLeftX;
         private int bottomLeftY;
@@ -32,8 +37,10 @@ namespace TCPGameServer.World.Map.Generation
         private Area area;
         private World world;
 
-        public Tile[] Generate(int seed, Tile[] entrances, int bottomLeftX, int bottomLeftY, int bottomLeftZ, Area area, World world)
+        public CaveGenerator(int seed, Tile[] entrances, bool generateExits, int bottomLeftX, int bottomLeftY, int bottomLeftZ, Area area, World world)
         {
+            this.seed = seed;
+
             this.bottomLeftX = bottomLeftX;
             this.bottomLeftY = bottomLeftY;
             this.bottomLeftZ = bottomLeftZ;
@@ -41,14 +48,86 @@ namespace TCPGameServer.World.Map.Generation
             this.area = area;
             this.world = world;
 
-            valuemap = PerlinNoise.Noise(seed, 100, 100, 3, 2.9299d, 1.50d, false, false, true, false);
+            this.entrances = entrances;
 
             tiles = new Tile[100, 100];
             tileFront = new PriorityQueue<int>[entrances.Length];
+            isInFront = new bool[entrances.Length][];
 
             connected = new List<int>[entrances.Length];
             toConnect = new List<int>();
-            
+            connectedBy = new int[100, 100];
+        }
+
+        public AreaData Generate()
+        {
+            Output.Print("generating " + GetAreaType());
+
+            valuemap = GetValuemap();
+
+            AddOuterWalls();
+
+            Output.Print("adding entrances");
+
+            AddEntrances();
+
+            Output.Print("finished adding entrances");
+
+            // decide on exits, also add them to toConnect
+
+            while (GetContinueCondition())
+            {
+                for (int n = 0; n < toConnect.Count; n++)
+                {
+                    Expand(toConnect[n], "floor", "floor", true);
+                }
+            }
+
+            int remainingColor = toConnect[0];
+            while (tileFront[remainingColor].Count() > 0)
+            {
+                Expand(remainingColor, "wall", "wall", false);
+            }
+
+            String[] linkData = LinkTiles();
+
+            AreaData toReturn = new AreaData();
+
+            toReturn.seed = seed;
+            toReturn.areaType = GetAreaType();
+            toReturn.tiles = tileArray;
+            toReturn.linkData = linkData;
+
+            return toReturn;
+        }
+
+        protected virtual int[][] GetValuemap()
+        {
+            return PerlinNoise.Noise(seed, 100, 100, 3, 2.9299d, 1.50d, false, false, true, false);
+        }
+
+        protected virtual bool GetContinueCondition()
+        {
+            return (toConnect.Count > 1 || tileCount < 300);
+        }
+
+        private void AddOuterWalls()
+        {
+            for (int x = 0; x < 100; x++)
+            {
+                valuemap[x][0] = 255;
+                valuemap[x][99] = 255;
+            }
+
+            for (int y = 0; y < 100; y++)
+            {
+                valuemap[0][y] = 255;
+                valuemap[99][y] = 255;
+            }
+        }
+
+        protected void AddEntrances()
+        {
             for (int n = 0; n < entrances.Length; n++)
             {
                 connected[n] = new List<int>();
@@ -69,11 +148,10 @@ namespace TCPGameServer.World.Map.Generation
                 toConnect.Add(n);
                 connected[n].Add(n);
 
-                valuemap[mapX][mapY] = 256 + ID;
                 tileFront[n] = new PriorityQueue<int>();
-                ID++;
-                tileCount++;
-                tiles[mapX, mapY] = entrances[n];
+                isInFront[n] = new bool[10000];
+
+                AddTile(mapX, mapY, n, entrances[n]);
             }
 
             for (int n = 0; n < entrances.Length; n++)
@@ -83,28 +161,80 @@ namespace TCPGameServer.World.Map.Generation
 
                 AddNeighbors(mapX * 100 + mapY, entrances[n].GetID());
             }
+        }
 
-            // decide on exits, also add them to toConnect
+        private void AddTile(int x, int y, int color, Tile toAdd)
+        {
+            int connector = connectedBy[x, y] - 1;
 
-            while (toConnect.Count > 1 || tileCount < 300)
+            if (connector != -1)
             {
-                for (int n = 0; n < toConnect.Count; n++) {
-                    Expand(toConnect[n], "floor", "floor", true);
+                if (!connected[color].Contains(connector))
+                {
+                    tileFront[color].Merge(tileFront[connector]);
+                    RecalculateWeights(color);
+                    toConnect.Remove(connector);
+                    connected[color].Add(connector);
+                }
+            }
+            else
+            {
+                connectedBy[x, y] = color + 1;
+
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+
+                tiles[x, y] = toAdd;
+
+                tileCount++;
+            }
+        }
+
+        protected void AddToFront(int index, int color)
+        {
+            int x = index / 100;
+            int y = index % 100;
+
+            int connector = connectedBy[x, y] - 1;
+
+            if (connector != color && !isInFront[color][index])
+            {
+                isInFront[color][index] = true;
+
+                int weight = GetWeight(index, color);
+
+                tileFront[color].Add(weight, index);
+            }
+        }
+
+        protected virtual int GetWeight(int index, int color)
+        {
+            return valuemap[index / 100][index % 100];
+        }
+
+        private void RecalculateWeights(int queueIndex)
+        {
+            PriorityQueue<int> bufferQueue = new PriorityQueue<int>();
+
+            isInFront[queueIndex] = new bool[10000];
+
+            while (tileFront[queueIndex].Count() > 0)
+            {
+                int index = tileFront[queueIndex].RemoveMin();
+
+                if (!isInFront[queueIndex][index])
+                {
+                    bufferQueue.Add(GetWeight(index, queueIndex), index);
+                    isInFront[queueIndex][index] = true;
                 }
             }
 
-            int remainingColor = toConnect[0];
-            while (tileFront[remainingColor].Count() > 0)
-            {
-                Expand(remainingColor, "wall", "wall", false);
-            }
-
-            Tile[] linkedTiles = LinkTiles();
-
-            return linkedTiles;
+            tileFront[queueIndex] = bufferQueue;
         }
 
-        private void Expand(int color, String type, String representation, bool expand)
+        protected void Expand(int color, String type, String representation, bool expand)
         {
             int pointToAdd = tileFront[color].RemoveMin();
 
@@ -114,14 +244,7 @@ namespace TCPGameServer.World.Map.Generation
             int realY = mapY + bottomLeftY;
             int realZ = bottomLeftZ;
 
-            tiles[mapX, mapY] = (new Tile(type, representation, realX, realY, realZ, ID++, area, world));
-
-            tileCount++;
-
-            if (mapX < minX) minX = mapX;
-            if (mapX > maxX) maxX = mapX;
-            if (mapY < minY) minY = mapY;
-            if (mapY > maxY) maxY = mapY;
+            AddTile(mapX, mapY, color, new Tile(type, representation, realX, realY, realZ, tileCount, area, world));
 
             if (expand) AddNeighbors(pointToAdd, color);
         }
@@ -136,53 +259,66 @@ namespace TCPGameServer.World.Map.Generation
             }
         }
 
-        private void AddToFront(int index, int color)
+        private String[] LinkTiles()
         {
-            int key = valuemap[index / 100][index % 100];
+            tileArray = new Tile[tileCount];
+            String[] linkData = new String[tileCount];
 
-            if (key > 255)
+            for (int x = minX; x <= maxX; x++)
             {
-                key -= 256;
-                // check if it's different from this color. If so, merge colors and decrease ToConnect
-                if (!connected[color].Contains(key))
-                {
-                    tileFront[color].Merge(tileFront[key]);
-                    toConnect.Remove(key);
-                    connected[color].Add(key);
-                }
-                
-                return;
-            }
-            valuemap[index / 100][index % 100] = color + 256;
-
-            tileFront[color].Add(key, index);
-        }
-
-        private Tile[] LinkTiles()
-        {
-            Tile[] tileArray = new Tile[tileCount];
-
-            for (int x = minX; x < maxX; x++)
-            {
-                for (int y = minY; y < maxY; y++)
+                for (int y = minY; y <= maxY; y++)
                 {
                     Tile tile = tiles[x,y];
 
                     if (tile != null)
                     {
-                        if (x > 0 && tiles[x - 1, y] != null) tile.Link(Directions.WEST, tiles[x - 1, y]);
-                        if (x < 99 && tiles[x + 1, y] != null) tile.Link(Directions.EAST, tiles[x + 1, y]);
-                        if (y > 0 && tiles[x, y - 1] != null) tile.Link(Directions.SOUTH, tiles[x, y - 1]);
-                        if (y < 99 && tiles[x, y + 1] != null) tile.Link(Directions.NORTH, tiles[x, y + 1]);
+                        StringBuilder link = new StringBuilder();
 
+                        for (int direction = 0; direction < 6; direction++)
+                        {
+                            String linkText = GetLinkText(direction, tile, x, y, tile.GetZ());
+                            link.Append(linkText);
+                        }
+
+                        linkData[tile.GetID()] = link.ToString();
                         tileArray[tile.GetID()] = tile;
-
-                        //Output.Print("cave at: " + tile.GetX() + ", " + tile.GetY() + ", " + tile.GetZ());
                     }
                 }
             }
 
-            return tileArray;
+            return linkData;
+        }
+
+        private String GetLinkText(int direction, Tile tile, int x, int y, int z)
+        {
+            String toReturn = "";
+
+            if (tile.HasNeighbor(direction))
+            {
+                toReturn += tile.GetLinkText(direction);
+            }
+            else
+            {
+                int[] neighborPosition = Directions.GetNeighboring(direction, x, y, z);
+                int xNeighbor = neighborPosition[0];
+                int yNeighbor = neighborPosition[1];
+                int zNeighbor = neighborPosition[2];
+
+                if (xNeighbor >= 0 && yNeighbor >= 0 && zNeighbor == z &&
+                    xNeighbor <= 99 && yNeighbor <= 99 &&
+                    tiles[xNeighbor, yNeighbor] != null)
+                {
+                    toReturn += tiles[xNeighbor, yNeighbor].GetID();
+                }
+                else
+                {
+                    toReturn += -1;
+                }
+            }
+
+            if (direction != Directions.DOWN) toReturn += ",";
+
+            return toReturn;
         }
 
         private List<int> GetNeighbors(int center)
@@ -198,6 +334,11 @@ namespace TCPGameServer.World.Map.Generation
             if (y < 99) neighbors.Add(x * 100 + y + 1);
 
             return neighbors;
+        }
+
+        protected virtual String GetAreaType()
+        {
+            return "Cave";
         }
     }
 }

@@ -72,9 +72,12 @@
     <Compile Include="World\Map\Area.cs" />
     <Compile Include="World\Map\Generation\AreaGenerator.cs" />
     <Compile Include="World\Map\Generation\CaveGenerator.cs" />
+    <Compile Include="World\Map\Generation\Cave_SmallCaveGenerator.cs" />
     <Compile Include="World\Map\Generation\PerlinBitmaps.cs" />
     <Compile Include="World\Map\Generation\PerlinNoise.cs" />
+    <Compile Include="World\Map\Generation\Cave_TunnelGenerator.cs" />
     <Compile Include="World\Map\Geography.cs" />
+    <Compile Include="World\Map\AreaData.cs" />
     <Compile Include="World\Map\IO\AreaReader.cs" />
     <Compile Include="World\Map\IO\AreaWriter.cs" />
     <Compile Include="World\Map\World.cs" />

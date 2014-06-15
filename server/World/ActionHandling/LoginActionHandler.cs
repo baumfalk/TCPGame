@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.ActionHandling
 {
     class LoginActionHandler
@@ -25,6 +27,7 @@ namespace TCPGameServer.World.ActionHandling
                 case "COMPLETE": // when done logging in, let people know
                     player.AddMessage("MESSAGE,LOGIN,welcome " + name + "!", tick);
                     model.AddModelCommand(new String[] { "SAY", name + " has logged in" });
+                    Output.Print(name + " has logged in");
                     return;
             }
         }

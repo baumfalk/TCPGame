@@ -18,6 +18,9 @@ namespace TCPGameServer.World.Map
         // the name of the area
         private String name;
 
+        // the type of area this is (small cave / tunnel / etc)
+        private String areaType;
+
         // list of tiles
         private Tile[] tiles;
 
@@ -36,18 +39,28 @@ namespace TCPGameServer.World.Map
 
             if (AreaReader.Exists(name))
             {
-                // load the tiles from the area reader
-                tiles = AreaReader.Load(name, this, world);
+                // load the tiles and area type from the area reader
+                AreaData areaData = AreaReader.Load(name, this, world);
+
+                tiles = areaData.tiles;
+                areaType = areaData.areaType;
             }
             else
             {
                 // should not happen
                 Output.Print("loading area (" + name + ") that does not exist");
-                
+
                 tiles = new Tile[0];
+                areaType = "nonexistent";
             }
             // the area is obviously active upon creation
             SetActive();
+        }
+
+        // get the area's type
+        public String GetAreaType()
+        {
+            return areaType;
         }
 
         // get the area's name

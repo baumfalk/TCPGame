@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.World.Map;
+using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.ActionHandling
 {
@@ -21,25 +22,46 @@ namespace TCPGameServer.World.ActionHandling
         {
             // get the player position
             Tile position = player.GetBody().GetPosition();
+            
+            // position to move to
+            Tile target = null;
 
-            // get the direction the player wants to move to
-            int direction = int.Parse(splitCommand[1]);
-
-            // if there is no neighbor in that direction, abort
-            if (position.HasNeighbor(direction))
+            // check if we're teleporting or moving normally
+            if (splitCommand[1].Equals("TELEPORT"))
             {
-                // get the tile in the direction the player wants to move to
-                Tile neighbor = position.GetNeighbor(direction);
+                Output.Print("handling teleport");
 
-                // if it's passable and empty, vacate the tile the player is on
-                // and move the player to the new position
-                if (neighbor.IsPassable() && !neighbor.HasOccupant())
+                // parse teleporting arguments (area name, tile ID)
+                target = model.GetTile(splitCommand[2], int.Parse(splitCommand[3]));
+            }
+            else
+            {
+                // get the direction the player wants to move to
+                int direction = int.Parse(splitCommand[1]);
+
+                // if there is no neighbor in that direction, abort
+                if (position.HasNeighbor(direction))
                 {
-                    position.Vacate();
-                    neighbor.SetOccupant(player.GetBody());
+                    // get the tile in the direction the player wants to move to
+                    Tile neighbor = position.GetNeighbor(direction);
 
-                    player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+                    // if it's passable and empty, set the target tile to the neighboring tile
+                    if (neighbor.IsPassable() && !neighbor.HasOccupant())
+                    {
+                        target = neighbor;
+                    }
                 }
+            }
+
+            // if we've got a valid target, move to it by vacating the current tile and setting us
+            // as the occupant of the new tile.
+            if (target != null)
+            {
+                position.Vacate();
+                target.SetOccupant(player.GetBody());
+
+                // look on arrival
+                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
             }
         }
     }

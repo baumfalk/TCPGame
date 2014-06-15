@@ -43,7 +43,7 @@ namespace TCPGameServer.Control.IO
                         // be handled by the client.
                         player.AddMessage("MESSAGE,LOG,LOG: " + message, int.MinValue);
                     }
-                }
+                } // quit command
                 else if (command.Equals("quit"))
                 {
                     user.Remove();
@@ -130,6 +130,30 @@ namespace TCPGameServer.Control.IO
                 if (splittedString.Length < 3) return;
 
                 player.AddImmediateCommand(new String[] { "WHISPER", splittedString[1], splittedString[2] });
+            }
+            else if (command.ToLower().Equals("tiledata"))
+            {
+                TCPGameServer.World.Map.Tile tile = player.GetBody().GetPosition();
+
+                String output = "MESSAGE,TILEDATA," +
+                    "tile ID = " + tile.GetID() + "\r\n" +
+                    "tile links: " + tile.GetLinkText(Directions.NORTH) + ", " +
+                                     tile.GetLinkText(Directions.EAST) + ", " +
+                                     tile.GetLinkText(Directions.UP) + ", " +
+                                     tile.GetLinkText(Directions.SOUTH) + ", " +
+                                     tile.GetLinkText(Directions.WEST) + ", " +
+                                     tile.GetLinkText(Directions.DOWN) + "\r\n" + 
+                    "tile location: " + tile.GetX() + ", " + tile.GetY() + ", " + tile.GetZ();
+
+
+                player.AddMessage(output.Replace(";", ":"), int.MinValue);
+            }
+            else if (command.ToLower().StartsWith("go"))
+            {
+                string[] splittedString = command.Split(' ');
+
+                if (splittedString.Length == 2) player.AddBlockingCommand(new String[] { "MOVE", "TELEPORT", player.GetBody().GetPosition().GetArea().GetName(), splittedString[1] });
+                if (splittedString.Length == 3) player.AddBlockingCommand(new String[] { "MOVE", "TELEPORT", splittedString[1], splittedString[2] });
             }
         }
     }
