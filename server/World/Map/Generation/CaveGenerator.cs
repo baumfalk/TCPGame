@@ -61,17 +61,11 @@ namespace TCPGameServer.World.Map.Generation
 
         public AreaData Generate()
         {
-            Output.Print("generating " + GetAreaType());
-
             valuemap = GetValuemap();
 
             AddOuterWalls();
 
-            Output.Print("adding entrances");
-
             AddEntrances();
-
-            Output.Print("finished adding entrances");
 
             // decide on exits, also add them to toConnect
 
@@ -295,7 +289,7 @@ namespace TCPGameServer.World.Map.Generation
 
             if (tile.HasNeighbor(direction))
             {
-                toReturn += tile.GetLinkText(direction);
+                toReturn += -1;
             }
             else
             {
