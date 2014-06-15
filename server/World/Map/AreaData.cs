@@ -8,7 +8,7 @@ namespace TCPGameServer.World.Map
     class AreaData
     {
         public Tile[] tiles;
-        public String[] linkData;
+        public int[][] linkData;
         public int seed;
         public String areaType;
     }

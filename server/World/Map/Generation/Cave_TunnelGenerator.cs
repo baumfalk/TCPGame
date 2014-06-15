@@ -10,16 +10,16 @@ namespace TCPGameServer.World.Map.Generation
 {
     class Cave_TunnelGenerator : CaveGenerator
     {
-        private int[] entrances;
+        private int[][] entrances;
 
         public Cave_TunnelGenerator(int seed, Tile[] entrances, bool generateExits, int bottomLeftX, int bottomLeftY, int bottomLeftZ, Area area, World world)
             : base(seed, entrances, generateExits, bottomLeftX, bottomLeftY, bottomLeftZ, area, world)
         {
-            this.entrances = new int[entrances.Length];
+            this.entrances = new int[entrances.Length][];
 
             for (int n = 0; n < entrances.Length; n++)
             {
-                this.entrances[n] = entrances[n].GetX() * 100 + entrances[n].GetY();
+                this.entrances[n] = new int[] { entrances[n].GetX() * 100, entrances[n].GetY() };
             }
         }
 
@@ -28,14 +28,14 @@ namespace TCPGameServer.World.Map.Generation
             return toConnect.Count > 1;
         }
 
-        protected override int GetWeight(int index, int color)
+        protected override int GetWeight(int x, int y, int color)
         {
-            return valuemap[index / 100][index % 100] + GetDistanceModifier(index, color);
+            return valuemap[x][y] + GetDistanceModifier(x, y, color);
         }
 
-        private int GetDistanceModifier(int index, int color)
+        private int GetDistanceModifier(int x, int y, int color)
         {
-            int lowestDistance = GetDistanceToClosestOtherEntrance(index, color);
+            int lowestDistance = GetDistanceToClosestOtherEntrance(x, y, color);
 
             return (int) (Math.Sqrt(lowestDistance) * 25.00d);
         }
@@ -45,19 +45,16 @@ namespace TCPGameServer.World.Map.Generation
             return (int)(Math.Sqrt(lowestDistance) * 25.00d);
         }
 
-        private int GetDistanceToClosestOtherEntrance(int index, int color)
+        private int GetDistanceToClosestOtherEntrance(int x, int y, int color)
         {
-            int x = index / 100;
-            int y = index % 100;
-
             int lowest = int.MaxValue;
 
-            foreach (int entrance in entrances)
+            foreach (int[] entrance in entrances)
             {
                 //if (!toConnect.Contains(entrance)) continue;
 
-                int entranceX = entrance / 100;
-                int entranceY = entrance % 100;
+                int entranceX = entrance[0];
+                int entranceY = entrance[1];
 
                 int distance = Math.Abs(x - entranceX) + Math.Abs(y - entranceY);
 

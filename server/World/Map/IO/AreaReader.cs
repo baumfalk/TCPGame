@@ -114,7 +114,7 @@ namespace TCPGameServer.World.Map.IO
         private static AreaData ParseTiles(int numTiles, StreamReader fileReader)
         {
             // initialize the arrays
-            String[] links = new String[numTiles];
+            int[][] links = new int[numTiles][];
             Tile[] tiles = new Tile[numTiles];
 
             // loop through every tile in the file
@@ -133,7 +133,7 @@ namespace TCPGameServer.World.Map.IO
                 tiles[n] = ParseTile(n, tileData);
 
                 // the links are on the next line, add them to the array
-                links[n] = fileReader.ReadLine();
+                links[n] = ParseLinks(tiles[n], fileReader.ReadLine());
             }
 
             AreaData toReturn = new AreaData();
@@ -174,10 +174,50 @@ namespace TCPGameServer.World.Map.IO
             return new Tile(type, representation, x, y, z, index, area, world);
         }
 
+        // parses link strings to ints. Links up areas directly.
+        private static int[] ParseLinks(Tile tile, String linkData)
+        {
+            String[] splitLinks = linkData.Split(',');
+            int[] toReturn = new int[6];
+
+            for (int direction = 0; direction < 6; direction++)
+            {
+                // if a link can't be parsed to an int, it's an area link.
+                int value;
+                if (int.TryParse(splitLinks[direction], out value)) {
+                    // if it can be, it's the ID of the target tile
+                    toReturn[direction] = value;
+                }
+                else {
+                    // directly link up area links, don't further link this tile in
+                    // this direction
+                    AddAreaLink(direction, tile, splitLinks[direction]);
+                    toReturn[direction] = -1;
+                }
+            }
+
+            return toReturn;
+        }
+
+        // creates area links
+        private static void AddAreaLink(int direction, Tile toLink, String areaLink)
+        {
+            // split into name and ID
+            String[] splitAreaLink = areaLink.Split(';');
+
+            String areaName = splitAreaLink[0];
+            int ID = int.Parse(splitAreaLink[1]);
+
+            // create an area link using the data read
+            toLink.CreateAreaLink(direction, areaName, ID);
+        }
+
         // links the tiles in the area together
         private static void LinkTiles(AreaData areaData)
         {
             int numTiles = areaData.tiles.Length;
+
+            int[][] link = areaData.linkData;
 
             // loop through all the tiles
             for (int n = 0; n < numTiles; n++)
@@ -185,31 +225,15 @@ namespace TCPGameServer.World.Map.IO
                 // split into the six different directions. -1 indicates no link,
                 // a link into another area is denoted with the area name, a semicolon
                 // and the tile ID in the other area.
-                String[] link = areaData.linkData[n].Split(',');
-
+                
                 // we check for each direction
                 for (int direction = 0; direction < 6; direction++)
                 {
-                    // area links contain a semicolon
-                    if (link[direction].Contains(';'))
-                    {
-                        // split into name and ID
-                        String[] areaLink = link[direction].Split(';');
+                    // get the link in this direction
+                    int linkTo = link[n][direction];
 
-                        String areaName = areaLink[0];
-                        int ID = int.Parse(areaLink[1]);
-
-                        // create an area link using the data read
-                        areaData.tiles[n].CreateAreaLink(direction, areaName, ID);
-                    }
-                    else
-                    {
-                        // get the link direction
-                        int linkTo = int.Parse(link[direction]);
-
-                        // if there is a link, tell the Tile to hook it up
-                        if (linkTo > -1) areaData.tiles[n].Link(direction, areaData.tiles[linkTo]);
-                    }
+                    // if there is a link, tell the Tile to hook it up
+                    if (linkTo > -1) areaData.tiles[n].Link(direction, areaData.tiles[linkTo]);
                 }
             }
         }
