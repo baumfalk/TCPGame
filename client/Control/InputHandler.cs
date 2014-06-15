@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 using TCPGameClient.Model;
 
@@ -11,6 +12,9 @@ namespace TCPGameClient.Control
     {
         private Controller control;
         private LocalModel model;
+
+        // last tick where data was sent
+        private int tick = 0;
 
         public InputHandler(Controller control, LocalModel model)
         {
@@ -72,8 +76,6 @@ namespace TCPGameClient.Control
         public bool HandleServerInput(List<String> inputData)
         {
             bool DoRedraw = false;
-
-            int tick = 0;
 
             // loop through all strings we received
             foreach (String input in inputData)
