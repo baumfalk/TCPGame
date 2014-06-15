@@ -62,8 +62,6 @@ namespace TCPGameClient.Model
 
         public void AddTile(int xPos, int yPos, int zPos, String representation)
         {
-            
-
             // calculate position relative to the center of the map
             int mapPosX = gridSizeX / 2 + (xPos - currentX);
             int mapPosY = gridSizeY / 2 + (yPos - currentY);
@@ -72,7 +70,6 @@ namespace TCPGameClient.Model
             // add tile to the grid
             if (IsInBounds(mapPosX, mapPosY, mapPosZ)) map[mapPosX, mapPosY, mapPosZ] = new Field(representation);
         }
-
 
         // shift the map. This is needed when the player moves, since the map is centered
         // on the player.

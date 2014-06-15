@@ -41,7 +41,7 @@ namespace TCPGameServer.Control.IO
                     {
                         // sent with minvalue as tick argument, since it never needs to
                         // be handled by the client.
-                        player.AddMessage("MESSAGE,LOG,LOG: " + message, int.MinValue);
+                        player.AddMessage("MESSAGE,SERVER,LOG: " + message, int.MinValue);
                     }
                 } // quit command
                 else if (command.Equals("quit"))
