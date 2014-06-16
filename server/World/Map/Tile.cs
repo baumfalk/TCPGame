@@ -85,11 +85,19 @@ namespace TCPGameServer.World.Map
             return color;
         }
 
-        // world, area and ID can be requested
+        // ID can be requested and set. Setting it is sometimes necessary when more
+        // entrances or exits are generated in a file and tiles have to be moved.
+        // Be extremely careful altering IDs though.
         public int GetID()
         {
             return ID;
         }
+        public void SetID(int ID)
+        {
+            this.ID = ID;
+        }
+
+        // world and area can be requested
         public Area GetArea()
         {
             return area;
@@ -224,6 +232,30 @@ namespace TCPGameServer.World.Map
             return neighbors[direction];
         }
 
+        // get the integer value of a link, return -2 when it's an area link
+        public int GetLink(int direction)
+        {
+            // check if there's a neighbor
+            if (hasNeighbor[direction])
+            {
+                if (neighbors[direction] != null && neighbors[direction].GetArea().Equals(area))
+                {
+                    // if it's in the same area, return the ID of the target tile.
+                    return neighbors[direction].ID;
+                }
+                else
+                {
+                    // if it's in a different area, return -2
+                    return -2;
+                }
+            }
+            else
+            {
+                // if there isn't, return -1
+                return -1;
+            }
+        }
+
         // Get the text of a link, used when saving an area
         public String GetLinkText(int direction)
         {
@@ -249,6 +281,11 @@ namespace TCPGameServer.World.Map
                 // if there's no link, return -1
                 return "-1";
             }
+        }
+
+        public String GetType()
+        {
+            return type;
         }
 
         // get the image key for this tile

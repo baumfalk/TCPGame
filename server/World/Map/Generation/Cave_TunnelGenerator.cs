@@ -12,14 +12,17 @@ namespace TCPGameServer.World.Map.Generation
     {
         private int[][] entrances;
 
-        public Cave_TunnelGenerator(int seed, Tile[] entrances, bool generateExits, int bottomLeftX, int bottomLeftY, int bottomLeftZ, Area area, World world)
-            : base(seed, entrances, generateExits, bottomLeftX, bottomLeftY, bottomLeftZ, area, world)
+        public Cave_TunnelGenerator(int seed, Tile[] entrances, Tile[][] fixedTiles, bool generateExits, int bottomLeftX, int bottomLeftY, int bottomLeftZ, Area area, World world)
+            : base(seed, entrances, fixedTiles, generateExits, bottomLeftX, bottomLeftY, bottomLeftZ, area, world)
         {
             this.entrances = new int[entrances.Length][];
 
             for (int n = 0; n < entrances.Length; n++)
             {
-                this.entrances[n] = new int[] { entrances[n].GetX() * 100, entrances[n].GetY() };
+                int mapX = entrances[n].GetX() - bottomLeftX;
+                int mapY = entrances[n].GetY() - bottomLeftY;
+
+                this.entrances[n] = new int[] { mapX, mapY };
             }
         }
 
@@ -51,14 +54,15 @@ namespace TCPGameServer.World.Map.Generation
 
             foreach (int[] entrance in entrances)
             {
-                //if (!toConnect.Contains(entrance)) continue;
-
                 int entranceX = entrance[0];
                 int entranceY = entrance[1];
 
-                int distance = Math.Abs(x - entranceX) + Math.Abs(y - entranceY);
+                if (connectedBy[entranceX, entranceY] != color)
+                {
+                    int distance = Math.Abs(x - entranceX) + Math.Abs(y - entranceY);
 
-                if (distance < lowest) lowest = distance;
+                    if (distance < lowest) lowest = distance;
+                }
             }
 
             return lowest;

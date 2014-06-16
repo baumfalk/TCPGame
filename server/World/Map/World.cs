@@ -23,6 +23,12 @@ namespace TCPGameServer.World.Map
             loadedAreas = new Dictionary<String, Area>();
         }
 
+        // tells the map generator which type of map to make at which point of the world
+        public String GetAreaType(int worldGridX, int worldGridY, int worldGridZ)
+        {
+            return "Small Cave";
+        }
+
         // for now, we will unload areas that have seen no activity for thirty
         // minutes or more when this method is called (every 10 minutes).
         public void UnloadInactiveAreas()
@@ -85,6 +91,13 @@ namespace TCPGameServer.World.Map
         public int GetSeed()
         {
             return worldSeed;
+        }
+
+        // returns an area seed for a certain location on the map
+        public int GetAreaSeed(int worldGridX, int worldGridY, int worldGridZ)
+        {
+            // multiplicands are all prime
+            return worldSeed + worldGridX * 17 + worldGridY * 65537 + worldGridZ * 478697;
         }
     }
 }

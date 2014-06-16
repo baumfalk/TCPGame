@@ -24,9 +24,22 @@ namespace TCPGameServer.World.Map.IO
             return File.Exists(gitPath + name + ".are");
         }
 
+        public static bool IsStub(String name)
+        {
+            StreamReader fileReader = new StreamReader(gitPath + name + ".are");
+
+            String fileType = fileReader.ReadLine();
+
+            fileReader.Close();
+
+            return fileType.Equals("Stub");
+        }
+
         // load an area from file, based on its name
         public static AreaData Load(String name, Area area, World world)
         {
+            Output.Print("Load");
+
             AreaReader.area = area;
             AreaReader.world = world;
 
@@ -35,12 +48,6 @@ namespace TCPGameServer.World.Map.IO
             // the filename is the area name plus an .are extension
             StreamReader fileReader = new StreamReader(gitPath + name + ".are");
 
-            // the number of tiles is on the first line of the file
-            int numTiles = int.Parse(fileReader.ReadLine());
-
-            // initialize the tiles array
-            toReturn.tiles = new Tile[numTiles];
-
             // check if this is a complete area or a stub
             String fileType = fileReader.ReadLine();
 
@@ -48,71 +55,65 @@ namespace TCPGameServer.World.Map.IO
             String areaType = fileReader.ReadLine();
 
             // get the seed for the random number generator for this area
-            int seed;
-            int.TryParse(fileReader.ReadLine(), out seed);
+            int seed = int.Parse(fileReader.ReadLine());
 
-            if (fileType.Equals("Stub"))
+            int[] bottomLeft = new int[3];
+            bottomLeft[0] = int.Parse(fileReader.ReadLine()); //x
+            bottomLeft[1] = int.Parse(fileReader.ReadLine()); //y
+            bottomLeft[2] = int.Parse(fileReader.ReadLine()); //z
+
+            int numEntrances = int.Parse(fileReader.ReadLine());
+
+            AreaData entrances = ParseTiles(numEntrances, fileReader, 0);
+
+            Tile[][] fixedTiles = new Tile[entrances.tiles.Length][];
+
+            for (int n = 0; n < entrances.tiles.Length; n++)
             {
-                Output.Print("First generate on area " + name);
+                int numFixed = int.Parse(fileReader.ReadLine());
 
-                toReturn = GenerateFromStub(numTiles, seed, areaType, fileReader, true);
+                AreaData fixedData = ParseTiles(numFixed, fileReader, entrances.tiles.Length);
 
-                LinkTiles(toReturn);
-
-                fileReader.Close();
-
-                //AreaWriter.Save(toReturn, name, areaType, "Generated");
+                fixedTiles[n] = fixedData.tiles;
             }
-            else if (fileType.Equals("Generated"))
+
+            Output.Print("Generating area " + name);
+
+            if (entrances.tiles.Length > 0)
             {
-                Output.Print("Generating area " + name);
-
-                toReturn = GenerateFromStub(numTiles, seed, areaType, fileReader, false);
-
-                LinkTiles(toReturn);
-
-                fileReader.Close();
+                toReturn = Generate(seed, areaType, fileType, entrances.tiles, fixedTiles, fileReader, bottomLeft);
             }
-            else if (fileType.Equals("Complete"))
-            {
-                Output.Print("Loading area " + name);
 
-                // parse the tiles from the file, returning a string array with links.
-                // These need to be added after creating all the tiles, so the objects
-                // to link all exist.
-                toReturn = ParseTiles(numTiles, fileReader);
+            // link up the tiles, based on the link array we received from the
+            // tile parser or generator.
+            LinkTiles(toReturn);
 
-                // link up the tiles, based on the link array we received from the
-                // tile parser or generator.
-                LinkTiles(toReturn);
-
-                fileReader.Close();
-            }
-            else
-            {
-                Output.Print("invalid area file");
-
-                fileReader.Close();
-            }
+            fileReader.Close();
 
             return toReturn;
         }
 
-        private static AreaData GenerateFromStub(int numTiles, int seed, String areaType, StreamReader fileReader, bool generateExits)
+        private static AreaData Generate(int seed, String areaType, String fileType, Tile[] entrances, Tile[][] fixedTiles, StreamReader fileReader, int[] bottomLeft)
         {
-            AreaData entrances = ParseTiles(numTiles, fileReader);
+            Output.Print("AreaReader.Generate");
 
-            LinkTiles(entrances);
+            bool generateExits = fileType.Equals("Stub");
 
             AreaGenerator areaGenerator = new AreaGenerator();
 
-            return areaGenerator.Generate(seed, areaType, entrances.tiles, generateExits, -50, -50, 0, area, world);
+            AreaData toReturn = areaGenerator.Generate(seed, areaType, entrances, fixedTiles, generateExits, bottomLeft[0], bottomLeft[1], bottomLeft[2], area, world);
+
+            Output.Print("AreaReader.Generate return");
+
+            return toReturn;
         }
 
         // parse the tiles from file, creating the objects and adding them to the
         // array. Returns an array which contains the links for each tile.
-        private static AreaData ParseTiles(int numTiles, StreamReader fileReader)
+        private static AreaData ParseTiles(int numTiles, StreamReader fileReader, int IDOffset)
         {
+            Output.Print("ParseTiles");
+
             // initialize the arrays
             int[][] links = new int[numTiles][];
             Tile[] tiles = new Tile[numTiles];
@@ -130,7 +131,7 @@ namespace TCPGameServer.World.Map.IO
                 }
 
                 // create the tile and add it to the tiles array
-                tiles[n] = ParseTile(n, tileData);
+                tiles[n] = ParseTile(n + IDOffset, tileData);
 
                 // the links are on the next line, add them to the array
                 links[n] = ParseLinks(tiles[n], fileReader.ReadLine());
@@ -184,11 +185,13 @@ namespace TCPGameServer.World.Map.IO
             {
                 // if a link can't be parsed to an int, it's an area link.
                 int value;
-                if (int.TryParse(splitLinks[direction], out value)) {
+                if (int.TryParse(splitLinks[direction], out value))
+                {
                     // if it can be, it's the ID of the target tile
                     toReturn[direction] = value;
                 }
-                else {
+                else
+                {
                     // directly link up area links, don't further link this tile in
                     // this direction
                     AddAreaLink(direction, tile, splitLinks[direction]);
@@ -202,6 +205,8 @@ namespace TCPGameServer.World.Map.IO
         // creates area links
         private static void AddAreaLink(int direction, Tile toLink, String areaLink)
         {
+            Output.Print("AddAreaLink");
+
             // split into name and ID
             String[] splitAreaLink = areaLink.Split(';');
 
@@ -215,6 +220,8 @@ namespace TCPGameServer.World.Map.IO
         // links the tiles in the area together
         private static void LinkTiles(AreaData areaData)
         {
+            Output.Print("LinkTiles");
+
             int numTiles = areaData.tiles.Length;
 
             int[][] link = areaData.linkData;

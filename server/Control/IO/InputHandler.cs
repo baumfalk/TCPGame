@@ -80,9 +80,9 @@ namespace TCPGameServer.Control.IO
         private static void HandleLogin(String command, Player player)
         {
             // place the player on the map
-            if (command.Equals("geerten")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "start", "0" });
-            else if (command.Equals("jetze")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "start", "1" });
-            else player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "start", "2" });
+            if (command.Equals("geerten")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "x0y0z0", "6" });
+            else if (command.Equals("jetze")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "x0y0z0", "10" });
+            else player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "x0y0z0", "13" });
 
             // set the player's name to whatever he used to log in
             player.SetName(command);
