@@ -38,8 +38,6 @@ namespace TCPGameServer.World.Map.IO
         // load an area from file, based on its name
         public static AreaData Load(String name, Area area, World world)
         {
-            Output.Print("Load");
-
             AreaReader.area = area;
             AreaReader.world = world;
 
@@ -77,6 +75,8 @@ namespace TCPGameServer.World.Map.IO
                 fixedTiles[n] = fixedData.tiles;
             }
 
+            fileReader.Close();
+
             Output.Print("Generating area " + name);
 
             if (entrances.tiles.Length > 0)
@@ -88,22 +88,16 @@ namespace TCPGameServer.World.Map.IO
             // tile parser or generator.
             LinkTiles(toReturn);
 
-            fileReader.Close();
-
             return toReturn;
         }
 
         private static AreaData Generate(int seed, String areaType, String fileType, Tile[] entrances, Tile[][] fixedTiles, StreamReader fileReader, int[] bottomLeft)
         {
-            Output.Print("AreaReader.Generate");
-
             bool generateExits = fileType.Equals("Stub");
 
             AreaGenerator areaGenerator = new AreaGenerator();
 
             AreaData toReturn = areaGenerator.Generate(seed, areaType, entrances, fixedTiles, generateExits, bottomLeft[0], bottomLeft[1], bottomLeft[2], area, world);
-
-            Output.Print("AreaReader.Generate return");
 
             return toReturn;
         }
@@ -112,8 +106,6 @@ namespace TCPGameServer.World.Map.IO
         // array. Returns an array which contains the links for each tile.
         private static AreaData ParseTiles(int numTiles, StreamReader fileReader, int IDOffset)
         {
-            Output.Print("ParseTiles");
-
             // initialize the arrays
             int[][] links = new int[numTiles][];
             Tile[] tiles = new Tile[numTiles];
@@ -205,8 +197,6 @@ namespace TCPGameServer.World.Map.IO
         // creates area links
         private static void AddAreaLink(int direction, Tile toLink, String areaLink)
         {
-            Output.Print("AddAreaLink");
-
             // split into name and ID
             String[] splitAreaLink = areaLink.Split(';');
 
@@ -220,8 +210,6 @@ namespace TCPGameServer.World.Map.IO
         // links the tiles in the area together
         private static void LinkTiles(AreaData areaData)
         {
-            Output.Print("LinkTiles");
-
             int numTiles = areaData.tiles.Length;
 
             int[][] link = areaData.linkData;

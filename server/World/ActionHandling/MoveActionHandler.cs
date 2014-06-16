@@ -29,8 +29,6 @@ namespace TCPGameServer.World.ActionHandling
             // check if we're teleporting or moving normally
             if (splitCommand[1].Equals("TELEPORT"))
             {
-                Output.Print("handling teleport");
-
                 // parse teleporting arguments (area name, tile ID)
                 target = model.GetTile(splitCommand[2], int.Parse(splitCommand[3]));
             }

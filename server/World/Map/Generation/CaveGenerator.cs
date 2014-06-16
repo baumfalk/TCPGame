@@ -116,8 +116,6 @@ namespace TCPGameServer.World.Map.Generation
 
         private void SaveStaticTiles()
         {
-            Output.Print("SaveStaticTiles");
-
             AreaWriter.SaveStatic(area.GetName(), seed, GetAreaType(), new int[] { bottomLeftX / 100, bottomLeftY / 100, bottomLeftZ }, entrances, exits, fixedTiles);
         }
 
@@ -148,8 +146,6 @@ namespace TCPGameServer.World.Map.Generation
 
         protected void AddTilesToConnect()
         {
-            Output.Print("AddTilesToConnect");
-
             connected = new List<int>[entrances.Length + exits.Length];
             tileFront = new PriorityQueue<int[]>[entrances.Length + exits.Length];
             isInFront = new bool[entrances.Length + exits.Length][,];
@@ -169,8 +165,6 @@ namespace TCPGameServer.World.Map.Generation
 
         private void SetInitialFront()
         {
-            Output.Print("SetInitialFront");
-
             for (int n = 0; n < entrances.Length; n++)
             {
                 int mapX = entrances[n].GetX() - bottomLeftX;
@@ -192,8 +186,6 @@ namespace TCPGameServer.World.Map.Generation
 
         private Tile[] AddExits()
         {
-            Output.Print("AddExits");
-
             List<int> PossibleDirections = new List<int>();
             List<Tile> toReturn = new List<Tile>();
 
@@ -209,9 +201,6 @@ namespace TCPGameServer.World.Map.Generation
                 nextDoor[direction] =  Directions.GetNeighboring(direction, mapGridCoordinateX, mapGridCoordinateY, mapGridCoordinateZ);
 
                 neighbor[direction] = "x" + nextDoor[direction][0] + "y" + nextDoor[direction][1] + "z" + nextDoor[direction][2];
-
-                Output.Print("map grid coordinates are " + mapGridCoordinateX + ", " + mapGridCoordinateY + ", " + mapGridCoordinateZ);
-                Output.Print("neighbor to the " + Directions.ToString(direction) + " is " + neighbor[direction]);
 
                 bool alreadyLinked = false;
                 for (int n = 0; n < entrances.Length; n++)
@@ -233,6 +222,9 @@ namespace TCPGameServer.World.Map.Generation
             Random rnd = new Random(seed);
 
             int exitNum = entrances.Length;
+
+            int upX = 0;
+            int upY = 0;
             foreach (int direction in PossibleDirections)
             {
                 if (rnd.NextDouble() < GetExitChance())
@@ -243,9 +235,10 @@ namespace TCPGameServer.World.Map.Generation
                     if (nextDoor[direction][0] == mapGridCoordinateX)
                     {
                         locX = rnd.Next(80) + 10;
+
                         if (nextDoor[direction][2] == mapGridCoordinateZ)
                         {
-                            locY = (nextDoor[direction][1] == -1) ? 0 : 99;
+                            locY = (nextDoor[direction][1] == mapGridCoordinateY - 1) ? 0 : 99;
                         }
                     }
 
@@ -254,7 +247,7 @@ namespace TCPGameServer.World.Map.Generation
                         locY = rnd.Next(80) + 10;
                         if (nextDoor[direction][2] == mapGridCoordinateZ)
                         {
-                            locX = (nextDoor[direction][0] == -1) ? 0 : 99;
+                            locX = (nextDoor[direction][0] == mapGridCoordinateX - 1) ? 0 : 99;
                         }
                     }
 
@@ -264,9 +257,14 @@ namespace TCPGameServer.World.Map.Generation
 
                     int otherEnd = AreaWriter.AddEntrance(exit, direction, neighbor[direction]);
 
-                    Output.Print("otherEnd = " + otherEnd);
-                    if (otherEnd != -1)
+                    if (otherEnd != -1 && !(locX == upX && locY == upY))
                     {
+                        if (direction == Directions.UP)
+                        {
+                            upX = locX;
+                            upY = locY;
+                        }
+
                         exit.CreateAreaLink(direction, neighbor[direction], otherEnd);
 
                         toReturn.Add(exit);
@@ -281,8 +279,6 @@ namespace TCPGameServer.World.Map.Generation
 
         private void AddTileToConnect(Tile tileToConnect, int entranceIndex)
         {
-            Output.Print("AddTileToConnect");
-
             connected[entranceIndex] = new List<int>();
 
             int mapX = tileToConnect.GetX() - bottomLeftX;
@@ -300,8 +296,6 @@ namespace TCPGameServer.World.Map.Generation
 
         private void AddFixedTiles()
         {
-            Output.Print("AddFixedTiles");
-
             int offset = entrances.Length + exits.Length;
 
             for (int n = 0; n < fixedTiles.Length; n++)
@@ -330,7 +324,7 @@ namespace TCPGameServer.World.Map.Generation
         protected virtual double GetExitChance()
         {
             // betere values voor bedenken!
-            return 1.0d;
+            return 0.5d;
         }
 
         private void AddTile(int x, int y, int color, Tile toAdd)

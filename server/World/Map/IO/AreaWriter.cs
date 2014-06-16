@@ -27,8 +27,6 @@ namespace TCPGameServer.World.Map.IO
 
         public static int AddEntrance(Tile exit, int direction, String name)
         {
-            Output.Print("creating link from tile at " + exit.GetX() + "," + exit.GetY() + "," + exit.GetZ() + " in direction " + Directions.ToString(direction));
-
             bool createFile = !AreaReader.Exists(name);
 
             AbstractTile target = new AbstractTile();
@@ -58,9 +56,14 @@ namespace TCPGameServer.World.Map.IO
             if (targetLocation[0] < 0) mapGridPositionX -= 1;
             if (targetLocation[1] < 0) mapGridPositionY -= 1;
 
-            Output.Print("target location is " + targetLocation[0] + ", " + targetLocation[1] + ", " + targetLocation[2]);
-
             if (!name.Equals("x" + mapGridPositionX + "y" + mapGridPositionY + "z" + mapGridPositionZ)) {
+                Output.Print((targetLocation[0] / 100) + " = " + targetLocation[0] + " / 100");
+                Output.Print((targetLocation[1] / 100) + " = " + targetLocation[1] + " / 100");
+                Output.Print(mapGridPositionZ + " = " + targetLocation[2]);
+
+                Output.Print("if (" + targetLocation[0] + " < 0) " + mapGridPositionX + "-= 1");
+                Output.Print("if (" + targetLocation[1] + " < 0) " + mapGridPositionY + "-= 1");
+
                 Output.Print("name (" + name + ") does not match area (" + "x" + mapGridPositionX + "y" + mapGridPositionY + "z" + mapGridPositionZ + "), aborting AddEntrance");
                 
                 return -1;
@@ -68,7 +71,7 @@ namespace TCPGameServer.World.Map.IO
 
             if (!createFile)
             {
-                Output.Print("not writing a new file");
+                //TODO: adding to existing stubs
                 return -1;
             }
             else
@@ -109,7 +112,7 @@ namespace TCPGameServer.World.Map.IO
         {
             Output.Print("Writing static for " + name);
 
-            StreamWriter fileWriter = new StreamWriter(gitPath + name + ".are2");
+            StreamWriter fileWriter = new StreamWriter(gitPath + name + ".are");
 
             fileWriter.WriteLine("Generated");
 
@@ -125,39 +128,44 @@ namespace TCPGameServer.World.Map.IO
 
             fileWriter.WriteLine(entrances.Length + exits.Length);
 
-            Output.Print(entrances.Length + " entrances");
             for (int n = 0; n < entrances.Length; n++) {
-                AbstractTile abstractTile = ConvertTile(entrances[n], 0);
+                AbstractTile abstractTile = ConvertTile(entrances[n]);
                 WriteAbstractTile(fileWriter, abstractTile);
             }
 
-            Output.Print(exits.Length + " exits");
             for (int n = 0; n < exits.Length; n++)
             {
-                AbstractTile abstractTile = ConvertTile(exits[n], 0);
+                AbstractTile abstractTile = ConvertTile(exits[n]);
                 WriteAbstractTile(fileWriter, abstractTile);
             }
 
-            for (int n = 0; n < fixedTiles.Length; n++)
+            for (int n = 0; n < entrances.Length + exits.Length; n++)
             {
-                fileWriter.WriteLine(fixedTiles[n].Length);
-
-                for (int i = 0; i < fixedTiles[n].Length; i++)
+                if (fixedTiles.Length > n)
                 {
-                    // indices of fixed tiles go up by exits.Length
-                    AbstractTile abstractTile = ConvertTile(fixedTiles[n][i], exits.Length);
-                    WriteAbstractTile(fileWriter, abstractTile);
+                    fileWriter.WriteLine(fixedTiles[n].Length);
+
+                    for (int i = 0; i < fixedTiles[n].Length; i++)
+                    {
+                        // indices of fixed tiles go up by exits.Length
+                        AbstractTile abstractTile = ConvertTile(fixedTiles[n][i]);
+                        WriteAbstractTile(fileWriter, abstractTile);
+                    }
+                }
+                else
+                {
+                    fileWriter.WriteLine("0");
                 }
             }
 
             fileWriter.Close();
         }
 
-        private static AbstractTile ConvertTile(Tile toWrite, int exitOffset)
+        private static AbstractTile ConvertTile(Tile toWrite)
         {
             AbstractTile abstractTile = new AbstractTile();
 
-            abstractTile.ID = (toWrite.GetID() + exitOffset).ToString();
+            abstractTile.ID = (toWrite.GetID()).ToString();
             abstractTile.type = toWrite.GetType();
             abstractTile.representation = toWrite.GetRepresentation();
             abstractTile.xLoc = toWrite.GetX().ToString();
@@ -172,7 +180,6 @@ namespace TCPGameServer.World.Map.IO
 
                 if (link == -1) links[direction] = "-1";
                 if (link == -2) links[direction] = toWrite.GetLinkText(direction);
-                else links[direction] = (link + exitOffset).ToString();
             }
             abstractTile.links = links[0] + "," + links[1] + "," + links[2] + "," + links[3] + "," + links[4] + "," + links[5];
 
