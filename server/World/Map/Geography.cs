@@ -10,7 +10,7 @@ namespace TCPGameServer.World.Map
     class Geography
     {
         // gets the tiles surrounding a tile to a certain range
-        public static List<Tile> getSurroundingTiles(Tile centerTile, int depth)
+        public static List<Tile> getSurroundingTiles(Tile centerTile, int depth, bool vision)
         {
             // return buffer
             List<Tile> tilesToSend = new List<Tile>();
@@ -23,7 +23,7 @@ namespace TCPGameServer.World.Map
             tileQueue.Enqueue(centerTile);
 
             // run BFS, depth is signalled by the color
-            BFS_To_Depth(tileQueue, tilesToSend);
+            BFS_To_Depth(tileQueue, tilesToSend, vision);
 
             // set color for all tiles back to unexplored status
             foreach (Tile tile in tilesToSend)
@@ -36,7 +36,7 @@ namespace TCPGameServer.World.Map
         }
 
         // finds tiles to a certain depth using a queue and tile color
-        private static void BFS_To_Depth(Queue<Tile> tileQueue, List<Tile> tilesToSend)
+        private static void BFS_To_Depth(Queue<Tile> tileQueue, List<Tile> tilesToSend, bool vision)
         {
             // run while the queue isn't empty
             while (tileQueue.Count > 0)
@@ -49,7 +49,7 @@ namespace TCPGameServer.World.Map
                 tilesToSend.Add(activeTile);
 
                 // if we don't need to go any further, don't explore more tiles
-                if (depth == 0) continue;
+                if (depth == 0 || vision && !activeTile.IsPassable()) continue;
 
                 // check in all six directions
                 for (int direction = 0; direction < 6; direction++)

@@ -29,7 +29,7 @@ namespace TCPGameServer.World.ActionHandling
             Location playerLocation = playerPosition.GetLocation();
 
             // get the tiles surrounding the player
-            List<Tile> tilesToSend = Geography.getSurroundingTiles(playerPosition, 5);
+            List<Tile> tilesToSend = Geography.getSurroundingTiles(playerPosition, 5, true);
 
             // if we need to include player data, send X,Y and Z coordinates
             if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.x + "," + playerLocation.y + "," + playerLocation.z, tick);
