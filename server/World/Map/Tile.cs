@@ -37,6 +37,9 @@ namespace TCPGameServer.World.Map
         // in another area will be linked on load
         private bool[] hasNeighbor;
 
+        // it's handy to know if a tile links to another area or not
+        private bool hasAreaLink;
+
         // types are things like "floor" or "wall", which may have different
         // representations but the same behavior
         private String type;
@@ -47,23 +50,19 @@ namespace TCPGameServer.World.Map
         private Creature occupant = null;
 
         // coordinates which can be used to calculate distances
-        private int x;
-        private int y;
-        private int z;
+        private Location location;
 
         // used in BFS to find neighboring tiles to a certain depth
         private int color;
 
         // fills fields and initializes arrays
-        public Tile(String type, String representation, int x, int y, int z, int ID, Area area, World world)
+        public Tile(String type, String representation, Location location, int ID, Area area, World world)
         {
             // fill fields from arguments
             this.type = type;
             this.representation = representation;
 
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this.location = location;
 
             this.ID = ID;
             this.area = area;
@@ -113,6 +112,13 @@ namespace TCPGameServer.World.Map
             areaLinks[direction] = new AreaLink(areaName, id);
 
             hasNeighbor[direction] = true;
+            hasAreaLink = true;
+        }
+
+        // check if a tile is linked to another area
+        public bool HasAreaLink()
+        {
+            return hasAreaLink;
         }
 
         // create a link to a tile. If it has a link but that link is not this tile,
@@ -134,9 +140,10 @@ namespace TCPGameServer.World.Map
             }
 
             // check that the tile linked to is in the correct relation to this one x/y/z-wise
-            int[] properNeighbor = Directions.GetNeighboring(direction, x, y, z);
+            Location properNeighbor = Directions.GetNeighboring(direction, location);
+            Location neighborLocation = neighbor.GetLocation();
 
-            if (properNeighbor[0] != neighbor.GetX() || properNeighbor[1] != neighbor.GetY() || properNeighbor[2] != neighbor.GetZ())
+            if (!properNeighbor.Equals(neighborLocation))
             {
                 Output.Print("[" + area.GetName() + "(" + ID + ")] link to tile that's not adjacent. Possible error (" + Directions.ToString(direction) + ")");
             }
@@ -192,17 +199,9 @@ namespace TCPGameServer.World.Map
         }
 
         // the x/y/z location in the world
-        public int GetX()
+        public Location GetLocation()
         {
-            return x;
-        }
-        public int GetY()
-        {
-            return y;
-        }
-        public int GetZ()
-        {
-            return z;
+            return location;
         }
 
         // check if this tile has a neighbor
@@ -283,7 +282,7 @@ namespace TCPGameServer.World.Map
             }
         }
 
-        public String GetType()
+        public String GetTileType()
         {
             return type;
         }

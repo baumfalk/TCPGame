@@ -24,7 +24,7 @@ namespace TCPGameServer.World.Map
         }
 
         // tells the map generator which type of map to make at which point of the world
-        public String GetAreaType(int worldGridX, int worldGridY, int worldGridZ)
+        public String GetAreaType(Location worldGrid)
         {
             return "Small Cave";
         }
@@ -94,10 +94,10 @@ namespace TCPGameServer.World.Map
         }
 
         // returns an area seed for a certain location on the map
-        public int GetAreaSeed(int worldGridX, int worldGridY, int worldGridZ)
+        public int GetAreaSeed(Location worldGrid)
         {
             // multiplicands are all prime
-            return worldSeed + worldGridX * 17 + worldGridY * 65537 + worldGridZ * 478697;
+            return worldSeed + worldGrid.x * 17 + worldGrid.y * 65537 + worldGrid.z * 478697;
         }
     }
 }

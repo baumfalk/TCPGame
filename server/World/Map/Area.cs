@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.World.Map.IO;
+using TCPGameServer.World.Map.IO.MapFile;
 using TCPGameServer.World.Map.Generation;
 
 using TCPGameServer.Control.IO;
+
 
 namespace TCPGameServer.World.Map
 {
@@ -35,9 +37,9 @@ namespace TCPGameServer.World.Map
             this.world = world;
             this.name = name;
 
-            defaultTile = new Tile("floor", "floor", int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue, this, world);
+            defaultTile = new Tile("floor", "floor", new Location(int.MaxValue, int.MaxValue, int.MaxValue), int.MaxValue, this, world);
 
-            if (AreaReader.Exists(name))
+            if (AreaFile.Exists(name))
             {
                 // load the tiles and area type from the area reader
                 AreaData areaData = AreaReader.Load(name, this, world);

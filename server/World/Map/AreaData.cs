@@ -9,7 +9,6 @@ namespace TCPGameServer.World.Map
     {
         public Tile[] tiles;
         public int[][] linkData;
-        public int seed;
         public String areaType;
     }
 }

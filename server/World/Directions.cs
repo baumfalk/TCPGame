@@ -23,18 +23,22 @@ namespace TCPGameServer.World
             return (direction + 3) % 6;
         }
 
-        // get the x, y and z coordinates for a move of one position in any direction
-        public static int[] GetNeighboring(int direction, int x, int y, int z)
+        // x, y, z coordinates for a move of one position in a direction
+        public static Location GetNeighboring(int direction, Location location)
         {
+            int x = location.x;
+            int y = location.y;
+            int z = location.z;
+
             switch (direction)
             {
-                case 0: return new int[] { x, y + 1, z };
-                case 1: return new int[] { x + 1, y, z };
-                case 2: return new int[] { x, y, z + 1 };
-                case 3: return new int[] { x, y - 1, z };
-                case 4: return new int[] { x - 1, y, z };
-                case 5: return new int[] { x, y, z - 1 };
-                default: return new int[] { -1, -1, -1 };
+                case 0: return new Location(x, y + 1, z);
+                case 1: return new Location(x + 1, y, z);
+                case 2: return new Location(x, y, z + 1);
+                case 3: return new Location(x, y - 1, z);
+                case 4: return new Location(x - 1, y, z);
+                case 5: return new Location(x, y, z - 1);
+                default: return new Location(-1, -1, -1);
             }
         }
 

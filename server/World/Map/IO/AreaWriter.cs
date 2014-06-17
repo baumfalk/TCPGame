@@ -3,198 +3,154 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using System.IO;
-
 using TCPGameServer.Control.IO;
+using TCPGameServer.World.Map.IO.MapFile;
 
 namespace TCPGameServer.World.Map.IO
 {
     class AreaWriter
     {
-        private class AbstractTile
-        {
-            public String ID;
-            public String type;
-            public String representation;
-            public String xLoc;
-            public String yLoc;
-            public String zLoc;
-            public String links;
-        }
-
-        // path, based on where the files are in the git repository
-        private static String gitPath = @"../../../map/";
-
         public static int AddEntrance(Tile exit, int direction, String name)
         {
-            bool createFile = !AreaReader.Exists(name);
+            TileData target = new TileData();
 
-            AbstractTile target = new AbstractTile();
-
-            target.type = exit.GetType();
+            target.type = exit.GetTileType();
             target.representation = exit.GetRepresentation();
-
-            int[] targetLocation = Directions.GetNeighboring(direction, exit.GetX(), exit.GetY(), exit.GetZ());
-            target.xLoc = targetLocation[0].ToString();
-            target.yLoc = targetLocation[1].ToString();
-            target.zLoc = targetLocation[2].ToString();
+            target.location = Directions.GetNeighboring(direction, exit.GetLocation());
             
             int linkDirection = Directions.Inverse(direction);
+            target.links[linkDirection] = exit.GetArea().GetName() + ";" + exit.GetID();
+                
+            Location mapGridPosition = MapGridHelper.TileLocationToMapGridLocation(target.location);
 
-            String[] targetLinks = new String[6];
-            for (int dir = 0; dir < 6; dir++)
-            {
-                if (dir == linkDirection) targetLinks[dir] = exit.GetArea().GetName() + ";" + exit.GetID();
-                else targetLinks[dir] = "-1";
-            }
-            target.links = targetLinks[0] + "," + targetLinks[1] + "," + targetLinks[2] + "," + targetLinks[3] + "," + targetLinks[4] + "," + targetLinks[5];
-
-            int mapGridPositionX = targetLocation[0] / 100;
-            int mapGridPositionY = targetLocation[1] / 100;
-            int mapGridPositionZ = targetLocation[2];
-
-            if (targetLocation[0] < 0) mapGridPositionX -= 1;
-            if (targetLocation[1] < 0) mapGridPositionY -= 1;
-
-            if (!name.Equals("x" + mapGridPositionX + "y" + mapGridPositionY + "z" + mapGridPositionZ)) {
-                Output.Print((targetLocation[0] / 100) + " = " + targetLocation[0] + " / 100");
-                Output.Print((targetLocation[1] / 100) + " = " + targetLocation[1] + " / 100");
-                Output.Print(mapGridPositionZ + " = " + targetLocation[2]);
-
-                Output.Print("if (" + targetLocation[0] + " < 0) " + mapGridPositionX + "-= 1");
-                Output.Print("if (" + targetLocation[1] + " < 0) " + mapGridPositionY + "-= 1");
-
-                Output.Print("name (" + name + ") does not match area (" + "x" + mapGridPositionX + "y" + mapGridPositionY + "z" + mapGridPositionZ + "), aborting AddEntrance");
+            if (!name.Equals("x" + mapGridPosition.x + "y" + mapGridPosition.y + "z" + mapGridPosition.z)) {
+                Output.Print("name (" + name + ") does not match area (" + "x" + mapGridPosition.x + "y" + mapGridPosition.y + "z" + mapGridPosition.z + "), aborting AddEntrance");
                 
                 return -1;
             }
 
-            if (!createFile)
-            {
-                //TODO: adding to existing stubs
-                return -1;
-            }
-            else
-            {
-                CreateMapFile(name, new int[] {mapGridPositionX, mapGridPositionY, mapGridPositionZ}, target, exit.GetWorld());
+            bool createFile = !AreaFile.Exists(name);
+            if (createFile) CreateMapFile(name, mapGridPosition, target, exit.GetWorld());
+            else AddEntranceToMapFile(target, name);
 
-                return 0;
-            }
+            return target.ID;
         }
 
-        private static void CreateMapFile(String name, int[] mapGridPosition, AbstractTile target, World world)
+        private static void AddEntranceToMapFile(TileData target, String name)
         {
-            StreamWriter fileWriter = new StreamWriter(gitPath + name + ".are");
+            // read the file
+            AreaFileData fileData = AreaFile.Read(name);
 
-            fileWriter.WriteLine("Stub");
+            // the ID of our tile will be the current number of entrances
+            target.ID = fileData.entrances.numberOfTiles;
 
-            fileWriter.WriteLine(world.GetAreaType(mapGridPosition[0], mapGridPosition[1], mapGridPosition[2]));
+            // increase the number of entrances by one
+            fileData.entrances.numberOfTiles += 1;
 
-            fileWriter.WriteLine(world.GetAreaSeed(mapGridPosition[0], mapGridPosition[1], mapGridPosition[2]));
+            // get the entrance data
+            TileData[] entrances = fileData.entrances.tileData;
 
-            fileWriter.WriteLine(mapGridPosition[0]);
+            // create a new entrance array one larger than current, and add our target
+            // tile at the end, then set the new array to be the entrance array
+            TileData[] newEntrances = new TileData[entrances.Length + 1];
+            Array.Copy(entrances, newEntrances, entrances.Length);
+            newEntrances[entrances.Length] = target;
+            fileData.entrances.tileData = newEntrances;
 
-            fileWriter.WriteLine(mapGridPosition[1]);
+            // get the fixed tile block array
+            TileBlockData[] fixedTiles = fileData.fixedTiles;
 
-            fileWriter.WriteLine(mapGridPosition[2]);
+            // loop through all the tiles in all the blocks and increase their ID
+            // by one.
+            for (int n = 0; n < fixedTiles.Length; n++)
+            {
+                for (int i = 0; i < fixedTiles[n].tileData.Length; i++)
+                {
+                    fixedTiles[n].tileData[i].ID++;
+                }
+            }
 
-            fileWriter.WriteLine(1);
+            // copy the fixed tile block array into an array one bigger, and add an
+            // empty tile block at the end (no fixed tiles are associated with this
+            // entrance)
+            TileBlockData[] newFixedTiles = new TileBlockData[fixedTiles.Length + 1];
+            Array.Copy(fixedTiles, newFixedTiles, fixedTiles.Length);
+            newFixedTiles[fixedTiles.Length] = new TileBlockData();
+            fileData.fixedTiles = newFixedTiles;
 
-            target.ID = "0";
-            WriteAbstractTile(fileWriter, target);
+            // write the updated file back to disk
+            AreaFile.Write(fileData, name);
 
-            fileWriter.WriteLine(0);
-
-            fileWriter.Close();
+            // return the ID of the new entrance
         }
 
-        public static void SaveStatic(String name, int seed, String areaType, int[] mapGridPosition, Tile[] entrances, Tile[] exits, Tile[][] fixedTiles)
+        private static void CreateMapFile(String name, Location mapGridPosition, TileData target, World world)
+        {
+            AreaFileData fileData = new AreaFileData();
+
+            target.ID = 0;
+
+            fileData.header.fileType = "Stub";
+            fileData.header.areaType = world.GetAreaType(mapGridPosition);
+            fileData.header.seed = world.GetAreaSeed(mapGridPosition);
+            fileData.header.mapGridLocation = mapGridPosition;
+
+            fileData.entrances.numberOfTiles = 1;
+            fileData.entrances.tileData = new TileData[] { target };
+
+            fileData.fixedTiles = new TileBlockData[] {new TileBlockData()};
+
+            AreaFile.Write(fileData, name);
+        }
+
+        public static void SaveStatic(String name, Tile[] entrances, Tile[] exits, Tile[][] fixedTiles)
         {
             Output.Print("Writing static for " + name);
 
-            StreamWriter fileWriter = new StreamWriter(gitPath + name + ".are");
+            AreaFileData fileData = new AreaFileData();
 
-            fileWriter.WriteLine("Generated");
+            HeaderData header = AreaFile.ReadHeader(name);
 
-            fileWriter.WriteLine(areaType);
+            fileData.header = header;
 
-            fileWriter.WriteLine(seed);
+            fileData.header.fileType = "Generated";
 
-            fileWriter.WriteLine(mapGridPosition[0]);
+            int numberOfEntrances = entrances.Length + exits.Length;
 
-            fileWriter.WriteLine(mapGridPosition[1]);
-
-            fileWriter.WriteLine(mapGridPosition[2]);
-
-            fileWriter.WriteLine(entrances.Length + exits.Length);
+            fileData.entrances.numberOfTiles = numberOfEntrances;
+            fileData.entrances.tileData = new TileData[numberOfEntrances];
 
             for (int n = 0; n < entrances.Length; n++) {
-                AbstractTile abstractTile = ConvertTile(entrances[n]);
-                WriteAbstractTile(fileWriter, abstractTile);
+                fileData.entrances.tileData[n] = TileData.FromTile(entrances[n]);
             }
 
             for (int n = 0; n < exits.Length; n++)
             {
-                AbstractTile abstractTile = ConvertTile(exits[n]);
-                WriteAbstractTile(fileWriter, abstractTile);
+                fileData.entrances.tileData[n + entrances.Length] = TileData.FromTile(exits[n]);
             }
 
-            for (int n = 0; n < entrances.Length + exits.Length; n++)
+            fileData.fixedTiles = new TileBlockData[numberOfEntrances];
+            for (int n = 0; n < fixedTiles.Length; n++)
             {
-                if (fixedTiles.Length > n)
-                {
-                    fileWriter.WriteLine(fixedTiles[n].Length);
+                fileData.fixedTiles[n] = new TileBlockData();
 
-                    for (int i = 0; i < fixedTiles[n].Length; i++)
-                    {
-                        // indices of fixed tiles go up by exits.Length
-                        AbstractTile abstractTile = ConvertTile(fixedTiles[n][i]);
-                        WriteAbstractTile(fileWriter, abstractTile);
-                    }
-                }
-                else
+                int numberOfFixedTiles = fixedTiles[n].Length;
+
+                fileData.fixedTiles[n].numberOfTiles = numberOfFixedTiles;
+                fileData.fixedTiles[n].tileData = new TileData[numberOfFixedTiles];
+
+                for (int i = 0; i < numberOfFixedTiles; i++)
                 {
-                    fileWriter.WriteLine("0");
+                    fileData.fixedTiles[n].tileData[i] = TileData.FromTile(fixedTiles[n][i]);
                 }
             }
 
-            fileWriter.Close();
-        }
-
-        private static AbstractTile ConvertTile(Tile toWrite)
-        {
-            AbstractTile abstractTile = new AbstractTile();
-
-            abstractTile.ID = (toWrite.GetID()).ToString();
-            abstractTile.type = toWrite.GetType();
-            abstractTile.representation = toWrite.GetRepresentation();
-            abstractTile.xLoc = toWrite.GetX().ToString();
-            abstractTile.yLoc = toWrite.GetY().ToString();
-            abstractTile.zLoc = toWrite.GetZ().ToString();
-
-            String[] links = new String[6];
-
-            for (int direction = 0; direction < 6; direction++)
+            for (int n = 0; n < exits.Length; n++)
             {
-                int link = toWrite.GetLink(direction);
-
-                if (link == -1) links[direction] = "-1";
-                if (link == -2) links[direction] = toWrite.GetLinkText(direction);
+                fileData.fixedTiles[n + entrances.Length] = new TileBlockData();
             }
-            abstractTile.links = links[0] + "," + links[1] + "," + links[2] + "," + links[3] + "," + links[4] + "," + links[5];
 
-            return abstractTile;
-        }
-
-        private static void WriteAbstractTile(StreamWriter fileWriter, AbstractTile abstractTile)
-        {
-            fileWriter.WriteLine(abstractTile.ID);
-            fileWriter.WriteLine(abstractTile.type);
-            fileWriter.WriteLine(abstractTile.representation);
-            fileWriter.WriteLine(abstractTile.xLoc);
-            fileWriter.WriteLine(abstractTile.yLoc);
-            fileWriter.WriteLine(abstractTile.zLoc);
-            fileWriter.WriteLine(abstractTile.links);
+            AreaFile.Write(fileData, name);
         }
     }
 }

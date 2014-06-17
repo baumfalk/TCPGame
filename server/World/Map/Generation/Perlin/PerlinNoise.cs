@@ -6,7 +6,7 @@ using System.Text;
 using TCPGameServer.Control.IO;
 using System.Drawing;
 
-namespace TCPGameServer.World.Map.Generation
+namespace TCPGameServer.World.Map.Generation.Perlin
 {
     class PerlinNoise
     {

@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.Control.IO;
+
 using TCPGameServer.General;
 
 using TCPGameServer.World.Map.IO;
+using TCPGameServer.World.Map.IO.MapFile;
+using TCPGameServer.World.Map.Generation.Perlin;
 
 namespace TCPGameServer.World.Map.Generation
 {
@@ -27,7 +30,7 @@ namespace TCPGameServer.World.Map.Generation
         private int tileCount;
         private Tile[] tileArray;
         private Tile[,] tiles;
-        private PriorityQueue<int[]>[] tileFront;
+        private PriorityQueue<Location>[] tileFront;
         private bool[][,] isInFront;
 
         private int minX = 100;
@@ -35,28 +38,24 @@ namespace TCPGameServer.World.Map.Generation
         private int minY = 100;
         private int maxY = 0;
 
-        private int bottomLeftX;
-        private int bottomLeftY;
-        private int bottomLeftZ;
+        private Location bottomLeft;
 
         private Area area;
         private World world;
 
-        public CaveGenerator(int seed, Tile[] entrances, Tile[][] fixedTiles, bool generateExits, int bottomLeftX, int bottomLeftY, int bottomLeftZ, Area area, World world)
+        public CaveGenerator(GeneratorData generatorData)
         {
-            this.seed = seed;
+            seed = generatorData.seed;
 
-            this.entrances = entrances;
-            this.fixedTiles = fixedTiles;
+            entrances = generatorData.entrances;
+            fixedTiles = generatorData.fixedTiles;
 
-            this.generateExits = generateExits;
+            generateExits = generatorData.generateExits;
 
-            this.bottomLeftX = bottomLeftX * 100;
-            this.bottomLeftY = bottomLeftY * 100;
-            this.bottomLeftZ = bottomLeftZ;
+            bottomLeft = generatorData.bottomLeft;
 
-            this.area = area;
-            this.world = world;
+            area = generatorData.area;
+            world = generatorData.world;
 
             tileCount = 0;
             tiles = new Tile[100, 100];
@@ -87,8 +86,6 @@ namespace TCPGameServer.World.Map.Generation
 
             AreaData toReturn = new AreaData();
 
-            toReturn.seed = seed;
-            toReturn.areaType = GetAreaType();
             toReturn.tiles = tileArray;
             toReturn.linkData = linkData;
 
@@ -116,7 +113,7 @@ namespace TCPGameServer.World.Map.Generation
 
         private void SaveStaticTiles()
         {
-            AreaWriter.SaveStatic(area.GetName(), seed, GetAreaType(), new int[] { bottomLeftX / 100, bottomLeftY / 100, bottomLeftZ }, entrances, exits, fixedTiles);
+            AreaWriter.SaveStatic(area.GetName(), entrances, exits, fixedTiles);
         }
 
         protected virtual int[][] GetValuemap()
@@ -147,7 +144,7 @@ namespace TCPGameServer.World.Map.Generation
         protected void AddTilesToConnect()
         {
             connected = new List<int>[entrances.Length + exits.Length];
-            tileFront = new PriorityQueue<int[]>[entrances.Length + exits.Length];
+            tileFront = new PriorityQueue<Location>[entrances.Length + exits.Length];
             isInFront = new bool[entrances.Length + exits.Length][,];
 
             for (int n = 0; n < entrances.Length; n++)
@@ -167,20 +164,18 @@ namespace TCPGameServer.World.Map.Generation
         {
             for (int n = 0; n < entrances.Length; n++)
             {
-                int mapX = entrances[n].GetX() - bottomLeftX;
-                int mapY = entrances[n].GetY() - bottomLeftY;
+                Location entranceLocation = MapGridHelper.TileLocationToCurrentMapLocation(entrances[n].GetLocation());
 
-                AddNeighbors(mapX, mapY, entrances[n].GetID());
+                AddNeighbors(entranceLocation, entrances[n].GetID());
             }
 
             int offset = entrances.Length;
 
             for (int n = 0; n < exits.Length; n++)
             {
-                int mapX = exits[n].GetX() - bottomLeftX;
-                int mapY = exits[n].GetY() - bottomLeftY;
+                Location exitLocation = MapGridHelper.TileLocationToCurrentMapLocation(exits[n].GetLocation());
 
-                AddNeighbors(mapX, mapY, exits[n].GetID());
+                AddNeighbors(exitLocation, exits[n].GetID());
             }
         }
 
@@ -189,18 +184,16 @@ namespace TCPGameServer.World.Map.Generation
             List<int> PossibleDirections = new List<int>();
             List<Tile> toReturn = new List<Tile>();
 
-            int mapGridCoordinateX = bottomLeftX / 100;
-            int mapGridCoordinateY = bottomLeftY / 100;
-            int mapGridCoordinateZ = bottomLeftZ;
+            Location mapGridPosition = MapGridHelper.TileLocationToMapGridLocation(bottomLeft);
 
-            int[][] nextDoor = new int[6][];
+            Location[] nextDoor = new Location[6];
             String[] neighbor = new String[6];
 
             for (int direction = 0; direction < 6; direction++)
             {
-                nextDoor[direction] =  Directions.GetNeighboring(direction, mapGridCoordinateX, mapGridCoordinateY, mapGridCoordinateZ);
+                nextDoor[direction] =  Directions.GetNeighboring(direction, mapGridPosition);
 
-                neighbor[direction] = "x" + nextDoor[direction][0] + "y" + nextDoor[direction][1] + "z" + nextDoor[direction][2];
+                neighbor[direction] = "x" + nextDoor[direction].x + "y" + nextDoor[direction].y + "z" + nextDoor[direction].z;
 
                 bool alreadyLinked = false;
                 for (int n = 0; n < entrances.Length; n++)
@@ -213,7 +206,7 @@ namespace TCPGameServer.World.Map.Generation
                     }
                 }
 
-                if (!alreadyLinked && (!AreaReader.Exists(neighbor[direction]) || AreaReader.IsStub(neighbor[direction])))
+                if (!alreadyLinked && (!AreaFile.Exists(neighbor[direction]) || AreaFile.IsStub(neighbor[direction])))
                 {
                     PossibleDirections.Add(direction);
                 }
@@ -232,28 +225,28 @@ namespace TCPGameServer.World.Map.Generation
                     int locX = 0;
                     int locY = 0;
 
-                    if (nextDoor[direction][0] == mapGridCoordinateX)
+                    if (nextDoor[direction].x == mapGridPosition.x)
                     {
                         locX = rnd.Next(80) + 10;
 
-                        if (nextDoor[direction][2] == mapGridCoordinateZ)
+                        if (nextDoor[direction].z == mapGridPosition.z)
                         {
-                            locY = (nextDoor[direction][1] == mapGridCoordinateY - 1) ? 0 : 99;
+                            locY = (nextDoor[direction].y == mapGridPosition.y - 1) ? 0 : 99;
                         }
                     }
 
-                    if (nextDoor[direction][1] == mapGridCoordinateY)
+                    if (nextDoor[direction].y == mapGridPosition.y)
                     {
                         locY = rnd.Next(80) + 10;
-                        if (nextDoor[direction][2] == mapGridCoordinateZ)
+                        if (nextDoor[direction].z == mapGridPosition.z)
                         {
-                            locX = (nextDoor[direction][0] == mapGridCoordinateX - 1) ? 0 : 99;
+                            locX = (nextDoor[direction].x == mapGridPosition.x - 1) ? 0 : 99;
                         }
                     }
 
-                    String type = (nextDoor[direction][2] == mapGridCoordinateZ) ? "floor" : "stairs";
+                    String type = (nextDoor[direction].z == mapGridPosition.z) ? "floor" : "stairs";
 
-                    Tile exit = new Tile(type, type, locX + bottomLeftX, locY + bottomLeftY, bottomLeftZ, exitNum, area, world);
+                    Tile exit = new Tile(type, type, new Location(locX + bottomLeft.x, locY + bottomLeft.y, bottomLeft.z), exitNum, area, world);
 
                     int otherEnd = AreaWriter.AddEntrance(exit, direction, neighbor[direction]);
 
@@ -281,32 +274,26 @@ namespace TCPGameServer.World.Map.Generation
         {
             connected[entranceIndex] = new List<int>();
 
-            int mapX = tileToConnect.GetX() - bottomLeftX;
-            int mapY = tileToConnect.GetY() - bottomLeftY;
-            int mapZ = tileToConnect.GetZ() - bottomLeftZ;
+            Location mapPosition = MapGridHelper.TileLocationToCurrentMapLocation(tileToConnect.GetLocation());
 
             toConnect.Add(entranceIndex);
             connected[entranceIndex].Add(entranceIndex);
 
-            tileFront[entranceIndex] = new PriorityQueue<int[]>();
+            tileFront[entranceIndex] = new PriorityQueue<Location>();
             isInFront[entranceIndex] = new bool[100, 100];
 
-            AddTile(mapX, mapY, entranceIndex, tileToConnect);
+            AddTile(mapPosition, entranceIndex, tileToConnect);
         }
 
         private void AddFixedTiles()
         {
-            int offset = entrances.Length + exits.Length;
-
             for (int n = 0; n < fixedTiles.Length; n++)
             {
                 for (int i = 0; i < fixedTiles[n].Length; i++)
                 {
-                    int mapX = fixedTiles[n][i].GetX() - bottomLeftX;
-                    int mapY = fixedTiles[n][i].GetY() - bottomLeftY;
-                    int mapZ = fixedTiles[n][i].GetZ() - bottomLeftZ;
+                    Location mapPosition = MapGridHelper.TileLocationToCurrentMapLocation(fixedTiles[n][i].GetLocation());
 
-                    AddTile(mapX, mapY, n, fixedTiles[n][i]);
+                    AddTile(mapPosition, n, fixedTiles[n][i]);
                 }
             }
         }
@@ -324,12 +311,12 @@ namespace TCPGameServer.World.Map.Generation
         protected virtual double GetExitChance()
         {
             // betere values voor bedenken!
-            return 0.5d;
+            return 0.67d;
         }
 
-        private void AddTile(int x, int y, int color, Tile toAdd)
+        private void AddTile(Location location, int color, Tile toAdd)
         {
-            int connector = connectedBy[x, y] - 1;
+            int connector = connectedBy[location.x, location.y] - 1;
 
             if (connector != -1)
             {
@@ -345,56 +332,63 @@ namespace TCPGameServer.World.Map.Generation
             }
             else
             {
-                connectedBy[x, y] = color + 1;
+                connectedBy[location.x, location.y] = color + 1;
 
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
+                if (location.x < minX) minX = location.x;
+                if (location.x > maxX) maxX = location.x;
+                if (location.y < minY) minY = location.y;
+                if (location.y > maxY) maxY = location.y;
 
-                tiles[x, y] = toAdd;
+                tiles[location.x, location.y] = toAdd;
 
-                if (tiles[x, y].GetID() != tileCount) tiles[x, y].SetID(tileCount);
+                if (tiles[location.x, location.y].GetID() != tileCount) tiles[location.x, location.y].SetID(tileCount);
 
                 tileCount++;
             }
         }
 
-        protected void AddToFront(int x, int y, int color)
+        protected void AddToFront(Location location, int color)
         {
+            int x = location.x;
+            int y = location.y;
+            int z = location.z;
+
             int connector = connectedBy[x, y] - 1;
 
             if (connector != color && !isInFront[color][x,y])
             {
                 isInFront[color][x, y] = true;
 
-                int weight = GetWeight(x, y, color);
+                int weight = GetWeight(location, color);
 
-                tileFront[color].Add(weight, new int[] { x, y });
+                tileFront[color].Add(weight, location);
             }
         }
 
-        protected virtual int GetWeight(int x, int y, int color)
+        protected virtual int GetWeight(Location location, int color)
         {
+            int x = location.x;
+            int y = location.y;
+
             return valuemap[x][y];
         }
 
         private void RecalculateWeights(int queueIndex)
         {
-            PriorityQueue<int[]> bufferQueue = new PriorityQueue<int[]>();
+            PriorityQueue<Location> bufferQueue = new PriorityQueue<Location>();
 
             isInFront[queueIndex] = new bool[100,100];
 
             while (tileFront[queueIndex].Count() > 0)
             {
-                int[] location = tileFront[queueIndex].RemoveMin();
+                Location location = tileFront[queueIndex].RemoveMin();
 
-                int x = location[0];
-                int y = location[1];
+                int x = location.x;
+                int y = location.y;
 
                 if (!isInFront[queueIndex][x,y])
                 {
-                    bufferQueue.Add(GetWeight(x, y, queueIndex), location);
+                    bufferQueue.Add(GetWeight(location, queueIndex), location);
                     isInFront[queueIndex][x, y] = true;
                 }
             }
@@ -404,30 +398,22 @@ namespace TCPGameServer.World.Map.Generation
 
         protected void Expand(int color, String type, String representation, bool expand)
         {
-            int[] pointToAdd = tileFront[color].RemoveMin();
+            Location pointToAdd = tileFront[color].RemoveMin();
 
-            int mapX = pointToAdd[0];
-            int mapY = pointToAdd[1];
+            Location realLocation = MapGridHelper.CurrentMapLocationToTileLocation(pointToAdd, bottomLeft);
 
-            int realX = mapX + bottomLeftX;
-            int realY = mapY + bottomLeftY;
-            int realZ = bottomLeftZ;
+            AddTile(pointToAdd, color, new Tile(type, representation, realLocation, tileCount, area, world));
 
-            AddTile(mapX, mapY, color, new Tile(type, representation, realX, realY, realZ, tileCount, area, world));
-
-            if (expand) AddNeighbors(mapX, mapY, color);
+            if (expand) AddNeighbors(pointToAdd, color);
         }
 
-        private void AddNeighbors(int x, int y, int color)
+        private void AddNeighbors(Location location, int color)
         {
-            List<int[]> neighbors = GetNeighbors(x, y);
+            List<Location> neighbors = GetNeighbors(location);
 
-            foreach (int[] neighbor in neighbors)
+            foreach (Location neighbor in neighbors)
             {
-                int xNeighbor = neighbor[0];
-                int yNeighbor = neighbor[1];
-
-                AddToFront(xNeighbor, yNeighbor, color);
+                AddToFront(neighbor, color);
             }
         }
 
@@ -449,7 +435,7 @@ namespace TCPGameServer.World.Map.Generation
 
                         for (int direction = 0; direction < 6; direction++)
                         {
-                            linkData[tile.GetID()][direction] = GetLink(direction, tile, x, y, tile.GetZ());
+                            linkData[tile.GetID()][direction] = GetLink(direction, tile, new Location(x, y, tile.GetLocation().z));
                         }
                     }
                 }
@@ -458,7 +444,7 @@ namespace TCPGameServer.World.Map.Generation
             return linkData;
         }
 
-        private int GetLink(int direction, Tile tile, int x, int y, int z)
+        private int GetLink(int direction, Tile tile, Location location)
         {
             if (tile.HasNeighbor(direction))
             {
@@ -466,16 +452,13 @@ namespace TCPGameServer.World.Map.Generation
             }
             else
             {
-                int[] neighborPosition = Directions.GetNeighboring(direction, x, y, z);
-                int xNeighbor = neighborPosition[0];
-                int yNeighbor = neighborPosition[1];
-                int zNeighbor = neighborPosition[2];
+                Location neighbor = Directions.GetNeighboring(direction, location);
 
-                if (xNeighbor >= 0 && yNeighbor >= 0 && zNeighbor == z &&
-                    xNeighbor <= 99 && yNeighbor <= 99 &&
-                    tiles[xNeighbor, yNeighbor] != null)
+                if (neighbor.x >= 0 && neighbor.y >= 0 && neighbor.z == location.z &&
+                    neighbor.x <= 99 && neighbor.y <= 99 &&
+                    tiles[neighbor.x, neighbor.y] != null)
                 {
-                    return tiles[xNeighbor, yNeighbor].GetID();
+                    return tiles[neighbor.x, neighbor.y].GetID();
                 }
                 else
                 {
@@ -484,14 +467,14 @@ namespace TCPGameServer.World.Map.Generation
             }
         }
 
-        private List<int[]> GetNeighbors(int x, int y)
+        private List<Location> GetNeighbors(Location mapLocation)
         {
-            List<int[]> neighbors = new List<int[]>();
+            List<Location> neighbors = new List<Location>();
 
-            if (x > 0) neighbors.Add(new int[] {(x - 1) , y});
-            if (x < 99) neighbors.Add(new int[] { (x + 1), y });
-            if (y > 0) neighbors.Add(new int[] { x, y - 1 });
-            if (y < 99) neighbors.Add(new int[] { x, y + 1 });
+            if (mapLocation.x > 0) neighbors.Add(new Location(mapLocation.x - 1, mapLocation.y, mapLocation.z));
+            if (mapLocation.x < 99) neighbors.Add(new Location( mapLocation.x + 1, mapLocation.y, mapLocation.z));
+            if (mapLocation.y > 0) neighbors.Add(new Location(mapLocation.x, mapLocation.y - 1, mapLocation.z));
+            if (mapLocation.y < 99) neighbors.Add(new Location(mapLocation.x, mapLocation.y + 1, mapLocation.z));
 
             return neighbors;
         }

@@ -9,25 +9,25 @@ namespace TCPGameServer.World.Map.Generation
 {
     class AreaGenerator
     {
-        public AreaData Generate(int seed, String areaType, Tile[] entrances, Tile[][] fixedTiles, bool generateExits, int bottomRightX, int bottomRightY, int bottomRightZ, Area area, World world)
+        public static AreaData Generate(GeneratorData generatorData)
         {
             DateTime start = DateTime.Now;
 
             AreaData toReturn;
 
-            if (areaType.Equals("Small Cave"))
+            if (generatorData.areaType.Equals("Small Cave"))
             {
-                toReturn = new Cave_SmallCaveGenerator(seed, entrances, fixedTiles, generateExits, bottomRightX, bottomRightY, bottomRightZ, area, world).Generate();
+                toReturn = new Cave_SmallCaveGenerator(generatorData).Generate();
             }
-            else if (areaType.Equals("Tunnel Cave"))
+            else if (generatorData.areaType.Equals("Tunnel Cave"))
             {
-                toReturn = new Cave_TunnelGenerator(seed, entrances, fixedTiles, generateExits, bottomRightX, bottomRightY, bottomRightZ, area, world).Generate();
+                toReturn = new Cave_TunnelGenerator(generatorData).Generate();
             }
             else
             {
-                Output.Print("nonexistent map type " + areaType + ", returning small cave");
+                Output.Print("nonexistent map type " + generatorData.areaType + ", returning small cave");
 
-                toReturn = new Cave_SmallCaveGenerator(seed, entrances, fixedTiles, generateExits, bottomRightX, bottomRightY, bottomRightZ, area, world).Generate();
+                toReturn = new Cave_SmallCaveGenerator(generatorData).Generate();
             }
 
             Output.Print("generation took " + (DateTime.Now - start).TotalMilliseconds + " milliseconds");
