@@ -70,6 +70,9 @@ namespace TCPGameServer.Control
             // start listening for clients
             server.Start();
 
+            // put the version number in the log
+            Output.Print("Server version: " + Server.version);
+
             // start the Ticker on it's own thread
             new Thread(Ticker).Start();
 

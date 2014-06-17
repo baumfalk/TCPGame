@@ -10,6 +10,8 @@ namespace TCPGameServer
 {
     static class Server
     {
+        public static String version = "infinite adventure 0.1";
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
