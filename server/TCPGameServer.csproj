@@ -53,6 +53,11 @@
     <Compile Include="Control\IO\ServerOutputWindow.Designer.cs">
       <DependentUpon>ServerOutputWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="General\BetterQueue.cs" />
+    <Compile Include="General\BetterTwueue.cs" />
+    <Compile Include="General\Heap\NodeHeap.cs" />
+    <Compile Include="General\Heap\Node.cs" />
+    <Compile Include="General\NaiveQueue.cs" />
     <Compile Include="General\PriorityQueue.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

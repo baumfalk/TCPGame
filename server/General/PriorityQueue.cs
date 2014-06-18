@@ -3,145 +3,136 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using TCPGameServer.Control.IO;
+using TCPGameServer.General.Heap;
+
 namespace TCPGameServer.General
 {
     // heap priority queue based on an arraylist
     class PriorityQueue<T>
     {
-        protected class Node {
-            public int key;
-            public T value;
+        static int ID;
 
-            public Node(int key, T value) {
-                this.key = key;
-                this.value = value;
-            }
+        private int id;
+
+        private PriorityQueue<T> parent;
+
+        private List<NodeHeap<T>> heapList;
+        private int smallestHeap;
+        private int smallestHeapSize;
+
+        private int heapWithSmallestMin;
+        private int smallestMin;
+
+        private int count;
+
+        public PriorityQueue()
+        {
+            this.id = ID++;
+
+            heapList = new List<NodeHeap<T>>();
+            heapList.Add(new NodeHeap<T>());
+
+            smallestHeapSize = int.MaxValue;
+            smallestHeap = 0;
+            smallestMin = int.MaxValue;
+            heapWithSmallestMin = 0;
         }
 
-        private List<Node> nodeList = new List<Node>();
-
-        public void Merge(PriorityQueue<T> toAdd)
+        public static void ResetID()
         {
-            List<Node> mergeList = toAdd.GetNodes();
+            ID = 0;
+        }
 
-            foreach (Node node in mergeList)
+        public void Add(int key, T value)
+        {
+            if (key < smallestMin)
             {
-                Add(node.key, node.value);
+                smallestMin = key;
+                heapWithSmallestMin = smallestHeap;
             }
-        }
 
-        public void Add(int priority, T value)
-        {
-            Node toAdd = new Node(priority, value);
+            heapList[smallestHeap].Add(key, value);
 
-            nodeList.Add(toAdd);
-
-            DoBubbleUp(nodeList.Count - 1);
-        }
-
-        private void DoBubbleUp(int index)
-        {
-            if (IsRoot(index)) return;
-
-            Node parent = GetParent(index);
-
-            if (parent.key > nodeList[index].key)
+            smallestHeapSize = heapList[smallestHeap].Count();
+            for (int n = 0; n < heapList.Count; n++)
             {
-                nodeList[(index - 1) / 2] = nodeList[index];
-
-                nodeList[index] = parent;
-
-                DoBubbleUp((index - 1) / 2);
+                if (heapList[n].Count() < smallestHeapSize)
+                {
+                    smallestHeap = n;
+                    smallestHeapSize--;
+                }
             }
+
+            count++;
         }
 
         public T RemoveMin()
         {
-            if (nodeList.Count == 0) return default(T);
+            T toReturn = heapList[heapWithSmallestMin].RemoveMin();
 
-            T toReturn = nodeList[0].value;
-            
-            nodeList[0] = nodeList[nodeList.Count - 1];
+            int lowest = int.MaxValue;
+            for (int n = 0; n < heapList.Count; n++)
+            {
+                if (heapList[n].Count() > 0 && heapList[n].minKey() <= lowest)
+                {
+                    lowest = heapList[n].minKey();
+                    heapWithSmallestMin = n;
+                }
+            }
 
-            nodeList.RemoveAt(nodeList.Count-1);
-
-            DoBubbleDown(0);
+            count--;
 
             return toReturn;
         }
 
-        protected List<Node> GetNodes()
+        public int Count()
         {
-            return nodeList;
+            return count;
         }
 
-        private void DoBubbleDown(int index) 
+        private List<NodeHeap<T>> getHeaps()
         {
-            Node lowest = null;
-            int lowestIndex = 0;
+            return heapList;
+        }
 
-            if (HasRight(index))
+        public int Merge(PriorityQueue<T> toAdd)
+        {
+            if (toAdd.parent != null)
             {
-                lowest = GetRight(index);
-                lowestIndex = 2 * (index + 1);
+                return Merge(toAdd.parent);
             }
-            if (HasLeft(index))
-            {
-                if (lowest == null || GetLeft(index).key < lowest.key)
+
+            List<NodeHeap<T>> mergeHeaps = toAdd.getHeaps();
+
+            toAdd.parent = this;
+
+            for (int n = 0; n < mergeHeaps.Count; n++) {
+                heapList.Add(mergeHeaps[n]);
+            }
+
+            for (int n = 0; n < heapList.Count; n++) {
+                if (heapList[n].Count() < smallestHeap)
                 {
-                    lowest = GetLeft(index);
-                    lowestIndex = 2 * (index + 1) - 1;
+                    smallestHeapSize = heapList[n].Count();
+                    smallestHeap = n;
+                }
+
+                if (heapList[n].Count() > 0 && heapList[n].minKey() <= smallestMin)
+                {
+                    smallestMin = heapList[n].minKey();
+                    heapWithSmallestMin = n;
                 }
             }
 
-            if (lowest == null || lowest.key > nodeList[index].key) return;
+            count += toAdd.count;
 
-            nodeList[lowestIndex] = nodeList[index];
-
-            nodeList[index] = lowest;
-
-            DoBubbleDown(lowestIndex);
+            return toAdd.id;
         }
 
-        private bool IsRoot(int index)
+        public override string ToString()
         {
-            return index == 0;
-        }
-
-        private Node GetParent(int index)
-        {
-            return nodeList[(index - 1) / 2];
-        }
-
-        private bool HasLeft(int index)
-        {
-            return 2 * (index + 1) - 1 < nodeList.Count;
-        }
-
-        private Node GetLeft(int index)
-        {
-            return nodeList[2 * (index + 1) - 1];
-        }
-
-        private bool HasRight(int index)
-        {
-
-            return 2 * (index + 1) < nodeList.Count;
-        }
-
-        private Node GetRight(int index)
-        {
-            return nodeList[2 * (index + 1)];
-        }
-
-        public int Count() 
-        {
-            return nodeList.Count;
-        }
-
-        public void Clear()
-        {
-            nodeList = new List<Node>();
+            return "Priorityqueue " + id + ", Count = " + count;
         }
     }
 }

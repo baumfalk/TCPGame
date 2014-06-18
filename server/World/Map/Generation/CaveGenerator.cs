@@ -62,6 +62,8 @@ namespace TCPGameServer.World.Map.Generation
 
             toConnect = new List<int>();
             connectedBy = new int[100, 100];
+
+            PriorityQueue<Location>.ResetID();
         }
 
         public AreaData Generate()
@@ -322,10 +324,14 @@ namespace TCPGameServer.World.Map.Generation
             {
                 if (!connected[color].Contains(connector))
                 {
-                    tileFront[color].Merge(tileFront[connector]);
+                    int mergee = tileFront[color].Merge(tileFront[connector]);
 
-                    toConnect.Remove(connector);
-                    connected[color].Add(connector);
+                    toConnect.Remove(mergee);
+                    foreach (int c in connected[mergee])
+                    {
+                        connected[color].Add(c);
+                    }
+
 
                     if (toConnect.Count > 1) RecalculateWeights(color);
                 }
@@ -375,7 +381,7 @@ namespace TCPGameServer.World.Map.Generation
 
         private void RecalculateWeights(int queueIndex)
         {
-            PriorityQueue<Location> bufferQueue = new PriorityQueue<Location>();
+            /*PriorityQueue<Location> bufferQueue = new PriorityQueue<Location>();
 
             isInFront[queueIndex] = new bool[100,100];
 
@@ -393,7 +399,7 @@ namespace TCPGameServer.World.Map.Generation
                 }
             }
 
-            tileFront[queueIndex] = bufferQueue;
+            tileFront[queueIndex] = bufferQueue;*/
         }
 
         protected void Expand(int color, String type, String representation, bool expand)
