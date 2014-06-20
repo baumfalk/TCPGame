@@ -5,6 +5,9 @@ using System.Text;
 
 using TCPGameServer.Control.IO;
 
+using TCPGameServer.World.Map.Generation.LowLevel;
+using TCPGameServer.World.Map.Generation.LowLevel.Cave;
+
 namespace TCPGameServer.World.Map.Generation
 {
     class AreaGenerator
@@ -13,22 +16,26 @@ namespace TCPGameServer.World.Map.Generation
         {
             DateTime start = DateTime.Now;
 
-            AreaData toReturn;
+            // low level generator (creates a walkable map)
+            LowLevelGenerator generator;
+            switch (generatorData.fileData.header.areaType)
+            {
+                case "Small Cave":
+                    generator = new Cave_SmallCaveGenerator(generatorData);
+                    break;
+                case "Tunnel Cave":
+                    generator = new Cave_TunnelGenerator(generatorData);
+                    break;
+                default:
+                    Output.Print("nonexistent map type " + generatorData.fileData.header.areaType + ", returning cave");
+                    generator = new CaveGenerator(generatorData);
+                    break;
+            }
+            AreaData toReturn = generator.Generate();
 
-            if (generatorData.areaType.Equals("Small Cave"))
-            {
-                toReturn = new Cave_SmallCaveGenerator(generatorData).Generate();
-            }
-            else if (generatorData.areaType.Equals("Tunnel Cave"))
-            {
-                toReturn = new Cave_TunnelGenerator(generatorData).Generate();
-            }
-            else
-            {
-                Output.Print("nonexistent map type " + generatorData.areaType + ", returning small cave");
+            // mid level adjustments (think "fortress in the area", "river running through")
 
-                toReturn = new Cave_SmallCaveGenerator(generatorData).Generate();
-            }
+            // high level additions (creatures,items, etc)
 
             Output.Print("generation took " + (DateTime.Now - start).TotalMilliseconds + " milliseconds");
 

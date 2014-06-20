@@ -12,12 +12,6 @@ namespace TCPGameServer.World.Map.Generation
         public Area area;
         public World world;
 
-        public bool generateExits;
-        public String areaType;
-        public int seed;
-        public Location bottomLeft;
-
-        public Tile[] entrances;
-        public Tile[][] fixedTiles;
+        public AreaFileData fileData;
     }
 }

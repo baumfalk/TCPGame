@@ -7,7 +7,7 @@ using System.Drawing;
 
 using TCPGameServer.Control.IO;
 
-namespace TCPGameServer.World.Map.Generation.Perlin
+namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
 {
     class PerlinBitmaps
     {

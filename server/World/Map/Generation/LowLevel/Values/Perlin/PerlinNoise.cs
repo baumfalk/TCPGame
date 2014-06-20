@@ -6,13 +6,17 @@ using System.Text;
 using TCPGameServer.Control.IO;
 using System.Drawing;
 
-namespace TCPGameServer.World.Map.Generation.Perlin
+namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
 {
-    class PerlinNoise
+    class PerlinNoise : ValuemapGenerator
     {
-        public static int[][] Noise(int seed, int width, int height, int octaves, double frequencyIncrease, double persistence, bool smoothInbetween, bool smoothAfter, bool bowl, bool normalize)
+        public override int[][] Generate(PerlinGeneratedValuemapData mapData)
         {
-            Random rnd = new Random(seed);
+            // create some local values for the map data we may alter
+            int octaves = mapData.octaves;
+            double persistence = mapData.persistence;
+
+            Random rnd = new Random(mapData.seed);
 
             // first pass, we always handle single pixels
             int frequency = 1;
@@ -48,8 +52,8 @@ namespace TCPGameServer.World.Map.Generation.Perlin
                 // if the frequency is 16, that means a "pixel" on that layer is 16x16 pixels on layer 0. The image is only a certain size,
                 // so we can use fewer fields on higher frequencies. We do need 1 extra field to account for possible issues with integer
                 // division and 1 more because we're dealing with gradients
-                int numValuesOnX = width / frequency + 2;
-                int numValuesOnY = height / frequency + 2;
+                int numValuesOnX = mapData.width / frequency + 2;
+                int numValuesOnY = mapData.height / frequency + 2;
 
                 valuemap[n] = new int[numValuesOnX][];
 
@@ -68,23 +72,23 @@ namespace TCPGameServer.World.Map.Generation.Perlin
                 }
 
                 // once all values are filled in, we have the option to smoothe out each layer
-                if (smoothInbetween) valuemap[n] = Smooth(valuemap[n], numValuesOnX, numValuesOnY, amplitude);
+                if (mapData.smoothInbetween) valuemap[n] = Smooth(valuemap[n], numValuesOnX, numValuesOnY, amplitude);
 
                 amplitude *= persistence;
-                frequency = (int) (frequency * frequencyIncrease);
+                frequency = (int) (frequency * mapData.frequencyIncrease);
             }
 
             // sum all interpolated gradient maps
-            int[][] returnmap = SumInterpolatedMaps(valuemap, width, height, octaves, frequencyIncrease);
+            int[][] returnmap = SumInterpolatedMaps(valuemap, mapData.width, mapData.height, octaves, mapData.frequencyIncrease);
 
             // optionally, smoothe out the map after adding everything together
-            if (smoothAfter) returnmap = Smooth(returnmap, width, height, 255);
+            if (mapData.smoothAfter) returnmap = Smooth(returnmap, mapData.width, mapData.height, 255);
 
             // optionally, make the edges higher and the center shallower
-            if (bowl) returnmap = Bowl(returnmap, width, height, 255);
+            if (mapData.bowl) returnmap = Bowl(returnmap, mapData.width, mapData.height, 255);
 
             // optionally, make sure the values range from 0 to 255.
-            if (normalize) returnmap = Normalize(returnmap, width, height, 255);
+            if (mapData.normalize) returnmap = Normalize(returnmap, mapData.width, mapData.height, 255);
 
             return returnmap;
         }

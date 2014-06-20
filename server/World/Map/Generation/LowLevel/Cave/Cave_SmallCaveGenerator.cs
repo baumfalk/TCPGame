@@ -5,7 +5,7 @@ using System.Text;
 
 using TCPGameServer.Control.IO;
 
-namespace TCPGameServer.World.Map.Generation
+namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 {
     class Cave_SmallCaveGenerator : CaveGenerator
     {

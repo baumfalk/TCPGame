@@ -6,7 +6,7 @@ using System.Text;
 using TCPGameServer.General;
 using TCPGameServer.Control.IO;
 
-namespace TCPGameServer.World.Map.Generation
+namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 {
     class Cave_TunnelGenerator : CaveGenerator
     {
