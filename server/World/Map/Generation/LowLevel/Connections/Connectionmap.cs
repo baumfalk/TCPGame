@@ -9,65 +9,83 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 {
     class Connectionmap
     {
-        private Queue<Partition> toConnect;
+        private Queue<Partition> expansionQueue;
         private Partition[,] connectedBy;
+        private List<Partition> entrances;
 
-        private Partition fixedPartition;
-
-        public Connectionmap(int width, int height, TileBlockData entrances, TileBlockData[] fixedTiles)
+        public Connectionmap(int width, int height)
         {
-            // create map
-            toConnect = new Queue<Partition>();
+            // create map data structures
+            expansionQueue = new Queue<Partition>();
             connectedBy = new Partition[width, height];
+            entrances = new List<Partition>(); 
+        }
 
-            // add entrances to map, and to connection stuff
-            for (int n = 0; n < entrances.numberOfTiles; n++)
+        // adds an entrance to the connection map. Entrances are partitions that have an associated
+        // expansion front.
+        public void AddEntrances(TileBlockData partitionData)
+        {
+            // the number of entrances to be added
+            int numPartitions = partitionData.numberOfTiles;
+
+            for (int n = 0; n < numPartitions; n++)
             {
-                Location entranceLocation = entrances.tileData[n].location;
+                // we need the location for the connection map
+                Location partitionLocation = partitionData.tileData[n].location;
 
-                Partition entrancePartition = new Partition();
-                entrancePartition.index = n;
-                entrancePartition.isFixed = false;
+                // create a non-fixed partition with it's ID based on the current number of partitions
+                // (note that partitions without an expansion front aren't counted for this statistic)
+                Partition newPartition = new Partition(GetNumberOfPartitions() - 1, false);
 
-                connectedBy[entranceLocation.x, entranceLocation.y] = entrancePartition;
-
-                toConnect.Enqueue(entrancePartition);
+                // add the entrance to the connection map, the expansion queue and the list of entrances
+                connectedBy[partitionLocation.x, partitionLocation.y] = newPartition;
+                expansionQueue.Enqueue(newPartition);
+                entrances.Add(newPartition);
             }
+        }
 
-            // set the partition for fixed tiles
-            fixedPartition = new Partition();
-            fixedPartition.index = -1;
-            fixedPartition.isFixed = true;
-
-            // add the fixed tiles to the fixed partition
-            for (int n = 0; n < fixedTiles.Length; n++)
+        // fixed tiles need to be in a partition with an entrance as it's parent. Nothing can connect to
+        // a fixed tile, so make sure you don't enclose entrances in fixed tiles.
+        public void AddFixedTiles(TileBlockData[] fixedTileData)
+        {
+            // the array of fixed tiles is sorted in the same order as the entrances, so the associated entrance
+            // of each block is the entrance already added
+            for (int associatedEntrance = 0; associatedEntrance < fixedTileData.Length; associatedEntrance++)
             {
-                for (int i = 0; i < fixedTiles[n].numberOfTiles; i++)
-                {
-                    Location fixedTileLocation = fixedTiles[n].tileData[i].location;
+                // the parent partition is the partition associated with the entrance
+                Partition parent = entrances[associatedEntrance];
+                // create a fixed partition without an index
+                Partition newPartition = new Partition(-1, true);
+                // set the parent
+                newPartition.SetParent(parent);
 
-                    connectedBy[fixedTileLocation.x, fixedTileLocation.y] = fixedPartition;
+                // add each tile of this block to the connection map under the new partition
+                for (int n = 0; n < fixedTileData[associatedEntrance].tileData.Length; n++)
+                {
+                    Location partitionLocation = fixedTileData[associatedEntrance].tileData[n].location;
+
+                    connectedBy[partitionLocation.x, partitionLocation.y] = newPartition;
                 }
             }
         }
 
-        // returns the index of the next partition to be expanded
+        // returns the next partition to be expanded
         public Partition GetNext()
         {
-            return toConnect.Dequeue();
+            return expansionQueue.Dequeue();
         }
 
         // returns all partitions as an array
         public Partition[] GetPartitions()
         {
-            return toConnect.ToArray();
+            return expansionQueue.ToArray();
         }
 
         // checks if a position is occupied, if so, returns the value of the occupying
         // partition. If not, returns null.
         public Partition CheckPlacement(Location location)
         {
-            return connectedBy[location.x, location.y].Get();
+            return connectedBy[location.x, location.y];
         }
 
         public void Place(Partition partition, Location location)
@@ -76,15 +94,15 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
             // partition back in the queue.
             if (CheckPlacement(location) == null)
             {
-                connectedBy[location.x, location.y] = partition.Get();
+                connectedBy[location.x, location.y] = partition;
 
-                toConnect.Enqueue(partition);
+                expansionQueue.Enqueue(partition);
             }
             else
             {
                 // if it's not, this partition will be parsed as the partition it's been
                 // joined to from now on.
-                partition.Set(connectedBy[location.x,location.y].Get());
+                partition.SetParent(connectedBy[location.x,location.y]);
             }
         }
 
@@ -96,7 +114,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 
         public int GetNumberOfPartitions()
         {
-            return toConnect.Count;
+            return expansionQueue.Count;
         }
     }
 }

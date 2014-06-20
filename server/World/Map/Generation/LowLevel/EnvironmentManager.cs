@@ -7,9 +7,31 @@ using TCPGameServer.World.Map.IO.MapFile;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
-    class ExitGenerator
+    class EnvironmentManager
     {
-        public static TileBlockData GenerateExits(int width, int height, int seed, Location mapGridLocation, TileBlockData entrances, TileBlockData fixedTiles)
+        // should be multiples of 100, determines world map "tiles" the area occupies
+        private int width;
+        private int height;
+
+        // location on the map of the bottom left world map "tile"
+        private Location mapGridLocation;
+
+        // needed because both entrances and fixed tiles may have links to other areas
+        private TileBlockData entrances;
+        private TileBlockData[] fixedTiles;
+
+        public EnvironmentManager(int width, int height, Location mapGridLocation, TileBlockData entrances, TileBlockData[] fixedTiles)
+        {
+            this.width = width;
+            this.height = height;
+
+            this.mapGridLocation = mapGridLocation;
+
+            this.entrances = entrances;
+            this.fixedTiles = fixedTiles;
+        }
+
+        public TileBlockData GenerateExits(int seed)
         {
             List<int> PossibleDirections = GetPossibleDirections(mapGridLocation, entrances, fixedTiles);
 

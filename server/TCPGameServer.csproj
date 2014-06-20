@@ -77,7 +77,7 @@
     <Compile Include="World\Map\Generation\LowLevel\Cave\Cave_SmallCaveGenerator.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Connections\Connectionmap.cs" />
     <Compile Include="World\Map\Generation\GeneratorData.cs" />
-    <Compile Include="World\Map\Generation\LowLevel\ExitGenerator.cs" />
+    <Compile Include="World\Map\Generation\LowLevel\EnvironmentManager.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Connections\Partition.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Connections\Expansion\Front.cs" />
     <Compile Include="World\Map\Generation\LowLevel\LowLevelGenerator.cs" />

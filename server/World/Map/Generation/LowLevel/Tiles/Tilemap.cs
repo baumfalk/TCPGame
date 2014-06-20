@@ -24,15 +24,23 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             public Location location;
         }
 
-        public Tilemap(int width, int height, TileBlockData firstTilesData, Location bottomLeft, Area area, World world) {
+        public Tilemap(int width, int height, Location bottomLeft, Area area, World world) {
             this.area = area;
             this.world = world;
 
             tileCount = 0;
             tileList = new List<TileAndLocation>();
             tiles = new Tile[width, height];
+        }
 
-            foreach (TileData tileData in firstTilesData.tileData)
+        public int GetCount()
+        {
+            return tileCount;
+        }
+
+        public void AddTileBlock(TileBlockData tilesToAdd)
+        {
+            foreach (TileData tileData in tilesToAdd.tileData)
             {
                 Location mapLocation = MapGridHelper.TileLocationToCurrentMapLocation(tileData.location);
                 String type = tileData.type;
@@ -42,11 +50,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
 
                 TileParser.SetAreaLinks(tile, tileData.links);
             }
-        }
-
-        public int GetCount()
-        {
-            return tileCount;
         }
 
         public Tile AddTile(Location mapLocation, String type, String representation)

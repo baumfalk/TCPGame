@@ -19,11 +19,14 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         protected int seed;
         protected bool isStub;
 
+        protected EnvironmentManager environmentManager;
+
         protected Valuemap valuemap;
         protected Tilemap tilemap;
         protected Connectionmap connectionmap;
         protected Front[] expansionFront;
 
+        protected Location mapGridLocation;
         protected Location bottomLeft;
 
         // initializes everything that needs the generatordata to do so
@@ -44,43 +47,51 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             // create a new value map
             valuemap = GetValuemap(mapData);
 
-            // generate exits
-            TileBlockData exits =
-                ExitGenerator.GenerateExits(
-                    GetWidth(),
-                    GetHeight(),
-                    seed,
-                    generatorData.fileData.header.mapGridLocation,
-                    generatorData.fileData.entrances);
-
             // create a new connection map
             connectionmap = new Connectionmap(
                 GetWidth(),
-                GetHeight(),
-                generatorData.fileData.entrances,
-                generatorData.fileData.fixedTiles);
+                GetHeight());
+
+            // add the entrances
+            connectionmap.AddEntrances(generatorData.fileData.entrances);
+            // add the fixed tiles
+            connectionmap.AddFixedTiles(generatorData.fileData.fixedTiles);
 
             // set the bottom left point based on the grid location
-            bottomLeft = MapGridHelper.MapGridLocationToBottomLeft(generatorData.fileData.header.mapGridLocation);
+            mapGridLocation = generatorData.fileData.header.mapGridLocation;
+            bottomLeft = MapGridHelper.MapGridLocationToBottomLeft(mapGridLocation);
+
+            // create a new tile map
+            tilemap = new Tilemap(
+                GetWidth(),
+                GetHeight(),
+                bottomLeft,
+                generatorData.area,
+                generatorData.world);
+
+            // create exit generator
+            environmentManager = new EnvironmentManager(
+                GetWidth(),
+                GetHeight(),
+                mapGridLocation,
+                generatorData.fileData.entrances,
+                generatorData.fileData.fixedTiles);
+        }
+
+        // generate the actual area
+        public virtual AreaData Generate()
+        {
+            // generate the exits
+            TileBlockData exits = environmentManager.GenerateExits(seed);
+
+            // add the exits to the connection map
+            connectionmap.AddEntrances(exits);
 
             // the entrances already in the file are not the only ones,
             // more may have been added to link maps that did not exist
             // until this generator ran
             TileBlockData tilesToAdd = connectionmap.GetTiles();
 
-            // create a new tile map
-            tilemap = new Tilemap(
-                GetWidth(),
-                GetHeight(),
-                tilesToAdd,
-                bottomLeft,
-                generatorData.area,
-                generatorData.world);
-        }
-
-        // generate the actual area
-        public virtual AreaData Generate()
-        {
             // put the first items in the expansion front
             SetInitialFront();
 
