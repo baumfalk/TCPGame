@@ -34,6 +34,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
 
         public void AddToFront(Location location)
         {
+            location = MapGridHelper.TileLocationToCurrentMapLocation(location);
+
             int x = location.x;
             int y = location.y;
             int z = location.z;

@@ -71,6 +71,8 @@ namespace TCPGameClient.View
         // draws the model onto the form
         public void DrawModel(LocalModel theModel)
         {
+            if (WindowState == FormWindowState.Minimized) return;
+
             // check if we can draw. If we can, noone else can until we're done
             if (!canDraw) return;
             canDraw = false;

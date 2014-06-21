@@ -37,6 +37,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
                 // we need the location for the connection map
                 Location partitionLocation = partitionData.tileData[n].location;
 
+                // convert it to a map location instead of a tile location
+                partitionLocation = MapGridHelper.TileLocationToCurrentMapLocation(partitionLocation);
+
                 // create a non-fixed partition with it's ID based on the current number of partitions
                 // (note that partitions without an expansion front aren't counted for this statistic)
                 Partition newPartition = new Partition(GetNumberOfPartitions(), false);
@@ -72,8 +75,13 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
                 // add each tile of this block to the connection map under the new partition
                 for (int n = 0; n < fixedTileData[associatedEntrance].tileData.Length; n++)
                 {
+                    // get the location of the tile
                     Location partitionLocation = fixedTileData[associatedEntrance].tileData[n].location;
 
+                    // convert it to a map location instead of a tile location
+                    partitionLocation = MapGridHelper.TileLocationToCurrentMapLocation(partitionLocation);
+
+                    // add it to the connection map
                     connectedBy[partitionLocation.x, partitionLocation.y] = newPartition;
                 }
             }
@@ -123,6 +131,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
             }
         }
 
+        // returns the number of partitions in the queue. Not accurate when a partition
+        // has been checked out and not yet returned using the Place method.
         public int GetNumberOfPartitions()
         {
             return expansionQueue.Count;

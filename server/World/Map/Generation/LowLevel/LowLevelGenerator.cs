@@ -40,6 +40,20 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             // check if we're generating a map for the first time
             isStub = generatorData.fileData.header.fileType.Equals("Stub");
 
+            // set the bottom left point based on the grid location
+            mapGridLocation = generatorData.fileData.header.mapGridLocation;
+            bottomLeft = MapGridHelper.MapGridLocationToBottomLeft(mapGridLocation);
+
+            // create environment manager
+            environmentManager = new EnvironmentManager(
+                GetWidth(),
+                GetHeight(),
+                mapGridLocation,
+                generatorData.fileData.entrances,
+                generatorData.fileData.fixedTiles,
+                generatorData.area,
+                generatorData.world);
+
             // create a new value map
             valuemap = GetValuemap();
 
@@ -57,10 +71,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             // add the fixed tiles to the connection map
             connectionmap.AddFixedTiles(generatorData.fileData.fixedTiles);
 
-            // set the bottom left point based on the grid location
-            mapGridLocation = generatorData.fileData.header.mapGridLocation;
-            bottomLeft = MapGridHelper.MapGridLocationToBottomLeft(mapGridLocation);
-
             // create a new tile map
             tilemap = new Tilemap(
                 GetWidth(),
@@ -74,16 +84,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
             // add the fixed tiles to the tile map
             tilemap.AddFixedTiles(generatorData.fileData.fixedTiles);
-
-            // create exit generator
-            environmentManager = new EnvironmentManager(
-                GetWidth(),
-                GetHeight(),
-                mapGridLocation,
-                generatorData.fileData.entrances,
-                generatorData.fileData.fixedTiles,
-                generatorData.area,
-                generatorData.world);
         }
 
         // generate the actual area
