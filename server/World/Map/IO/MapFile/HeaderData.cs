@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TCPGameServer.World.Map.IO.MapFile
 {
-    class HeaderData
+    public class HeaderData
     {
         public String fileType;
         public String areaType;

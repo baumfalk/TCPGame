@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TCPGameServer.World.Map
 {
-    class AreaData
+    public class AreaData
     {
         public Tile[] tiles;
         public String areaType;

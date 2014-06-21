@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TCPGameServer.World.Map.IO.MapFile
 {
-    class TileData
+    public class TileData
     {
         public int ID;
         public String type;

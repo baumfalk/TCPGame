@@ -9,7 +9,7 @@ using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.Map.IO.MapFile
 {
-    class AreaFile
+    public class AreaFile
     {
         private static String GetFileName(String name)
         {

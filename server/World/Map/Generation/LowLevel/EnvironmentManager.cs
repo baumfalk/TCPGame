@@ -8,7 +8,7 @@ using TCPGameServer.World.Map.IO;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
-    class EnvironmentManager
+    public class EnvironmentManager
     {
         // should be multiples of 100, determines world map "tiles" the area occupies
         private int width;
@@ -19,6 +19,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
         // needed because both entrances and fixed tiles may have links to other areas
         private TileBlockData entrances;
+        private TileBlockData exits;
         private TileBlockData[] fixedTiles;
 
         // the world and area everything is based in
@@ -41,12 +42,28 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
         public void SaveStaticTiles()
         {
-            AreaWriter.SaveStatic(area.GetName(), entrances, fixedTiles);
+            TileBlockData allEntrances = new TileBlockData();
+            allEntrances.numberOfTiles = entrances.numberOfTiles + exits.numberOfTiles;
+            allEntrances.tileData = new TileData[allEntrances.numberOfTiles];
+
+            for (int n = 0; n < entrances.numberOfTiles; n++)
+            {
+                allEntrances.tileData[n] = entrances.tileData[n];
+            }
+
+            int offset = entrances.numberOfTiles;
+
+            for (int n = 0; n < exits.numberOfTiles; n++)
+            {
+                allEntrances.tileData[n + offset] = exits.tileData[n];
+            }
+
+            AreaWriter.SaveStatic(area.GetName(), allEntrances, fixedTiles);
         }
 
         public TileBlockData GenerateExits(int seed, double exitChance)
         {
-            List<TileData> exits = new List<TileData>();
+            List<TileData> exitList = new List<TileData>();
 
             List<int> PossibleDirections = GetPossibleDirections(mapGridLocation, entrances, fixedTiles);
 
@@ -120,23 +137,23 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                             }
                         }
 
-                        exits.Add(exit);
+                        exitList.Add(exit);
 
                         exitNum++;
                     }
                 }
             }
 
-            TileBlockData toReturn = new TileBlockData();
-            toReturn.numberOfTiles = exits.Count;
-            toReturn.tileData = new TileData[exits.Count];
+            exits = new TileBlockData();
+            exits.numberOfTiles = exitList.Count;
+            exits.tileData = new TileData[exitList.Count];
 
-            for (int n = 0; n < exits.Count; n++)
+            for (int n = 0; n < exitList.Count; n++)
             {
-                toReturn.tileData[n] = exits[n];
+                exits.tileData[n] = exitList[n];
             }
 
-            return toReturn;
+            return exits;
         }
 
         private List<int> GetPossibleDirections(Location mapGridLocation, TileBlockData entrances, TileBlockData[] fixedTiles)

@@ -111,7 +111,29 @@ namespace TCPGameServer.World.Map.IO
 
             fileData.entrances = entrances;
 
-            fileData.fixedTiles = fixedTiles;
+            if (entrances.numberOfTiles == fixedTiles.Length)
+            {
+                fileData.fixedTiles = fixedTiles;
+            }
+            else
+            {
+                TileBlockData[] paddedFixedTiles = new TileBlockData[entrances.numberOfTiles];
+
+                for (int n = 0; n < entrances.numberOfTiles; n++)
+                {
+                    if (fixedTiles.Length > n)
+                    {
+                        paddedFixedTiles[n] = fixedTiles[n];
+                    }
+                    else
+                    {
+                        paddedFixedTiles[n] = new TileBlockData();
+                        paddedFixedTiles[n].numberOfTiles = 0;
+                    }
+                }
+
+                fileData.fixedTiles = paddedFixedTiles;
+            }
 
             AreaFile.Write(fileData, name);
         }

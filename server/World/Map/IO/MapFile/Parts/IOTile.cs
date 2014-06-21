@@ -7,7 +7,7 @@ using System.IO;
 
 namespace TCPGameServer.World.Map.IO.MapFile.Parts
 {
-    class IOTile
+    public class IOTile
     {
         public static TileData Read(StreamReader fileReader)
         {

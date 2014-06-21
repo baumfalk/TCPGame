@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Values
 {
-    class ValuemapData
+    public class ValuemapData
     {
         public int seed;
         public int width;

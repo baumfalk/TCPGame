@@ -7,6 +7,7 @@ using TCPGameServer.Control.IO;
 
 using TCPGameServer.World.Map.Generation.LowLevel;
 using TCPGameServer.World.Map.Generation.LowLevel.Cave;
+using TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual;
 
 namespace TCPGameServer.World.Map.Generation
 {
@@ -25,6 +26,9 @@ namespace TCPGameServer.World.Map.Generation
                     break;
                 case "Tunnel Cave":
                     generator = new Cave_TunnelGenerator(generatorData);
+                    break;
+                case "Visualizer":
+                    generator = new Visualizer(generatorData);
                     break;
                 default:
                     Output.Print("nonexistent map type " + generatorData.fileData.header.areaType + ", returning cave");

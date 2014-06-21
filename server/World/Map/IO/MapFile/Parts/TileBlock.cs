@@ -8,7 +8,7 @@ using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.Map.IO.MapFile.Parts
 {
-    class TileBlock
+    public class TileBlock
     {
         public static TileBlockData Read(StreamReader fileReader)
         {

@@ -16,7 +16,7 @@ using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
-    class LowLevelGenerator
+    public class LowLevelGenerator
     {
         protected int seed;
         protected bool isStub;
@@ -87,7 +87,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         }
 
         // generate the actual area
-        public virtual AreaData Generate()
+        public AreaData Generate()
         {
             // generate the exits
             TileBlockData exits = environmentManager.GenerateExits(seed, GetExitChance());
@@ -100,12 +100,21 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             // add the exits to the tile map
             tilemap.AddExits(exits);
 
+            // do things that need to be done before the expansion loop
+            DoBeforeExpansion();
+
             // expand the areas around the entrances until the completion criteria of
             // the map type are met
             ExpandUntilFinishedConditionMet();
 
+            // do things that need to be done after the expansion loop
+            DoAfterExpansion();
+
             // link up the tiles in the tile map
             LinkTiles();
+
+            // if this is a stub, write the static file
+            if (isStub) environmentManager.SaveStaticTiles();
 
             // generate the area data and return it
             return GenerateAreaData();
@@ -143,7 +152,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             }
         }
 
-        protected void ExpandUntilFinishedConditionMet()
+        protected virtual void ExpandUntilFinishedConditionMet()
         {
             while (!GetFinishedCondition())
             {
@@ -171,8 +180,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             // expansion front
             if (occupyingPartition == null)
             {
-                Output.Print("adding " + type + " " + tilemap.GetCount());
-
                 tilemap.AddTile(pointToAdd, type, representation);
 
                 if (expand) AddNeighborsToFront(pointToAdd, partition);
@@ -289,6 +296,16 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         protected virtual bool NeedsRecalculation()
         {
             return false;
+        }
+
+        protected virtual void DoBeforeExpansion()
+        {
+
+        }
+
+        protected virtual void DoAfterExpansion()
+        {
+
         }
 
         protected virtual double GetExitChance()

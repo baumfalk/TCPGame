@@ -81,7 +81,14 @@
     <Compile Include="World\Map\Generation\LowLevel\Connections\Partition.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Connections\Expansion\Front.cs" />
     <Compile Include="World\Map\Generation\LowLevel\LowLevelGenerator.cs" />
-    <Compile Include="World\Map\Generation\LowLevel\Tiles\TileParser.cs" />
+    <Compile Include="World\Map\Generation\LowLevel\Tiles\TileAndlocation.cs" />
+    <Compile Include="World\Map\Generation\LowLevel\Tiles\TileLinker.cs" />
+    <Compile Include="World\Map\Generation\LowLevel\Cave\Visual\frmVisualizer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="World\Map\Generation\LowLevel\Cave\Visual\frmVisualizer.Designer.cs">
+      <DependentUpon>frmVisualizer.cs</DependentUpon>
+    </Compile>
     <Compile Include="World\Map\Generation\LowLevel\Values\Perlin\PerlinBitmaps.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Values\Perlin\PerlinGeneratedValuemapData.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Values\Perlin\PerlinNoise.cs" />
@@ -90,6 +97,7 @@
     <Compile Include="World\Map\Generation\LowLevel\Values\Valuemap.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Values\ValuemapData.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Values\ValuemapGenerator.cs" />
+    <Compile Include="World\Map\Generation\LowLevel\Cave\Visual\Visualizer.cs" />
     <Compile Include="World\Map\Geography.cs" />
     <Compile Include="World\Map\AreaData.cs" />
     <Compile Include="World\Map\IO\MapFile\AreaFile.cs" />
@@ -121,6 +129,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="World\Map\Generation\LowLevel\Cave\Visual\frmVisualizer.resx">
+      <DependentUpon>frmVisualizer.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

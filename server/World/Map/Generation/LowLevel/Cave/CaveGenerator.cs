@@ -17,7 +17,7 @@ using TCPGameServer.World.Map.IO.MapFile;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 {
-    class CaveGenerator : LowLevelGenerator
+    public class CaveGenerator : LowLevelGenerator
     {
         public CaveGenerator(GeneratorData generatorData)
             : base(generatorData)
@@ -25,33 +25,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
         }
 
-        // generate the actual area
-        public override AreaData Generate()
+        protected override void DoAfterExpansion()
         {
-            // generate the exits
-            TileBlockData exits = environmentManager.GenerateExits(seed, GetExitChance());
-
-            // add the exits to the connection map
-            Partition[] exitPartitions = connectionmap.AddEntrances(exits);
-
-            // create expansion fronts for the exits
-            CreateFront(exits, exitPartitions);
-
-            // add the exits to the tile map
-            tilemap.AddExits(exits);
-
-            // expand the areas around the entrances until the completion criteria of
-            // the map type are met
-            ExpandUntilFinishedConditionMet();
-
-            // add walls
             AddWalls();
-
-            // link up the tiles in the tile map
-            LinkTiles();
-
-            // generate the area data and return it
-            return GenerateAreaData();
         }
 
         protected override Valuemap GetValuemap()
@@ -74,11 +50,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
         private void AddWalls()
         {
-            Output.Print("adding walls");
-
             Partition finalPartition = connectionmap.GetNext();
 
-            Output.Print("final partition has " + expansionFront[finalPartition.GetIndex()].Count() + " tiles in front");
             while (expansionFront[finalPartition.GetIndex()].HasNext())
             {
                 Expand(finalPartition, "wall", "wall", false);

@@ -9,7 +9,7 @@ using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Values
 {
-    class Valuemap
+    public class Valuemap
     {
         int[][] valuemap;
 
@@ -52,14 +52,14 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values
         {
             for (int x = 0; x < width; x++)
             {
-                valuemap[width - 1][0] = 255;
-                valuemap[width - 1][height - 1] = 255;
+                valuemap[x][0] = 255;
+                valuemap[x][height - 1] = 255;
             }
 
             for (int y = 0; y < height; y++)
             {
-                valuemap[0][height - 1] = 255;
-                valuemap[width - 1][height - 1] = 255;
+                valuemap[0][y] = 255;
+                valuemap[width - 1][y] = 255;
             }
         }
     }

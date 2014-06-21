@@ -7,7 +7,7 @@ using TCPGameServer.World.Map.IO.MapFile;
 
 namespace TCPGameServer.World.Map.Generation
 {
-    class GeneratorData
+    public class GeneratorData
     {
         public Area area;
         public World world;

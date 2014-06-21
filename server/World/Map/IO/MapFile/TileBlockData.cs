@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TCPGameServer.World.Map.IO.MapFile
 {
-    class TileBlockData
+    public class TileBlockData
     {
         public int numberOfTiles;
         public TileData[] tileData;

@@ -8,7 +8,7 @@ using TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 {
-    class Connectionmap
+    public class Connectionmap
     {
         private Queue<Partition> expansionQueue;
         private Partition[,] connectedBy;
@@ -106,6 +106,13 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
             {
                 connectedBy[location.x, location.y] = partition;
 
+                expansionQueue.Enqueue(partition);
+            }
+            else if (CheckPlacement(location).Equals(partition))
+            {
+                // when queues have just been joined, sometimes tiles in the front will
+                // be in the same partition. In that case we don't want to remove this
+                // partition from the queue.
                 expansionQueue.Enqueue(partition);
             }
             else

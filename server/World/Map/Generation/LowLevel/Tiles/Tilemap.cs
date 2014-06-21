@@ -7,7 +7,7 @@ using TCPGameServer.World.Map.IO.MapFile;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
 {
-    class Tilemap
+    public class Tilemap
     {
         private Area area;
         private World world;
@@ -19,12 +19,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
         private Location bottomLeft;
 
         private TileBlockData[] fixedTiles;
-
-        private class TileAndLocation
-        {
-            public Tile tile;
-            public Location location;
-        }
 
         public Tilemap(int width, int height, Location bottomLeft, Area area, World world) {
             this.area = area;
@@ -77,7 +71,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
 
                 Tile tile = AddTile(mapLocation, tileData.location, type, representation);
 
-                TileParser.SetAreaLinks(tile, tileData.links);
+                TileLinker.SetAreaLinks(tile, tileData.links);
             }
         }
 
@@ -90,6 +84,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
 
         public Tile AddTile(Location mapLocation, Location tileLocation, String type, String representation)
         {
+            if (tiles[mapLocation.x, mapLocation.y] != null) return null;
+
             Tile tile = new Tile(type, representation, tileLocation, tileCount, area, world);
 
             TileAndLocation newTile = new TileAndLocation();
@@ -105,46 +101,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             return tile;
         }
 
-        public int[][] GetLinks()
-        {
-            int[][] linkData = new int[tileCount][];
-
-            for (int ID = 0; ID < tileList.Count; ID++)
-            {
-                linkData[ID] = new int[6];
-
-                for (int direction = 0; direction < 6; direction++)
-                {
-                    linkData[ID][direction] = GetLink(direction, tileList[ID].tile, tileList[ID].location);
-                }
-            }
-            
-            return linkData;
-        }
-
-        private int GetLink(int direction, Tile tile, Location location)
-        {
-            if (tile.HasNeighbor(direction))
-            {
-                return -1;
-            }
-            else
-            {
-                Location neighbor = Directions.GetNeighboring(direction, location);
-
-                if (neighbor.x >= 0 && neighbor.y >= 0 && neighbor.z == location.z &&
-                    neighbor.x <= 99 && neighbor.y <= 99 &&
-                    tiles[neighbor.x, neighbor.y] != null)
-                {
-                    return tiles[neighbor.x, neighbor.y].GetID();
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-        }
-
         public Tile[] GetTiles()
         {
             Tile[] toReturn = new Tile[tileList.Count];
@@ -155,6 +111,11 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             }
 
             return toReturn;
+        }
+
+        public int[][] GetLinks()
+        {
+            return TileLinker.GetLinks(tileCount, tiles, tileList);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TCPGameServer.World.Map.IO.MapFile
 {
-    class AreaFileData
+    public class AreaFileData
     {
         public HeaderData header = new HeaderData();
         public TileBlockData entrances = new TileBlockData();

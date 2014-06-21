@@ -7,7 +7,7 @@ using System.IO;
 
 namespace TCPGameServer.World.Map.IO.MapFile.Parts
 {
-    class Header
+    public class Header
     {
         public static HeaderData Read(StreamReader fileReader)
         {
