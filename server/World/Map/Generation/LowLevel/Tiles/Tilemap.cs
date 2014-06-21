@@ -18,6 +18,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
 
         private Location bottomLeft;
 
+        private TileBlockData[] fixedTiles;
+
         private class TileAndLocation
         {
             public Tile tile;
@@ -27,6 +29,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
         public Tilemap(int width, int height, Location bottomLeft, Area area, World world) {
             this.area = area;
             this.world = world;
+
+            this.bottomLeft = bottomLeft;
 
             tileCount = 0;
             tileList = new List<TileAndLocation>();
@@ -38,7 +42,32 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             return tileCount;
         }
 
-        public void AddTileBlock(TileBlockData tilesToAdd)
+        public void AddEntrances(TileBlockData entrances)
+        {
+            AddTileBlock(entrances);
+        }
+
+        public void AddFixedTiles(TileBlockData[] fixedTiles)
+        {
+            this.fixedTiles = fixedTiles;
+        }
+
+        private void FinishFixedTiles()
+        {
+            for (int n = 0; n < fixedTiles.Length; n++)
+            {
+                AddTileBlock(fixedTiles[n]);
+            }
+        }
+
+        public void AddExits(TileBlockData exits)
+        {
+            AddTileBlock(exits);
+
+            FinishFixedTiles();
+        }
+
+        private void AddTileBlock(TileBlockData tilesToAdd)
         {
             foreach (TileData tileData in tilesToAdd.tileData)
             {

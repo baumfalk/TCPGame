@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.World.Map;
+
 namespace TCPGameServer.World
 {
     // simple class with some functions to make working with directions easier and

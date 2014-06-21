@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.World.Map.IO.MapFile;
+using TCPGameServer.World.Map.IO;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
@@ -20,7 +21,11 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         private TileBlockData entrances;
         private TileBlockData[] fixedTiles;
 
-        public EnvironmentManager(int width, int height, Location mapGridLocation, TileBlockData entrances, TileBlockData[] fixedTiles)
+        // the world and area everything is based in
+        private Area area;
+        private World world;
+
+        public EnvironmentManager(int width, int height, Location mapGridLocation, TileBlockData entrances, TileBlockData[] fixedTiles, Area area, World world)
         {
             this.width = width;
             this.height = height;
@@ -29,49 +34,71 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
             this.entrances = entrances;
             this.fixedTiles = fixedTiles;
+
+            this.area = area;
+            this.world = world;
         }
 
-        public TileBlockData GenerateExits(int seed)
+        public void SaveStaticTiles()
         {
+            AreaWriter.SaveStatic(area.GetName(), entrances, fixedTiles);
+        }
+
+        public TileBlockData GenerateExits(int seed, double exitChance)
+        {
+            List<TileData> exits = new List<TileData>();
+
             List<int> PossibleDirections = GetPossibleDirections(mapGridLocation, entrances, fixedTiles);
 
             Random rnd = new Random(seed);
 
-            int exitNum = entrances.Length;
+            int exitNum = entrances.numberOfTiles;
+
+            Location bottomLeft = MapGridHelper.MapGridLocationToBottomLeft(mapGridLocation);
+            Location zeroLoc = new Location(0, 0, 0);
 
             int upX = 0;
             int upY = 0;
             foreach (int direction in PossibleDirections)
             {
-                if (rnd.NextDouble() < GetExitChance())
+                if (rnd.NextDouble() < exitChance)
                 {
                     int locX = 0;
                     int locY = 0;
 
-                    if (nextDoor[direction].x == mapGridPosition.x)
+                    Location shift = Directions.GetNeighboring(direction, zeroLoc);
+
+                    if (shift.x == 0)
                     {
                         locX = rnd.Next(80) + 10;
 
-                        if (nextDoor[direction].z == mapGridPosition.z)
+                        if (shift.z == 0)
                         {
-                            locY = (nextDoor[direction].y == mapGridPosition.y - 1) ? 0 : 99;
+                            locY = (shift.y == -1) ? 0 : 99;
                         }
                     }
 
-                    if (nextDoor[direction].y == mapGridPosition.y)
+                    if (shift.y == 0)
                     {
                         locY = rnd.Next(80) + 10;
-                        if (nextDoor[direction].z == mapGridPosition.z)
+
+                        if (shift.z == 0)
                         {
-                            locX = (nextDoor[direction].x == mapGridPosition.x - 1) ? 0 : 99;
+                            locX = (shift.x == -1) ? 0 : 99;
                         }
                     }
 
-                    String type = (nextDoor[direction].z == mapGridPosition.z) ? "floor" : "stairs";
+                    String type = (shift.z == 0) ? "floor" : "stairs";
 
-                    Tile exit = new Tile(type, type, new Location(locX + bottomLeft.x, locY + bottomLeft.y, bottomLeft.z), exitNum, area, world);
+                    TileData exit = new TileData();
+                    exit.type = type;
+                    exit.representation = type;
+                    exit.location = new Location(locX + bottomLeft.x, locY + bottomLeft.y, bottomLeft.z);
+                    exit.ID = exitNum;
+                    
+                    String neighbor = "x" + (shift.x + mapGridLocation.x) + "y" + (shift.y + mapGridLocation.y) + "z" + (shift.z + mapGridLocation.z);
 
-                    int otherEnd = AreaWriter.AddEntrance(exit, direction, neighbor[direction]);
+                    int otherEnd = AreaWriter.AddEntrance(exit, direction, area.GetName(), neighbor, world);
 
                     if (otherEnd != -1 && !(locX == upX && locY == upY))
                     {
@@ -81,19 +108,38 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                             upY = locY;
                         }
 
-                        exit.CreateAreaLink(direction, neighbor[direction], otherEnd);
+                        for (int exitDirection = 0; exitDirection < 6; exitDirection++)
+                        {
+                            if (direction == exitDirection)
+                            {
+                                exit.links[exitDirection] = neighbor + ";" + otherEnd;
+                            }
+                            else
+                            {
+                                exit.links[exitDirection] = "-1";
+                            }
+                        }
 
-                        toReturn.Add(exit);
+                        exits.Add(exit);
 
                         exitNum++;
                     }
                 }
             }
 
-            return toReturn.ToArray();
+            TileBlockData toReturn = new TileBlockData();
+            toReturn.numberOfTiles = exits.Count;
+            toReturn.tileData = new TileData[exits.Count];
+
+            for (int n = 0; n < exits.Count; n++)
+            {
+                toReturn.tileData[n] = exits[n];
+            }
+
+            return toReturn;
         }
 
-        private static List<int> GetPossibleDirections(Location mapGridLocation, TileBlockData entrances, TileBlockData fixedTiles)
+        private List<int> GetPossibleDirections(Location mapGridLocation, TileBlockData entrances, TileBlockData[] fixedTiles)
         {
             List<int> toReturn = new List<int>();
 
@@ -111,9 +157,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                 {
                     alreadyLinked = alreadyLinked || CheckLinkedTo(entrances.tileData[n], neighbor[direction]);
 
-                    for (int i = 0; i < fixedTiles[n].Length; i++)
+                    for (int i = 0; i < fixedTiles[n].numberOfTiles; i++)
                     {
-                        alreadyLinked = alreadyLinked || CheckLinkedTo(fixedTiles[n][i], neighbor[direction]);
+                        alreadyLinked = alreadyLinked || CheckLinkedTo(fixedTiles[n].tileData[i], neighbor[direction]);
                     }
                 }
 
@@ -122,13 +168,15 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                     toReturn.Add(direction);
                 }
             }
+
+            return toReturn;
         }
 
         private bool CheckLinkedTo(TileData tile, String neighbor)
         {
             for (int direction = 0; direction < 6; direction++)
             {
-                if (tile.GetLinkText(direction).Contains(neighbor)) return true;
+                if (tile.links[direction].Contains(neighbor)) return true;
             }
 
             return false;

@@ -9,8 +9,10 @@ using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
 {
+    
     class PerlinBitmaps
     {
+        /*
         public static void SaveBitmapFromNoisemap(int[][] noisemap, int width, int height, String filename)
         {
             Bitmap bmpSave = GetBitmapFromNoisemap(noisemap, width, height);
@@ -86,6 +88,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
             g.Dispose();
 
             return bmpNoise;
-        }
+        }*/
     }
 }

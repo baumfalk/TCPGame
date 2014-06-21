@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TCPGameServer.World
+namespace TCPGameServer.World.Map
 {
     public class Location
     {

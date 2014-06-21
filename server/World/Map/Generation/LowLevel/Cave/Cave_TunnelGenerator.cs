@@ -6,6 +6,8 @@ using System.Text;
 using TCPGameServer.General;
 using TCPGameServer.Control.IO;
 
+using TCPGameServer.World.Map.Generation.LowLevel.Connections;
+
 namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 {
     class Cave_TunnelGenerator : CaveGenerator
@@ -15,27 +17,27 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
         public Cave_TunnelGenerator(GeneratorData generatorData)
             : base(generatorData)
         {
-            this.entrances = new Location[entrances.Length];
+            this.entrances = new Location[generatorData.fileData.entrances.numberOfTiles];
 
             for (int n = 0; n < entrances.Length; n++)
             {
-                this.entrances[n] = MapGridHelper.TileLocationToCurrentMapLocation(generatorData.entrances[n].GetLocation());
+                this.entrances[n] = MapGridHelper.TileLocationToCurrentMapLocation(generatorData.fileData.entrances.tileData[n].location);
             }
         }
 
-        protected override bool GetContinueCondition()
+        protected override bool GetFinishedCondition()
         {
-            return toConnect.Count > 1;
+            return (connectionmap.GetNumberOfPartitions() == 1);
         }
 
-        protected override int GetWeight(Location location, int color)
+        protected override int GetWeight(Partition partition, Location location)
         {
-            return valuemap[location.x][location.y] + GetDistanceModifier(location, color);
+            return valuemap.GetValue(location) + GetDistanceModifier(partition, location);
         }
 
-        private int GetDistanceModifier(Location location, int color)
+        private int GetDistanceModifier(Partition partition, Location location)
         {
-            int lowestDistance = GetDistanceToClosestOtherEntrance(location, color);
+            int lowestDistance = GetDistanceToClosestOtherEntrance(partition, location);
 
             return (int) (Math.Sqrt(lowestDistance) * 25.00d);
         }
@@ -45,13 +47,13 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
             return (int)(Math.Sqrt(lowestDistance) * 25.00d);
         }
 
-        private int GetDistanceToClosestOtherEntrance(Location location, int color)
+        private int GetDistanceToClosestOtherEntrance(Partition partition, Location location)
         {
             int lowest = int.MaxValue;
 
             foreach (Location entrance in entrances)
             {
-                if (connectedBy[entrance.x, entrance.y] != color)
+                if (!connectionmap.CheckPlacement(location).Equals(partition))
                 {
                     int distance = Math.Abs(location.x - entrance.x) + Math.Abs(location.y - entrance.y) + Math.Abs(location.z - entrance.z);
 

@@ -10,28 +10,22 @@ namespace TCPGameServer.World.Map.IO
 {
     class AreaWriter
     {
-        public static int AddEntrance(Tile exit, int direction, String name)
+        public static int AddEntrance(TileData exit, int direction, String exitAreaName, String targetAreaName, World world)
         {
             TileData target = new TileData();
 
-            target.type = exit.GetTileType();
-            target.representation = exit.GetRepresentation();
-            target.location = Directions.GetNeighboring(direction, exit.GetLocation());
+            target.type = exit.type;
+            target.representation = exit.representation;
+            target.location = Directions.GetNeighboring(direction, exit.location);
             
             int linkDirection = Directions.Inverse(direction);
-            target.links[linkDirection] = exit.GetArea().GetName() + ";" + exit.GetID();
+            target.links[linkDirection] = exitAreaName + ";" + exit.ID;
                 
             Location mapGridPosition = MapGridHelper.TileLocationToMapGridLocation(target.location);
 
-            if (!name.Equals("x" + mapGridPosition.x + "y" + mapGridPosition.y + "z" + mapGridPosition.z)) {
-                Output.Print("name (" + name + ") does not match area (" + "x" + mapGridPosition.x + "y" + mapGridPosition.y + "z" + mapGridPosition.z + "), aborting AddEntrance");
-                
-                return -1;
-            }
-
-            bool createFile = !AreaFile.Exists(name);
-            if (createFile) CreateMapFile(name, mapGridPosition, target, exit.GetWorld());
-            else AddEntranceToMapFile(target, name);
+            bool createFile = !AreaFile.Exists(targetAreaName);
+            if (createFile) CreateMapFile(targetAreaName, mapGridPosition, target, world);
+            else AddEntranceToMapFile(target, targetAreaName);
 
             return target.ID;
         }
@@ -103,7 +97,7 @@ namespace TCPGameServer.World.Map.IO
             AreaFile.Write(fileData, name);
         }
 
-        public static void SaveStatic(String name, Tile[] entrances, Tile[] exits, Tile[][] fixedTiles)
+        public static void SaveStatic(String name, TileBlockData entrances, TileBlockData[] fixedTiles)
         {
             Output.Print("Writing static for " + name);
 
@@ -115,40 +109,9 @@ namespace TCPGameServer.World.Map.IO
 
             fileData.header.fileType = "Generated";
 
-            int numberOfEntrances = entrances.Length + exits.Length;
+            fileData.entrances = entrances;
 
-            fileData.entrances.numberOfTiles = numberOfEntrances;
-            fileData.entrances.tileData = new TileData[numberOfEntrances];
-
-            for (int n = 0; n < entrances.Length; n++) {
-                fileData.entrances.tileData[n] = TileData.FromTile(entrances[n]);
-            }
-
-            for (int n = 0; n < exits.Length; n++)
-            {
-                fileData.entrances.tileData[n + entrances.Length] = TileData.FromTile(exits[n]);
-            }
-
-            fileData.fixedTiles = new TileBlockData[numberOfEntrances];
-            for (int n = 0; n < fixedTiles.Length; n++)
-            {
-                fileData.fixedTiles[n] = new TileBlockData();
-
-                int numberOfFixedTiles = fixedTiles[n].Length;
-
-                fileData.fixedTiles[n].numberOfTiles = numberOfFixedTiles;
-                fileData.fixedTiles[n].tileData = new TileData[numberOfFixedTiles];
-
-                for (int i = 0; i < numberOfFixedTiles; i++)
-                {
-                    fileData.fixedTiles[n].tileData[i] = TileData.FromTile(fixedTiles[n][i]);
-                }
-            }
-
-            for (int n = 0; n < exits.Length; n++)
-            {
-                fileData.fixedTiles[n + entrances.Length] = new TileBlockData();
-            }
+            fileData.fixedTiles = fixedTiles;
 
             AreaFile.Write(fileData, name);
         }

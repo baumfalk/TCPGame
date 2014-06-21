@@ -12,6 +12,8 @@ using TCPGameServer.General;
 
 using TCPGameServer.World.Map.IO.MapFile;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
     class LowLevelGenerator
@@ -38,23 +40,21 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             // check if we're generating a map for the first time
             isStub = generatorData.fileData.header.fileType.Equals("Stub");
 
-            // set data to create a value map
-            ValuemapData mapData = new ValuemapData();
-            mapData.seed = seed;
-            mapData.height = GetHeight();
-            mapData.width = GetWidth();
-
             // create a new value map
-            valuemap = GetValuemap(mapData);
+            valuemap = GetValuemap();
 
             // create a new connection map
             connectionmap = new Connectionmap(
                 GetWidth(),
                 GetHeight());
 
-            // add the entrances
-            connectionmap.AddEntrances(generatorData.fileData.entrances);
-            // add the fixed tiles
+            // add the entrances to the connection map
+            Partition[] entrancePartitions = connectionmap.AddEntrances(generatorData.fileData.entrances);
+
+            // create expansion fronts for these entrances
+            CreateFront(generatorData.fileData.entrances, entrancePartitions);
+
+            // add the fixed tiles to the connection map
             connectionmap.AddFixedTiles(generatorData.fileData.fixedTiles);
 
             // set the bottom left point based on the grid location
@@ -69,31 +69,36 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                 generatorData.area,
                 generatorData.world);
 
+            // add the entrances to the tile map
+            tilemap.AddEntrances(generatorData.fileData.entrances);
+
+            // add the fixed tiles to the tile map
+            tilemap.AddFixedTiles(generatorData.fileData.fixedTiles);
+
             // create exit generator
             environmentManager = new EnvironmentManager(
                 GetWidth(),
                 GetHeight(),
                 mapGridLocation,
                 generatorData.fileData.entrances,
-                generatorData.fileData.fixedTiles);
+                generatorData.fileData.fixedTiles,
+                generatorData.area,
+                generatorData.world);
         }
 
         // generate the actual area
         public virtual AreaData Generate()
         {
             // generate the exits
-            TileBlockData exits = environmentManager.GenerateExits(seed);
+            TileBlockData exits = environmentManager.GenerateExits(seed, GetExitChance());
 
             // add the exits to the connection map
-            connectionmap.AddEntrances(exits);
+            Partition[] exitPartitions = connectionmap.AddEntrances(exits);
+            // create expansion fronts for the exits
+            CreateFront(exits, exitPartitions);
 
-            // the entrances already in the file are not the only ones,
-            // more may have been added to link maps that did not exist
-            // until this generator ran
-            TileBlockData tilesToAdd = connectionmap.GetTiles();
-
-            // put the first items in the expansion front
-            SetInitialFront();
+            // add the exits to the tile map
+            tilemap.AddExits(exits);
 
             // expand the areas around the entrances until the completion criteria of
             // the map type are met
@@ -106,15 +111,35 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             return GenerateAreaData();
         }
 
-        protected void SetInitialFront()
+        // each entrance needs to have an associated expansion front
+        protected void CreateFront(TileBlockData entrances, Partition[] partitions)
         {
-            int numEntrances = connectionmap.GetNumberOfPartitions();
+            int numEntrances = entrances.numberOfTiles;
+            int offset;
 
-            expansionFront = new Front[numEntrances];
+            if (expansionFront == null)
+            {
+                // create a new expansion front
+                expansionFront = new Front[numEntrances];
 
+                offset = 0;
+            }
+            else
+            {
+                Front[] frontBuffer = new Front[numEntrances + expansionFront.Length];
+
+                offset = expansionFront.Length;
+
+                Array.Copy(expansionFront, frontBuffer, offset);
+
+                expansionFront = frontBuffer;
+            }
+
+            // create a front for each entrance and add the entrance location to it
             for (int n = 0; n < numEntrances; n++)
             {
-                expansionFront[n] = new Front(entrancePartition, GetWeight);
+                expansionFront[n + offset] = new Front(GetWidth(), GetHeight(), partitions[n], GetWeight);
+                expansionFront[n + offset].AddToFront(entrances.tileData[n].location);
             }
         }
 
@@ -122,47 +147,63 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         {
             while (!GetFinishedCondition())
             {
-                Expand(connectionmap.GetNext(), "floor", "floor", true);
+                Partition partition = connectionmap.GetNext();
+                Location pointAdded = Expand(partition, "floor", "floor", true);
+
+                // update the connectionmap based on placement of this partition on this location
+                connectionmap.Place(partition, pointAdded);
             }
         }
 
-        protected void Expand(Partition partition, String type, String representation, bool expand)
+        protected Location Expand(Partition partition, String type, String representation, bool expand)
         {
+            
+
+            int index = partition.GetIndex();
+
             // get next location
-            Location pointToAdd = expansionFront[partition.index].GetNext();
+            Location pointToAdd = expansionFront[index].GetNext();
 
             // check with connection map if this needs to be a merge or an add
             Partition occupyingPartition = connectionmap.CheckPlacement(pointToAdd);
-
-            // update the connectionmap based on placement of this partition on this location
-            connectionmap.Place(partition, pointToAdd);
 
             // if the tile is unoccupied, add a tile to it and add it's neighbors to the
             // expansion front
             if (occupyingPartition == null)
             {
+                Output.Print("adding " + type + " " + tilemap.GetCount());
+
                 tilemap.AddTile(pointToAdd, type, representation);
 
                 if (expand) AddNeighborsToFront(pointToAdd, partition);
             }
             else
             {
-                // if it is occupied, merge the fronts of the two partitions
-                expansionFront[occupyingPartition.index].Merge(expansionFront[partition.index]);
+                // get the index of the queue associated with the occupying partition
+                int occupyingIndex = occupyingPartition.GetIndex();
 
-                // if there are still multiple partitions, and the map generator requires
-                // a recalculation of values in the expansion front on a merge, recalculate
-                // the weights in the expansion front of the partition.
-                if (connectionmap.GetNumberOfPartitions() > 1 && NeedsRecalculation())
+                // don't merge a priority queue with itself
+                if (index != occupyingIndex)
                 {
-                    expansionFront[partition.index].RecalculateWeights();
+                    // if it is occupied, merge the fronts of the two partitions
+                    expansionFront[occupyingIndex].Merge(expansionFront[index]);
+
+                    // if there are still multiple partitions, and the map generator requires
+                    // a recalculation of values in the expansion front on a merge, recalculate
+                    // the weights in the expansion front of the partition.
+                    if (connectionmap.GetNumberOfPartitions() > 1 && NeedsRecalculation())
+                    {
+                        expansionFront[partition.GetIndex()].RecalculateWeights();
+                    }
                 }
             }
+
+            return pointToAdd;
         }
 
         // takes a location and a partition, and adds all neighboring locations that are not
         // already in that partition to it's expansion front
-        private void AddNeighborsToFront(Location location, Partition partition)
+        protected void AddNeighborsToFront(Location location, Partition partition)
         {
             List<Location> neighbors = GetNeighbors(location);
 
@@ -170,12 +211,15 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             {
                 Partition connector = connectionmap.CheckPlacement(neighbor);
 
-                if (connector != partition) expansionFront[partition.index].AddToFront(neighbor);
+                if (connector == null || connector.GetIndex() != partition.GetIndex())
+                {
+                    expansionFront[partition.GetIndex()].AddToFront(neighbor);
+                }
             }
         }
 
         // links the tiles in the area together
-        private void LinkTiles()
+        protected void LinkTiles()
         {
             Tile[] tiles = tilemap.GetTiles();
 
@@ -227,12 +271,17 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             return 100;
         }
 
-        protected virtual Valuemap GetValuemap(ValuemapData mapData)
+        protected virtual Valuemap GetValuemap()
         {
+            ValuemapData mapData = new ValuemapData();
+            mapData.seed = seed;
+            mapData.height = GetHeight();
+            mapData.width = GetWidth();
+
             return new Valuemap(Valuemap.GENERATOR_TYPE_RANDOM, mapData);
         }
 
-        protected virtual int GetWeight(Location location, int partition)
+        protected virtual int GetWeight(Partition partition, Location location)
         {
             return valuemap.GetValue(location);
         }
@@ -254,7 +303,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             return "Generic Map";
         }
 
-        private List<Location> GetNeighbors(Location mapLocation)
+        protected List<Location> GetNeighbors(Location mapLocation)
         {
             List<Location> neighbors = new List<Location>();
 
@@ -264,11 +313,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             if (mapLocation.y < 99) neighbors.Add(new Location(mapLocation.x, mapLocation.y + 1, mapLocation.z));
 
             return neighbors;
-        }
-
-        private void SaveStaticTiles()
-        {
-            AreaWriter.SaveStatic(area.GetName(), entrances, exits, fixedTiles);
         }
     }
 }

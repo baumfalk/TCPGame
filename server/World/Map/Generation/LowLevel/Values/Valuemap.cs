@@ -52,14 +52,14 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values
         {
             for (int x = 0; x < width; x++)
             {
-                valuemap[width][0] = 255;
-                valuemap[width][height - 1] = 255;
+                valuemap[width - 1][0] = 255;
+                valuemap[width - 1][height - 1] = 255;
             }
 
             for (int y = 0; y < height; y++)
             {
-                valuemap[0][height] = 255;
-                valuemap[width - 1][height] = 255;
+                valuemap[0][height - 1] = 255;
+                valuemap[width - 1][height - 1] = 255;
             }
         }
     }

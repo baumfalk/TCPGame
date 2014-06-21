@@ -97,7 +97,7 @@
     <Compile Include="World\Map\IO\AreaReader.cs" />
     <Compile Include="World\Map\IO\AreaWriter.cs" />
     <Compile Include="World\Map\IO\MapFile\Parts\IOTile.cs" />
-    <Compile Include="World\Location.cs" />
+    <Compile Include="World\Map\Location.cs" />
     <Compile Include="World\Map\MapGridHelper.cs" />
     <Compile Include="World\Map\IO\MapFile\Parts\TileBlock.cs" />
     <Compile Include="World\Map\IO\MapFile\TileBlockData.cs" />

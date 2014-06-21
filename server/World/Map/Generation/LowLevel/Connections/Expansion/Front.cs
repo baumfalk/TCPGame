@@ -7,20 +7,29 @@ using TCPGameServer.General;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
 {
-    class Front
+    public class Front
     {
         Partition ID;
+
+        private int height;
+        private int width;
 
         private PriorityQueue<Location> tileFront;
         private bool[,] isInFront;
 
-        delegate int WeightFunction(Partition partition, Location location);
+        public delegate int WeightFunction(Partition partition, Location location);
         private WeightFunction GetWeight;
 
-        public Front(Partition ID, WeightFunction GetWeight)
+        public Front(int width, int height, Partition ID, WeightFunction GetWeight)
         {
+            this.width = width;
+            this.height = height;
+
             this.ID = ID;
             this.GetWeight = GetWeight;
+
+            tileFront = new PriorityQueue<Location>();
+            isInFront = new bool[width, height];
         }
 
         public void AddToFront(Location location)
@@ -48,7 +57,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
         {
             PriorityQueue<Location> bufferQueue = new PriorityQueue<Location>();
 
-            isInFront = new bool[100,100];
+            isInFront = new bool[width, height];
 
             while (tileFront.Count() > 0)
             {
@@ -72,9 +81,19 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
             return tileFront;
         }
 
+        public bool HasNext()
+        {
+            return (tileFront.Count() > 0);
+        }
+
         public Location GetNext()
         {
             return tileFront.RemoveMin();
+        }
+
+        public int Count()
+        {
+            return tileFront.Count();
         }
     }
 }

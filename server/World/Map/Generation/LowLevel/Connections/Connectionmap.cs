@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.World.Map.IO.MapFile;
+using TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 {
@@ -23,10 +24,13 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 
         // adds an entrance to the connection map. Entrances are partitions that have an associated
         // expansion front.
-        public void AddEntrances(TileBlockData partitionData)
+        public Partition[] AddEntrances(TileBlockData partitionData)
         {
             // the number of entrances to be added
             int numPartitions = partitionData.numberOfTiles;
+
+            // the array of partitions to return
+            Partition[] entrancePartitions = new Partition[numPartitions];
 
             for (int n = 0; n < numPartitions; n++)
             {
@@ -35,13 +39,19 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 
                 // create a non-fixed partition with it's ID based on the current number of partitions
                 // (note that partitions without an expansion front aren't counted for this statistic)
-                Partition newPartition = new Partition(GetNumberOfPartitions() - 1, false);
+                Partition newPartition = new Partition(GetNumberOfPartitions(), false);
 
                 // add the entrance to the connection map, the expansion queue and the list of entrances
-                connectedBy[partitionLocation.x, partitionLocation.y] = newPartition;
+                //connectedBy[partitionLocation.x, partitionLocation.y] = newPartition;
                 expansionQueue.Enqueue(newPartition);
                 entrances.Add(newPartition);
+
+                // add the partition to the array
+                entrancePartitions[n] = newPartition;
             }
+
+            // return the partitions to the caller
+            return entrancePartitions;
         }
 
         // fixed tiles need to be in a partition with an entrance as it's parent. Nothing can connect to
@@ -104,12 +114,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
                 // joined to from now on.
                 partition.SetParent(connectedBy[location.x,location.y]);
             }
-        }
-
-        public TileBlockData GetTiles()
-        {
-            // return entrances, fixedtiles and entrances all in one block
-            return null;
         }
 
         public int GetNumberOfPartitions()

@@ -10,11 +10,13 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
 {
     class PerlinNoise : ValuemapGenerator
     {
-        public override int[][] Generate(PerlinGeneratedValuemapData mapData)
+        public override int[][] Generate(ValuemapData mapData)
         {
+            PerlinGeneratedValuemapData perlinMapData = (PerlinGeneratedValuemapData)mapData;
+
             // create some local values for the map data we may alter
-            int octaves = mapData.octaves;
-            double persistence = mapData.persistence;
+            int octaves = perlinMapData.octaves;
+            double persistence = perlinMapData.persistence;
 
             Random rnd = new Random(mapData.seed);
 
@@ -72,23 +74,23 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
                 }
 
                 // once all values are filled in, we have the option to smoothe out each layer
-                if (mapData.smoothInbetween) valuemap[n] = Smooth(valuemap[n], numValuesOnX, numValuesOnY, amplitude);
+                if (perlinMapData.smoothInbetween) valuemap[n] = Smooth(valuemap[n], numValuesOnX, numValuesOnY, amplitude);
 
                 amplitude *= persistence;
-                frequency = (int) (frequency * mapData.frequencyIncrease);
+                frequency = (int) (frequency * perlinMapData.frequencyIncrease);
             }
 
             // sum all interpolated gradient maps
-            int[][] returnmap = SumInterpolatedMaps(valuemap, mapData.width, mapData.height, octaves, mapData.frequencyIncrease);
+            int[][] returnmap = SumInterpolatedMaps(valuemap, mapData.width, mapData.height, octaves, perlinMapData.frequencyIncrease);
 
             // optionally, smoothe out the map after adding everything together
-            if (mapData.smoothAfter) returnmap = Smooth(returnmap, mapData.width, mapData.height, 255);
+            if (perlinMapData.smoothAfter) returnmap = Smooth(returnmap, mapData.width, mapData.height, 255);
 
             // optionally, make the edges higher and the center shallower
-            if (mapData.bowl) returnmap = Bowl(returnmap, mapData.width, mapData.height, 255);
+            if (perlinMapData.bowl) returnmap = Bowl(returnmap, mapData.width, mapData.height, 255);
 
             // optionally, make sure the values range from 0 to 255.
-            if (mapData.normalize) returnmap = Normalize(returnmap, mapData.width, mapData.height, 255);
+            if (perlinMapData.normalize) returnmap = Normalize(returnmap, mapData.width, mapData.height, 255);
 
             return returnmap;
         }
