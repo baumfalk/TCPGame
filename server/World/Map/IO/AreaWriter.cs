@@ -35,6 +35,9 @@ namespace TCPGameServer.World.Map.IO
             // read the file
             AreaFileData fileData = AreaFile.Read(name);
 
+            // check if the file already contains this entrance and returns if so.
+            if (CheckForTarget(fileData, target)) return;
+
             // the ID of our tile will be the current number of entrances
             target.ID = fileData.entrances.numberOfTiles;
 
@@ -76,6 +79,20 @@ namespace TCPGameServer.World.Map.IO
             AreaFile.Write(fileData, name);
 
             // return the ID of the new entrance
+        }
+
+        // checks if an entrance is already in a file
+        private static bool CheckForTarget(AreaFileData fileData, TileData target)
+        {
+            // check if the location of an entrance is the same as the location of the target.
+            for (int n = 0; n < fileData.entrances.numberOfTiles; n++)
+            {
+                TileData entrance = fileData.entrances.tileData[n];
+
+                if (entrance.location.Equals(target.location)) return true;
+            }
+
+            return false;
         }
 
         private static void CreateMapFile(String name, Location mapGridPosition, TileData target, World world)

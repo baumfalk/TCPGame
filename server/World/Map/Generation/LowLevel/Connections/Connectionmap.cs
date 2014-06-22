@@ -93,6 +93,12 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
             return expansionQueue.Dequeue();
         }
 
+        // adds a partition to be expanded
+        public void AddToQueue(Partition partition)
+        {
+            expansionQueue.Enqueue(partition);
+        }
+
         // returns all partitions still in the queue as an array
         public Partition[] GetPartitions()
         {
@@ -114,20 +120,10 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 
         public void Place(Partition partition, Location location)
         {
-            // if a position is unoccupied, add it to the connection mapping and put the
-            // partition back in the queue.
+            // if a position is unoccupied, add it to the connection mapping.
             if (CheckPlacement(location) == null)
             {
                 connectedBy[location.x, location.y] = partition;
-
-                expansionQueue.Enqueue(partition);
-            }
-            else if (CheckPlacement(location).Equals(partition))
-            {
-                // when queues have just been joined, sometimes tiles in the front will
-                // be in the same partition. In that case we don't want to remove this
-                // partition from the queue.
-                expansionQueue.Enqueue(partition);
             }
         }
 

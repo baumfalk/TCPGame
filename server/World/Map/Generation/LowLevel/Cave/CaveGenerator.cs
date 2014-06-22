@@ -60,7 +60,10 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
         protected override bool GetFinishedCondition()
         {
-            return (connectionmap.GetNumberOfPartitions() == 1 && tilemap.GetCount() > 300);
+            int numberOfPartitions = connectionmap.GetNumberOfPartitions();
+            int count = tilemap.GetCount();
+
+            return (numberOfPartitions == 1 && count > 300);
         }
 
         protected override String GetAreaType()

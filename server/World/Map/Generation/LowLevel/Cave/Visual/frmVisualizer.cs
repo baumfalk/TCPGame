@@ -23,7 +23,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
         private Valuemap valuemap;
         private Connectionmap connectionmap;
 
-        private Bitmap bmpDraw;
+        private Bitmap bmpBuffer;
         private Location lastLocation;
 
         bool running;
@@ -52,9 +52,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
         private void FullDraw()
         {
-            bmpDraw = new Bitmap(1000, 1000);
+            bmpBuffer = new Bitmap(1000, 1000);
 
-            Graphics g = Graphics.FromImage(bmpDraw);
+            Graphics g = Graphics.FromImage(bmpBuffer);
 
             for (int x = 0; x < 100; x++)
             {
@@ -66,7 +66,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
             g.Dispose();
 
-            pictureBox1.Image = bmpDraw;
+            pictureBox1.Image = bmpBuffer;
         }
 
         private void DrawCell(Location location, Graphics g, bool updated)
@@ -106,19 +106,29 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
         public void DoUpdate(Location updated)
         {
-            Graphics g = Graphics.FromImage(bmpDraw);
-
-            DrawCell(lastLocation, g, false);
-            DrawCell(updated, g, true);
-
-            g.Dispose();
-
-            lastLocation = updated;
-
-            if (running)
+            try
             {
-                Thread.Sleep(speed);
-                visualizer.takeStep();
+                Graphics g = Graphics.FromImage(bmpBuffer);
+
+                DrawCell(lastLocation, g, false);
+                DrawCell(updated, g, true);
+
+                g.Dispose();
+
+                lastLocation = updated;
+
+                pictureBox1.Image = bmpBuffer;
+
+                if (running)
+                {
+                    Thread.Sleep(speed);
+                    visualizer.takeStep();
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                Thread.Sleep(10);
+                DoUpdate(updated);
             }
         }
 
@@ -137,6 +147,11 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
         private void frmVisualizer_Load(object sender, EventArgs e)
         {
             visualizer.indicateLoaded();
+        }
+
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            
         }
     }
 }

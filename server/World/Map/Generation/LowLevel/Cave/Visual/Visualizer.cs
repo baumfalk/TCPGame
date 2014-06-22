@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 {
-    public class Visualizer : Cave_TunnelGenerator
+    public class Visualizer : Cave_SmallCaveGenerator
     {
         private bool doStep;
         private bool loaded;

@@ -16,6 +16,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
     {
         private Location[] entrances;
         private Partition firstEntrance;
+
+        private int leftToConnect;
+
         private int windupPeriod;
 
         public Cave_TunnelGenerator(GeneratorData generatorData)
@@ -37,6 +40,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
             windupPeriod = 30 * entrances.Length;
 
+            leftToConnect = entrances.Length;
+
             firstEntrance = connectionmap.GetEntrancePartitions()[0];
         }
 
@@ -56,7 +61,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
         protected override bool GetFinishedCondition()
         {
-            return (connectionmap.GetNumberOfPartitions() == 1);
+            return (leftToConnect == 1);
         }
 
         protected override int GetWeight(Partition partition, Location location)
@@ -65,8 +70,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
             int value = valuemap.GetValue(location);
             int distMod = GetDistanceModifier(partition, location);
-
-            Output.Print("value of tile = " + valuemap.GetValue(location) + ", distance mod = " + distMod);
 
             return value + distMod;
         }
@@ -100,6 +103,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
         protected override bool NeedsRecalculation()
         {
+            leftToConnect -= 1;
+
             return true;
         }
 

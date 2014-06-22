@@ -203,6 +203,8 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             {
                 tilemap.AddTile(pointToAdd, type, representation);
 
+                connectionmap.AddToQueue(partition);
+
                 if (expand) AddNeighborsToFront(pointToAdd, partition);
             }
             else
@@ -226,6 +228,10 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                     {
                         expansionFront[occupyingIndex].RecalculateWeights();
                     }
+                }
+                else
+                {
+                    connectionmap.AddToQueue(partition);
                 }
             }
 

@@ -11,8 +11,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
 {
     public class Front
     {
-        bool debug;
-
         Partition ID;
 
         private int height;
@@ -57,8 +55,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
 
             int weight = GetWeight(ID, location);
 
-            if (debug) Output.Print("adding " + location.x + ", " + location.y + " with weight " + weight);
-
             AddToFront(location, weight);
         }
 
@@ -74,8 +70,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
 
         public void RecalculateWeights()
         {
-            debug = true;
-
             PriorityQueue<Location> bufferQueue = tileFront;
 
             tileFront = new PriorityQueue<Location>();
