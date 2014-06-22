@@ -10,7 +10,7 @@ using System.Threading;
 using TCPGameServer.World;
 using TCPGameServer.Network;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.Control
 {
@@ -71,7 +71,7 @@ namespace TCPGameServer.Control
             server.Start();
 
             // put the version number in the log
-            Output.Print("Server version: " + Server.version);
+            Log.Print("Server version: " + Server.version);
 
             // start the Ticker on it's own thread
             new Thread(Ticker).Start();

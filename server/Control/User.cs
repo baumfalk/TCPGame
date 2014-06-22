@@ -5,7 +5,8 @@ using System.Text;
 
 using TCPGameServer.Network;
 using TCPGameServer.World;
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
+using TCPGameServer.Control.Input;
 
 namespace TCPGameServer.Control
 {

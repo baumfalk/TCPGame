@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.World.Map;
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.ActionHandling
 {

@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 using TCPGameServer.Control;
 
-namespace TCPGameServer.Control.IO
+namespace TCPGameServer.Control.Output
 {
     public partial class ServerOutputWindow : Form
     {
@@ -107,7 +107,7 @@ namespace TCPGameServer.Control.IO
         {
             loaded = true;
 
-            List<String> log = Output.GetLog();
+            List<String> log = Log.GetLog();
 
             foreach (String text in log)
             {

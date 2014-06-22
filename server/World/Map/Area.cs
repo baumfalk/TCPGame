@@ -7,7 +7,7 @@ using TCPGameServer.World.Map.IO;
 using TCPGameServer.World.Map.IO.MapFile;
 using TCPGameServer.World.Map.Generation;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.Map
 {
@@ -49,7 +49,7 @@ namespace TCPGameServer.World.Map
             else
             {
                 // should not happen
-                Output.Print("loading area (" + name + ") that does not exist");
+                Log.Print("loading area (" + name + ") that does not exist");
 
                 tiles = new Tile[0];
                 areaType = "nonexistent";
@@ -94,7 +94,7 @@ namespace TCPGameServer.World.Map
         // on unload, we have to unlink area links
         public void Unload()
         {
-            Output.Print("Unloading area " + name);
+            Log.Print("Unloading area " + name);
 
             // check each tile for area links
             foreach (Tile tile in tiles)

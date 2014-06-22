@@ -5,9 +5,9 @@ using System.Text;
 
 using TCPGameServer.Control;
 
-namespace TCPGameServer.Control.IO
+namespace TCPGameServer.Control.Output
 {
-    class Output
+    class Log
     {
         // Contains a log of everything that is printed so far.
         private static List<string> log = new List<string>();

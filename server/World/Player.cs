@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World
 {
@@ -126,7 +126,7 @@ namespace TCPGameServer.World
             }
             else
             {
-                Output.Print("(" + name + ") game tried to dequeue command while blocking queue was empty");
+                Log.Print("(" + name + ") game tried to dequeue command while blocking queue was empty");
 
                 return null;
             }
@@ -154,7 +154,7 @@ namespace TCPGameServer.World
             }
             else
             {
-                Output.Print("(" + name + ") game tried to dequeue command while immediate queue was empty");
+                Log.Print("(" + name + ") game tried to dequeue command while immediate queue was empty");
 
                 return null;
             }

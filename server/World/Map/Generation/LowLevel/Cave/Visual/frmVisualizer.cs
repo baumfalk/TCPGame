@@ -12,7 +12,7 @@ using System.Threading;
 using TCPGameServer.World.Map.Generation.LowLevel.Connections;
 using TCPGameServer.World.Map.Generation.LowLevel.Values;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 {

@@ -5,7 +5,7 @@ using System.Text;
 
 using TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Values
 {
@@ -29,7 +29,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values
                     generator = new PerlinNoise();
                     break;
                 default:
-                    Output.Print("no valid generator type, generating random");
+                    Log.Print("no valid generator type, generating random");
                     generator = new ValuemapGenerator();
                     break;
             }

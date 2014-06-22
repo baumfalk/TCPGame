@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Map.Generation;
 using TCPGameServer.World.Map.IO.MapFile;
@@ -28,7 +28,7 @@ namespace TCPGameServer.World.Map.IO
 
             GeneratorData generatorData = CreateGeneratorData(fileData);
 
-            Output.Print("Generating area " + name + " of type " + fileData.header.areaType);
+            Log.Print("Generating area " + name + " of type " + fileData.header.areaType);
 
             toReturn = AreaGenerator.Generate(generatorData);
             toReturn.areaType = fileData.header.areaType;

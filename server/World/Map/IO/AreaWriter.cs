@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 using TCPGameServer.World.Map.IO.MapFile;
 
 namespace TCPGameServer.World.Map.IO
@@ -116,7 +116,7 @@ namespace TCPGameServer.World.Map.IO
 
         public static void SaveStatic(String name, TileBlockData entrances, TileBlockData[] fixedTiles)
         {
-            Output.Print("Writing static for " + name);
+            Log.Print("Writing static for " + name);
 
             AreaFileData fileData = new AreaFileData();
 

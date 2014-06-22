@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 using System.IO;
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.Map.IO.MapFile.Parts
 {

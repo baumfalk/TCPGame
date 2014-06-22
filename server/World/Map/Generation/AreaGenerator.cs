@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Map.Generation.LowLevel;
 using TCPGameServer.World.Map.Generation.LowLevel.Cave;
@@ -31,7 +31,7 @@ namespace TCPGameServer.World.Map.Generation
                     generator = new Visualizer(generatorData);
                     break;
                 default:
-                    Output.Print("nonexistent map type " + generatorData.fileData.header.areaType + ", returning cave");
+                    Log.Print("nonexistent map type " + generatorData.fileData.header.areaType + ", returning cave");
                     generator = new CaveGenerator(generatorData);
                     break;
             }
@@ -41,7 +41,7 @@ namespace TCPGameServer.World.Map.Generation
 
             // high level additions (creatures,items, etc)
 
-            Output.Print("generation took " + (DateTime.Now - start).TotalMilliseconds + " milliseconds");
+            Log.Print("generation took " + (DateTime.Now - start).TotalMilliseconds + " milliseconds");
 
             return toReturn;
         }

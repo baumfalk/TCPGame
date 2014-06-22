@@ -1,4 +1,4 @@
-﻿namespace TCPGameServer.Control.IO
+﻿namespace TCPGameServer.Control.Output
 {
     partial class ServerOutputWindow
     {

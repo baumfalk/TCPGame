@@ -12,7 +12,7 @@ using TCPGameServer.General;
 
 using TCPGameServer.World.Map.IO.MapFile;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {

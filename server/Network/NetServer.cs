@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 
 using TCPGameServer.Control;
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.Network
 {
@@ -32,7 +32,7 @@ namespace TCPGameServer.Network
 
             server = new TcpListener(IPAddress.Any, port);
 
-            Output.Print("server created at port " + port);
+            Log.Print("server created at port " + port);
         }
 
         // starts the listener
@@ -42,7 +42,7 @@ namespace TCPGameServer.Network
             server_running = true;
 
             // give output that we've started
-            Output.Print("server started");
+            Log.Print("server started");
 
             // start the TCP listener
             server.Start();
@@ -54,7 +54,7 @@ namespace TCPGameServer.Network
         public void Stop()
         {
             // give output that we're stopping
-            Output.Print("server stopping");
+            Log.Print("server stopping");
 
             // set the flag, the server will stop on it's next operation
             server_running = false;
@@ -63,7 +63,7 @@ namespace TCPGameServer.Network
         private void StartListening()
         {
             // give output that we're listening
-            Output.Print("starting listening for connections");
+            Log.Print("starting listening for connections");
 
             // if running, try to accept a client, otherwise stop the server
             if (server_running)
@@ -83,7 +83,7 @@ namespace TCPGameServer.Network
             TcpClient newClient = server.EndAcceptTcpClient(connection);
 
             // give output that a new connection has been made
-            Output.Print("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
+            Log.Print("connection made with IP " + newClient.Client.RemoteEndPoint.ToString());
 
             // create a netclient which will maintain the link
             NetClient newNetClient = new NetClient(newClient);

@@ -10,7 +10,7 @@ using System.Net.Sockets;
 using System.IO;
 
 using TCPGameServer.Control;
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.Network
 {
@@ -63,7 +63,7 @@ namespace TCPGameServer.Network
             connected = false;
 
             // put the disconnect on the output log
-            Output.Print("client " + remoteIP + " has disconnected");
+            Log.Print("client " + remoteIP + " has disconnected");
         }
 
         // asynchronous read
@@ -82,8 +82,8 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                Output.Print("can't begin reading from stream of user " + remoteIP);
-                Output.Print(e.Message);
+                Log.Print("can't begin reading from stream of user " + remoteIP);
+                Log.Print(e.Message);
 
                 if (connected) Disconnect();
             }
@@ -114,15 +114,15 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                Output.Print("can't read during dataReceived for user " + remoteIP);
-                Output.Print(e.Message);
+                Log.Print("can't read during dataReceived for user " + remoteIP);
+                Log.Print(e.Message);
 
                 if (connected) Disconnect();
             }
             catch (ObjectDisposedException e)
             {
-                Output.Print("client was disposed while reading for user " + remoteIP);
-                Output.Print(e.Message);
+                Log.Print("client was disposed while reading for user " + remoteIP);
+                Log.Print(e.Message);
             }
         }
 
@@ -180,8 +180,8 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                Output.Print("exception trying to begin write to " + remoteIP);
-                Output.Print(e.Message);
+                Log.Print("exception trying to begin write to " + remoteIP);
+                Log.Print(e.Message);
 
                 if (connected) Disconnect();
             }
@@ -200,15 +200,15 @@ namespace TCPGameServer.Network
             }
             catch (IOException e)
             {
-                Output.Print("exception trying to end write to " + remoteIP);
-                Output.Print(e.Message);
+                Log.Print("exception trying to end write to " + remoteIP);
+                Log.Print(e.Message);
 
                 if (connected) Disconnect();
             }
             catch (SocketException e)
             {
-                Output.Print("object disposed on write");
-                Output.Print(e.Message);
+                Log.Print("object disposed on write");
+                Log.Print(e.Message);
 
                 if (connected) Disconnect();
             }

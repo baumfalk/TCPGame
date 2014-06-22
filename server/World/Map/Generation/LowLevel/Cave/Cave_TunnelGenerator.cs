@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.General;
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Map.Generation.LowLevel.Connections;
 

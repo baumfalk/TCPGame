@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 using TCPGameServer.General;
 

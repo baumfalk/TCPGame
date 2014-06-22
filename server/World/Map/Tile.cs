@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Map.Tiles;
 
@@ -151,7 +151,7 @@ namespace TCPGameServer.World.Map
             {
                 if (neighbor.GetNeighbor(Directions.Inverse(direction)) != this)
                 {
-                    Output.Print("[" + area.GetName() + "(" + ID + ")] no linkback (" + Directions.ToString(direction) + ")");
+                    Log.Print("[" + area.GetName() + "(" + ID + ")] no linkback (" + Directions.ToString(direction) + ")");
                 }
             }
 
@@ -161,7 +161,7 @@ namespace TCPGameServer.World.Map
 
             if (!properNeighbor.Equals(neighborLocation))
             {
-                Output.Print("[" + area.GetName() + "(" + ID + ")] link to tile that's not adjacent. Possible error (" + Directions.ToString(direction) + ")");
+                Log.Print("[" + area.GetName() + "(" + ID + ")] link to tile that's not adjacent. Possible error (" + Directions.ToString(direction) + ")");
             }
 
             // set the flag to show this tile has a neighbor in the given direction

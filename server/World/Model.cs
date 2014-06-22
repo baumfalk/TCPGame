@@ -10,7 +10,7 @@ using TCPGameServer.World.ActionHandling;
 using TCPGameServer.World.Map;
 using TCPGameServer.World.Map.Generation;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 
 
@@ -72,7 +72,7 @@ namespace TCPGameServer.World
             {
                 if (player.IsDisconnected())
                 {
-                    Output.Print(player.GetName() + " has disconnected");
+                    Log.Print(player.GetName() + " has disconnected");
 
                     AddModelCommand(new String[] { "SAY", player.GetName() + " has disconnected" });
 

@@ -5,7 +5,7 @@ using System.Text;
 
 using System.Drawing;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
 {

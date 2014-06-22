@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using TCPGameServer.World;
 
 using TCPGameServer.Control;
+using TCPGameServer.Control.Output;
 
-namespace TCPGameServer.Control.IO
+namespace TCPGameServer.Control.Input
 {
     class InputHandler
     {
@@ -25,17 +26,17 @@ namespace TCPGameServer.Control.IO
                 // development
                 if (command.Equals("shutdown"))
                 {
-                    Output.Print("Shutdown command received...");
+                    Log.Print("Shutdown command received...");
 
                     // unset the running flag, server will shut down on the next cycle
                     Controller.Stop();
                 }
                 else if (command.Equals("log"))
                 {
-                    Output.Print("Sending log to user");
+                    Log.Print("Sending log to user");
 
                     // don't want to iterate over a collection in use, so copy it
-                    String[] log = Output.GetLog().ToArray();
+                    String[] log = Log.GetLog().ToArray();
 
                     foreach (string message in log)
                     {
@@ -73,7 +74,7 @@ namespace TCPGameServer.Control.IO
         // a message to the log.
         private static void HandleIdle(String command, Player player)
         {
-            Output.Print(player.GetName() + " is idle but sending commands");
+            Log.Print(player.GetName() + " is idle but sending commands");
         }
 
         // TODO: make login dynamic, reading from a file

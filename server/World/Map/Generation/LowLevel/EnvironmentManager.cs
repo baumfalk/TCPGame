@@ -6,7 +6,7 @@ using System.Text;
 using TCPGameServer.World.Map.IO.MapFile;
 using TCPGameServer.World.Map.IO;
 
-using TCPGameServer.Control.IO;
+using TCPGameServer.Control.Output;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
