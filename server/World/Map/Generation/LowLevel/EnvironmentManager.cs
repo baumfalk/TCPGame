@@ -72,11 +72,11 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
         public TileBlockData GenerateExits(bool isStub, int seed, double exitChance)
         {
-            if (!isStub) return new TileBlockData();
-
             List<TileData> exitList = new List<TileData>();
 
-            List<int> PossibleDirections = GetPossibleDirections(mapGridLocation, entrances, fixedTiles);
+            List<int> possibleDirections = new List<int>();
+
+            if (isStub) possibleDirections = GetPossibleDirections(mapGridLocation, entrances, fixedTiles);
 
             Random rnd = new Random(seed);
 
@@ -87,7 +87,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
             int upX = 0;
             int upY = 0;
-            foreach (int direction in PossibleDirections)
+            foreach (int direction in possibleDirections)
             {
                 if (rnd.NextDouble() < exitChance)
                 {
@@ -116,11 +116,12 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                         }
                     }
 
-                    String type = (shift.z == 0) ? "floor" : "stairs";
+                    TileType type = (shift.z == 0) ? TileType.Floor : TileType.Stairs;
+                    String representation = (shift.z == 0) ? "floor" : "stairs";
 
                     TileData exit = new TileData();
                     exit.type = type;
-                    exit.representation = type;
+                    exit.representation = representation;
                     exit.location = new Location(locX + bottomLeft.x, locY + bottomLeft.y, bottomLeft.z);
                     exit.ID = exitNum;
                     

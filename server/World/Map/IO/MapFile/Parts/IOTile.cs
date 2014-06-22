@@ -14,7 +14,7 @@ namespace TCPGameServer.World.Map.IO.MapFile.Parts
             TileData toReturn = new TileData();
 
             toReturn.ID = int.Parse(fileReader.ReadLine());
-            toReturn.type = fileReader.ReadLine();
+            toReturn.type = (TileType) Enum.Parse(typeof(TileType), fileReader.ReadLine());
             toReturn.representation = fileReader.ReadLine();
             toReturn.location.x = int.Parse(fileReader.ReadLine());
             toReturn.location.y = int.Parse(fileReader.ReadLine());

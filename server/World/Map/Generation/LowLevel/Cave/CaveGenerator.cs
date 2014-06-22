@@ -54,7 +54,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
             while (expansionFront[finalPartition.GetIndex()].HasNext())
             {
-                Expand(finalPartition, "wall", "wall", false);
+                Expand(finalPartition, TileType.Wall, "wall", false);
             }
         }
 

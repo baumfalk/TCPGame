@@ -112,6 +112,10 @@
     <Compile Include="World\Map\IO\MapFile\Parts\Header.cs" />
     <Compile Include="World\Map\IO\MapFile\HeaderData.cs" />
     <Compile Include="World\Map\IO\MapFile\TileData.cs" />
+    <Compile Include="World\Map\Tiles\Campfire.cs" />
+    <Compile Include="World\Map\Tiles\Floor.cs" />
+    <Compile Include="World\Map\Tiles\Stairs.cs" />
+    <Compile Include="World\Map\Tiles\Wall.cs" />
     <Compile Include="World\Map\World.cs" />
     <Compile Include="World\Player.cs" />
     <Compile Include="World\Map\Tile.cs" />

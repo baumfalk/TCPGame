@@ -68,7 +68,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             for (int n = 0; n < numberOfTiles; n++) 
             {
                 Location mapLocation = MapGridHelper.TileLocationToCurrentMapLocation(tilesToAdd.tileData[n].location);
-                String type = tilesToAdd.tileData[n].type;
+                TileType type = tilesToAdd.tileData[n].type;
                 String representation = tilesToAdd.tileData[n].representation;
 
                 Tile tile = AddTile(mapLocation, tilesToAdd.tileData[n].location, type, representation);
@@ -77,19 +77,19 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             }
         }
 
-        public Tile AddTile(Location mapLocation, String type, String representation)
+        public Tile AddTile(Location mapLocation, TileType type, String representation)
         {
             Location tileLocation = MapGridHelper.CurrentMapLocationToTileLocation(mapLocation, bottomLeft);
 
             return AddTile(mapLocation, tileLocation, type, representation);
         }
 
-        public Tile AddTile(Location mapLocation, Location tileLocation, String type, String representation)
+        public Tile AddTile(Location mapLocation, Location tileLocation, TileType type, String representation)
         {
             if (tiles[mapLocation.x, mapLocation.y] != null) return null;
 
-            Tile tile = new Tile(type, representation, tileLocation, tileCount, area, world);
-
+            Tile tile = Tile.CreateTileOfType(type, representation, tileLocation, tileCount, area, world);
+        
             TileAndLocation newTile = new TileAndLocation();
             newTile.tile = tile;
             newTile.location = mapLocation;

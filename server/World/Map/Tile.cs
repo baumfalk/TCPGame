@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 using TCPGameServer.Control.IO;
 
+using TCPGameServer.World.Map.Tiles;
+
 namespace TCPGameServer.World.Map
 {
-    public class Tile
+    public enum TileType { Floor, Wall, Stairs, Campfire };
+
+    public abstract class Tile
     {
         // area and world the tile is part of
         private int ID;
@@ -40,9 +44,6 @@ namespace TCPGameServer.World.Map
         // it's handy to know if a tile links to another area or not
         private bool hasAreaLink;
 
-        // types are things like "floor" or "wall", which may have different
-        // representations but the same behavior
-        private String type;
         // representation is a string key for a specific image
         private String representation;
 
@@ -56,10 +57,8 @@ namespace TCPGameServer.World.Map
         private int color;
 
         // fills fields and initializes arrays
-        public Tile(String type, String representation, Location location, int ID, Area area, World world)
+        protected Tile(String representation, Location location, int ID, Area area, World world)
         {
-            // fill fields from arguments
-            this.type = type;
             this.representation = representation;
 
             this.location = location;
@@ -72,6 +71,23 @@ namespace TCPGameServer.World.Map
             hasNeighbor = new bool[6];
             neighbors = new Tile[6];
             areaLinks = new AreaLink[6];
+        }
+
+        // creates a tile of the right kind
+        public static Tile CreateTileOfType(TileType type, String representation, Location location, int ID, Area area, World world)
+        {
+            switch (type)
+            {
+                case TileType.Floor:
+                    return new Floor(representation, location, ID, area, world);
+                case TileType.Wall:
+                    return new Wall(representation, location, ID, area, world);
+                case TileType.Stairs:
+                    return new Stairs(representation, location, ID, area, world);
+                case TileType.Campfire:
+                    return new Campfire(representation, location, ID, area, world);
+            }
+            return null;
         }
 
         // the "color" of the tile can be used to find neighbors to a certain depth
@@ -282,10 +298,8 @@ namespace TCPGameServer.World.Map
             }
         }
 
-        public String GetTileType()
-        {
-            return type;
-        }
+        // the type of tile
+        public abstract TileType GetTileType();
 
         // get the image key for this tile
         public String GetRepresentation()
@@ -294,10 +308,6 @@ namespace TCPGameServer.World.Map
         }
 
         // check if this tile is passable
-        public bool IsPassable()
-        {
-            if (type.Equals("wall")) return false;
-            return true;
-        }
+        public abstract bool IsPassable();
     }
 }

@@ -16,7 +16,7 @@ using TCPGameServer.Control.IO;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
-    public class LowLevelGenerator
+    public abstract class LowLevelGenerator
     {
         protected int seed;
         protected bool isStub;
@@ -163,7 +163,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
                 Partition partition = DeterminePartitionToExpand();
 
-                String type = DetermineTypeOfNewPosition(partition);
+                TileType type = DetermineTypeOfNewPosition(partition);
                 String representation = DetermineRepresentationOfNewPosition(partition, type);
 
                 Location pointAdded = Expand(partition, type, representation, true);
@@ -183,17 +183,17 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             return connectionmap.GetNext();
         }
 
-        protected virtual String DetermineTypeOfNewPosition(Partition partition)
+        protected virtual TileType DetermineTypeOfNewPosition(Partition partition)
+        {
+            return TileType.Floor;
+        }
+
+        protected virtual String DetermineRepresentationOfNewPosition(Partition partition, TileType type)
         {
             return "floor";
         }
 
-        protected virtual String DetermineRepresentationOfNewPosition(Partition partition, String type)
-        {
-            return "floor";
-        }
-
-        protected virtual Location Expand(Partition partition, String type, String representation, bool expand)
+        protected virtual Location Expand(Partition partition, TileType type, String representation, bool expand)
         {
             int index = partition.GetIndex();
 

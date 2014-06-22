@@ -8,7 +8,7 @@ namespace TCPGameServer.World.Map.IO.MapFile
     public class TileData
     {
         public int ID;
-        public String type;
+        public TileType type;
         public String representation;
         public Location location;
         public String[] links;
