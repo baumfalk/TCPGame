@@ -20,6 +20,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
         private int leftToConnect;
 
         private int windupPeriod;
+        private bool windupDone;
 
         public Cave_TunnelGenerator(GeneratorData generatorData)
             : base(generatorData)
@@ -56,6 +57,12 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
         {
             if (windupPeriod > 0) return base.DeterminePartitionToExpand();
 
+            if (!windupDone)
+            {
+                expansionFront[firstEntrance.GetIndex()].RecalculateWeights();
+                windupDone = true;
+            }
+
             return firstEntrance;
         }
 
@@ -78,8 +85,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
         {
             int lowestDistance = GetDistanceToClosestOtherEntrance(partition, location);
 
-            return 2 * lowestDistance;
-            //return (int) (Math.Sqrt(lowestDistance) * 25.00d);
+            return 4 * lowestDistance;
         }
 
         private int GetDistanceToClosestOtherEntrance(Partition partition, Location location)

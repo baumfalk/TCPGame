@@ -125,7 +125,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
                     visualizer.takeStep();
                 }
             }
-            catch (InvalidOperationException e)
+            catch (InvalidOperationException)
             {
                 Thread.Sleep(10);
                 DoUpdate(updated);

@@ -26,7 +26,12 @@ namespace TCPGameServer.World.Map
         // tells the map generator which type of map to make at which point of the world
         public String GetAreaType(Location worldGrid)
         {
-            return "Small Cave";
+            Random rnd = new Random(GetAreaSeed(worldGrid));
+
+            double chance = rnd.NextDouble();
+
+            if (chance < 0.8) return "Small Cave";
+            else return "Tunnel Cave";
         }
 
         // for now, we will unload areas that have seen no activity for thirty

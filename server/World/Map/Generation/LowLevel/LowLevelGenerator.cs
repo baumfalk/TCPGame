@@ -90,7 +90,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         public AreaData Generate()
         {
             // generate the exits
-            TileBlockData exits = environmentManager.GenerateExits(seed, GetExitChance());
+            TileBlockData exits = environmentManager.GenerateExits(isStub, seed, GetExitChance());
 
             // add the exits to the connection map
             Partition[] exitPartitions = connectionmap.AddEntrances(exits);
@@ -119,6 +119,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             // generate the area data and return it
             return GenerateAreaData();
         }
+
+        protected virtual void DoBeforeExpansion() { }
+        protected virtual void DoAfterExpansion() { }
 
         // each entrance needs to have an associated expansion front
         protected void CreateFront(TileBlockData entrances, Partition[] partitions)
@@ -171,6 +174,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                 DoAtExpansionLoopEnd(partition, pointAdded);
             }
         }
+
+        protected virtual void DoAtExpansionLoopStart() { }
+        protected virtual void DoAtExpansionLoopEnd(Partition partition, Location pointAdded) { }
 
         protected virtual Partition DeterminePartitionToExpand()
         {
@@ -326,26 +332,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         protected virtual bool NeedsRecalculation()
         {
             return false;
-        }
-
-        protected virtual void DoBeforeExpansion()
-        {
-
-        }
-
-        protected virtual void DoAfterExpansion()
-        {
-
-        }
-
-        protected virtual void DoAtExpansionLoopStart()
-        {
-
-        }
-
-        protected virtual void DoAtExpansionLoopEnd(Partition partition, Location pointAdded)
-        {
-
         }
 
         protected virtual double GetExitChance()

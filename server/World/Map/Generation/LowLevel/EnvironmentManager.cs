@@ -6,6 +6,8 @@ using System.Text;
 using TCPGameServer.World.Map.IO.MapFile;
 using TCPGameServer.World.Map.IO;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
     public class EnvironmentManager
@@ -68,8 +70,10 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             AreaWriter.SaveStatic(area.GetName(), allEntrances, fixedTiles);
         }
 
-        public TileBlockData GenerateExits(int seed, double exitChance)
+        public TileBlockData GenerateExits(bool isStub, int seed, double exitChance)
         {
+            if (!isStub) return new TileBlockData();
+
             List<TileData> exitList = new List<TileData>();
 
             List<int> PossibleDirections = GetPossibleDirections(mapGridLocation, entrances, fixedTiles);

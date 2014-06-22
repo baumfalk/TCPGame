@@ -63,15 +63,17 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
 
         private void AddTileBlock(TileBlockData tilesToAdd)
         {
-            foreach (TileData tileData in tilesToAdd.tileData)
+            int numberOfTiles = tilesToAdd.numberOfTiles;
+
+            for (int n = 0; n < numberOfTiles; n++) 
             {
-                Location mapLocation = MapGridHelper.TileLocationToCurrentMapLocation(tileData.location);
-                String type = tileData.type;
-                String representation = tileData.representation;
+                Location mapLocation = MapGridHelper.TileLocationToCurrentMapLocation(tilesToAdd.tileData[n].location);
+                String type = tilesToAdd.tileData[n].type;
+                String representation = tilesToAdd.tileData[n].representation;
 
-                Tile tile = AddTile(mapLocation, tileData.location, type, representation);
+                Tile tile = AddTile(mapLocation, tilesToAdd.tileData[n].location, type, representation);
 
-                TileLinker.SetAreaLinks(tile, tileData.links);
+                TileLinker.SetAreaLinks(tile, tilesToAdd.tileData[n].links);
             }
         }
 

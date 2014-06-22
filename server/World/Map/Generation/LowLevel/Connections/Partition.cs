@@ -55,5 +55,10 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
 
             return (partition.GetTop() == this.GetTop());
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

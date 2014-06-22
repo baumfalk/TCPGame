@@ -28,7 +28,7 @@ namespace TCPGameServer.World.Map.IO
 
             GeneratorData generatorData = CreateGeneratorData(fileData);
 
-            Output.Print("Generating area " + name);
+            Output.Print("Generating area " + name + " of type " + fileData.header.areaType);
 
             toReturn = AreaGenerator.Generate(generatorData);
             toReturn.areaType = fileData.header.areaType;
