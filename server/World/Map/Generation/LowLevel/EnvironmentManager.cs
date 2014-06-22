@@ -40,7 +40,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             this.world = world;
         }
 
-        public void SaveStaticTiles()
+        public TileBlockData GetAllEntrances()
         {
             TileBlockData allEntrances = new TileBlockData();
             allEntrances.numberOfTiles = entrances.numberOfTiles + exits.numberOfTiles;
@@ -57,6 +57,13 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             {
                 allEntrances.tileData[n + offset] = exits.tileData[n];
             }
+
+            return allEntrances;
+        }
+
+        public void SaveStaticTiles()
+        {
+            TileBlockData allEntrances = GetAllEntrances();
 
             AreaWriter.SaveStatic(area.GetName(), allEntrances, fixedTiles);
         }

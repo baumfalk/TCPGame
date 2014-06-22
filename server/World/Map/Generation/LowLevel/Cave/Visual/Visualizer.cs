@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 {
-    public class Visualizer : CaveGenerator
+    public class Visualizer : Cave_TunnelGenerator
     {
         private bool doStep;
         private bool loaded;
@@ -30,24 +30,9 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
         // create an output window
         private void OpenWindow()
         {
-            form = new frmVisualizer(this);
+            form = new frmVisualizer(this, connectionmap, valuemap);
 
             Application.Run(form);
-        }
-
-        public Connectionmap getConnectionmap()
-        {
-            return connectionmap;
-        }
-
-        public Valuemap getValuemap()
-        {
-            return valuemap;
-        }
-
-        public Tilemap getTilemap()
-        {
-            return tilemap;
         }
 
         public void takeStep()
@@ -55,34 +40,32 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
             doStep = true;
         }
 
-        public void indicatedLoaded()
+        public void indicateLoaded()
         {
             loaded = true;
         }
 
-        protected override void ExpandUntilFinishedConditionMet()
+        protected override void DoBeforeExpansion()
         {
             while (!loaded)
             {
                 Thread.Sleep(100);
             }
 
-            while (!GetFinishedCondition())
+            base.DoBeforeExpansion();
+        }
+
+        protected override void DoAtExpansionLoopEnd(Partition partition, Location pointAdded)
+        {
+            base.DoAtExpansionLoopEnd(partition, pointAdded);
+
+            doStep = false;
+
+            form.DoUpdate(pointAdded);
+
+            while (!doStep)
             {
-                Partition partition = connectionmap.GetNext();
-                Location pointAdded = Expand(partition, "floor", "floor", true);
-
-                // update the connectionmap based on placement of this partition on this location
-                connectionmap.Place(partition, pointAdded);
-
-                doStep = false;
-
-                form.DoUpdate(pointAdded);
-
-                while (!doStep)
-                {
-                    Thread.Sleep(100);
-                }
+                Thread.Sleep(100);
             }
         }
     }

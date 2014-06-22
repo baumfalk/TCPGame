@@ -148,7 +148,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             for (int n = 0; n < numEntrances; n++)
             {
                 expansionFront[n + offset] = new Front(GetWidth(), GetHeight(), partitions[n], GetWeight);
-                expansionFront[n + offset].AddToFront(entrances.tileData[n].location);
+                expansionFront[n + offset].AddToFront(entrances.tileData[n].location, 0);
             }
         }
 
@@ -156,18 +156,39 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         {
             while (!GetFinishedCondition())
             {
-                Partition partition = connectionmap.GetNext();
-                Location pointAdded = Expand(partition, "floor", "floor", true);
+                DoAtExpansionLoopStart();
+
+                Partition partition = DeterminePartitionToExpand();
+
+                String type = DetermineTypeOfNewPosition(partition);
+                String representation = DetermineRepresentationOfNewPosition(partition, type);
+
+                Location pointAdded = Expand(partition, type, representation, true);
 
                 // update the connectionmap based on placement of this partition on this location
                 connectionmap.Place(partition, pointAdded);
+
+                DoAtExpansionLoopEnd(partition, pointAdded);
             }
         }
 
-        protected Location Expand(Partition partition, String type, String representation, bool expand)
+        protected virtual Partition DeterminePartitionToExpand()
         {
-            
+            return connectionmap.GetNext();
+        }
 
+        protected virtual String DetermineTypeOfNewPosition(Partition partition)
+        {
+            return "floor";
+        }
+
+        protected virtual String DetermineRepresentationOfNewPosition(Partition partition, String type)
+        {
+            return "floor";
+        }
+
+        protected virtual Location Expand(Partition partition, String type, String representation, bool expand)
+        {
             int index = partition.GetIndex();
 
             // get next location
@@ -195,12 +216,15 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                     // if it is occupied, merge the fronts of the two partitions
                     expansionFront[occupyingIndex].Merge(expansionFront[index]);
 
+                    // merge the partitions in the connection map
+                    connectionmap.MergePartitions(partition, pointToAdd);
+
                     // if there are still multiple partitions, and the map generator requires
                     // a recalculation of values in the expansion front on a merge, recalculate
                     // the weights in the expansion front of the partition.
-                    if (connectionmap.GetNumberOfPartitions() > 1 && NeedsRecalculation())
+                    if (!GetFinishedCondition() && NeedsRecalculation())
                     {
-                        expansionFront[partition.GetIndex()].RecalculateWeights();
+                        expansionFront[occupyingIndex].RecalculateWeights();
                     }
                 }
             }
@@ -304,6 +328,16 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         }
 
         protected virtual void DoAfterExpansion()
+        {
+
+        }
+
+        protected virtual void DoAtExpansionLoopStart()
+        {
+
+        }
+
+        protected virtual void DoAtExpansionLoopEnd(Partition partition, Location pointAdded)
         {
 
         }

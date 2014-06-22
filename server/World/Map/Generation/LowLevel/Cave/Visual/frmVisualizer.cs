@@ -11,7 +11,6 @@ using System.Threading;
 
 using TCPGameServer.World.Map.Generation.LowLevel.Connections;
 using TCPGameServer.World.Map.Generation.LowLevel.Values;
-using TCPGameServer.World.Map.Generation.LowLevel.Tiles;
 
 using TCPGameServer.Control.IO;
 
@@ -23,7 +22,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
         private Valuemap valuemap;
         private Connectionmap connectionmap;
-        private Tilemap tilemap;
 
         private Bitmap bmpDraw;
         private Location lastLocation;
@@ -33,17 +31,16 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
         private static Color[] partitionColors = new Color[] { Color.Blue, Color.Green, Color.Aqua, Color.Magenta, Color.Yellow, Color.Pink };
 
-        public frmVisualizer(Visualizer visualizer)
+        public frmVisualizer(Visualizer visualizer, Connectionmap connectionmap, Valuemap valuemap)
         {
             this.visualizer = visualizer;
 
             InitializeComponent();
 
-            valuemap = visualizer.getValuemap();
-            connectionmap = visualizer.getConnectionmap();
-            tilemap = visualizer.getTilemap();
+            this.valuemap = valuemap;
+            this.connectionmap = connectionmap;
 
-            FirstDraw();
+            FullDraw();
 
             speed = trackBar1.Value;
         }
@@ -53,7 +50,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
             visualizer.takeStep();
         }
 
-        private void FirstDraw()
+        private void FullDraw()
         {
             bmpDraw = new Bitmap(1000, 1000);
 
@@ -91,7 +88,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
                 background = new SolidBrush(Color.FromArgb(value, value, value));
             }
 
-            g.FillRectangle(background, x * 10, 1000 - y * 10, 10, 10);
+            g.FillRectangle(background, x * 10, 1000 - y * 10 - 10, 10, 10);
 
             Partition partition = connectionmap.CheckPlacement(location);
 
@@ -101,7 +98,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
                 SolidBrush partitionBrush = new SolidBrush(partitionColors[index]);
 
-                g.FillRectangle(partitionBrush, x * 10 + 2, 1000 - y * 10 + 2, 6, 6);
+                g.FillRectangle(partitionBrush, x * 10 + 2, 1000 - y * 10 - 8, 6, 6);
             }
 
             pictureBox1.Invalidate();
@@ -109,7 +106,6 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
         public void DoUpdate(Location updated)
         {
-
             Graphics g = Graphics.FromImage(bmpDraw);
 
             DrawCell(lastLocation, g, false);
@@ -140,7 +136,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
 
         private void frmVisualizer_Load(object sender, EventArgs e)
         {
-            visualizer.indicatedLoaded();
+            visualizer.indicateLoaded();
         }
     }
 }

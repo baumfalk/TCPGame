@@ -5,10 +5,14 @@ using System.Text;
 
 using TCPGameServer.General;
 
+using TCPGameServer.Control.IO;
+
 namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
 {
     public class Front
     {
+        bool debug;
+
         Partition ID;
 
         private int height;
@@ -32,22 +36,35 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
             isInFront = new bool[width, height];
         }
 
-        public void AddToFront(Location location)
+        public void AddToFront(Location location, int weight)
         {
             location = MapGridHelper.TileLocationToCurrentMapLocation(location);
 
             int x = location.x;
             int y = location.y;
-            int z = location.z;
 
             if (!isInFront[x, y])
             {
                 isInFront[x, y] = true;
 
-                int weight = GetWeight(ID, location);
-
                 tileFront.Add(weight, location);
-            }
+            }   
+        }
+
+        public void AddToFront(Location location)
+        {
+            location = MapGridHelper.TileLocationToCurrentMapLocation(location);
+
+            int weight = GetWeight(ID, location);
+
+            if (debug) Output.Print("adding " + location.x + ", " + location.y + " with weight " + weight);
+
+            AddToFront(location, weight);
+        }
+
+        public bool IsInFront(Location location)
+        {
+            return isInFront[location.x, location.y];
         }
 
         public void Merge(Front mergee)
@@ -57,25 +74,17 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion
 
         public void RecalculateWeights()
         {
-            PriorityQueue<Location> bufferQueue = new PriorityQueue<Location>();
+            debug = true;
 
+            PriorityQueue<Location> bufferQueue = tileFront;
+
+            tileFront = new PriorityQueue<Location>();
             isInFront = new bool[width, height];
 
-            while (tileFront.Count() > 0)
+            while (bufferQueue.Count() > 0)
             {
-                Location location = tileFront.RemoveMin();
-
-                int x = location.x;
-                int y = location.y;
-
-                if (!isInFront[x,y])
-                {
-                    bufferQueue.Add(GetWeight(ID, location), location);
-                    isInFront[x, y] = true;
-                }
+                AddToFront(bufferQueue.RemoveMin());
             }
-
-            tileFront = bufferQueue;
         }
 
         private PriorityQueue<Location> GetPriorityQueue()

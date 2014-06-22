@@ -93,10 +93,16 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
             return expansionQueue.Dequeue();
         }
 
-        // returns all partitions as an array
+        // returns all partitions still in the queue as an array
         public Partition[] GetPartitions()
         {
             return expansionQueue.ToArray();
+        }
+
+        // returns all partitions that were associated with an entrance at the start
+        public Partition[] GetEntrancePartitions()
+        {
+            return entrances.ToArray();
         }
 
         // checks if a position is occupied, if so, returns the value of the occupying
@@ -123,12 +129,13 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
                 // partition from the queue.
                 expansionQueue.Enqueue(partition);
             }
-            else
-            {
-                // if it's not, this partition will be parsed as the partition it's been
-                // joined to from now on.
-                partition.SetParent(connectedBy[location.x,location.y]);
-            }
+        }
+
+        // the passed partition will be handled as the same as the partition at the passed
+        // location
+        public void MergePartitions(Partition partition, Location location)
+        {
+            partition.SetParent(connectedBy[location.x, location.y]);
         }
 
         // returns the number of partitions in the queue. Not accurate when a partition
