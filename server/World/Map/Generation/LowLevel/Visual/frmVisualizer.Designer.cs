@@ -1,4 +1,4 @@
-﻿namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
+﻿namespace TCPGameServer.World.Map.Generation.LowLevel.Visual
 {
     partial class frmVisualizer
     {

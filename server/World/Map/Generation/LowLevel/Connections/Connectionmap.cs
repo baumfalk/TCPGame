@@ -22,7 +22,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Connections
             entrances = new List<Partition>(); 
         }
 
-        // adds an entrance to the connection map. Entrances are partitions that have an associated
+        // adds a block of entrances to the connection map. Entrances are partitions that have an associated
         // expansion front.
         public Partition[] AddEntrances(TileBlockData partitionData)
         {

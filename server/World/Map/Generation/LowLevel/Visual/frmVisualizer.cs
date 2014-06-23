@@ -14,7 +14,7 @@ using TCPGameServer.World.Map.Generation.LowLevel.Values;
 
 using TCPGameServer.Control.Output;
 
-namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
+namespace TCPGameServer.World.Map.Generation.LowLevel.Visual
 {
     public partial class frmVisualizer : Form
     {

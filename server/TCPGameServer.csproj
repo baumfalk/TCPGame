@@ -73,6 +73,7 @@
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Map\Area.cs" />
     <Compile Include="World\Map\Generation\AreaGenerator.cs" />
+    <Compile Include="World\Map\Generation\LowLevelData.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Cave\CaveGenerator.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Cave\Cave_SmallCaveGenerator.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Connections\Connectionmap.cs" />
@@ -83,10 +84,10 @@
     <Compile Include="World\Map\Generation\LowLevel\LowLevelGenerator.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Tiles\TileAndlocation.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Tiles\TileLinker.cs" />
-    <Compile Include="World\Map\Generation\LowLevel\Cave\Visual\frmVisualizer.cs">
+    <Compile Include="World\Map\Generation\LowLevel\Visual\frmVisualizer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="World\Map\Generation\LowLevel\Cave\Visual\frmVisualizer.Designer.cs">
+    <Compile Include="World\Map\Generation\LowLevel\Visual\frmVisualizer.Designer.cs">
       <DependentUpon>frmVisualizer.cs</DependentUpon>
     </Compile>
     <Compile Include="World\Map\Generation\LowLevel\Values\Perlin\PerlinBitmaps.cs" />
@@ -97,9 +98,10 @@
     <Compile Include="World\Map\Generation\LowLevel\Values\Valuemap.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Values\ValuemapData.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Values\ValuemapGenerator.cs" />
-    <Compile Include="World\Map\Generation\LowLevel\Cave\Visual\Visualizer.cs" />
+    <Compile Include="World\Map\Generation\LowLevel\Visual\Visualizer.cs" />
+    <Compile Include="World\Map\Generation\MidLevelData.cs" />
     <Compile Include="World\Map\Geography.cs" />
-    <Compile Include="World\Map\AreaData.cs" />
+    <Compile Include="World\Map\Generation\AreaData.cs" />
     <Compile Include="World\Map\IO\MapFile\AreaFile.cs" />
     <Compile Include="World\Map\IO\MapFile\AreaFileData.cs" />
     <Compile Include="World\Map\IO\AreaReader.cs" />
@@ -133,7 +135,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="World\Map\Generation\LowLevel\Cave\Visual\frmVisualizer.resx">
+    <EmbeddedResource Include="World\Map\Generation\LowLevel\Visual\frmVisualizer.resx">
       <DependentUpon>frmVisualizer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">

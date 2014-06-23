@@ -7,7 +7,7 @@ using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Map.Generation.LowLevel;
 using TCPGameServer.World.Map.Generation.LowLevel.Cave;
-using TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual;
+using TCPGameServer.World.Map.Generation.LowLevel.Visual;
 
 namespace TCPGameServer.World.Map.Generation
 {
@@ -35,11 +35,13 @@ namespace TCPGameServer.World.Map.Generation
                     generator = new CaveGenerator(generatorData);
                     break;
             }
-            AreaData toReturn = generator.Generate();
+            LowLevelData lowLevelData = generator.Generate();
 
             // mid level adjustments (think "fortress in the area", "river running through")
+            MidLevelData midLevelData = new MidLevelData(lowLevelData);
 
             // high level additions (creatures,items, etc)
+            AreaData toReturn = new AreaData(midLevelData);
 
             Log.Print("generation took " + (DateTime.Now - start).TotalMilliseconds + " milliseconds");
 

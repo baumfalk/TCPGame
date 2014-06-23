@@ -13,7 +13,7 @@ using TCPGameServer.World.Map.Generation.LowLevel.Tiles;
 using System.Windows.Forms;
 using System.Threading;
 
-namespace TCPGameServer.World.Map.Generation.LowLevel.Cave.Visual
+namespace TCPGameServer.World.Map.Generation.LowLevel.Visual
 {
     public class Visualizer : Cave_TunnelGenerator
     {

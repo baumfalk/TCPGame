@@ -22,15 +22,13 @@ namespace TCPGameServer.World.Map.IO
             AreaReader.area = area;
             AreaReader.world = world;
 
-            AreaData toReturn = new AreaData();
-
             AreaFileData fileData = AreaFile.Read(name);
 
             GeneratorData generatorData = CreateGeneratorData(fileData);
 
             Log.Print("Generating area " + name + " of type " + fileData.header.areaType);
 
-            toReturn = AreaGenerator.Generate(generatorData);
+            AreaData toReturn = AreaGenerator.Generate(generatorData);
             toReturn.areaType = fileData.header.areaType;
 
             return toReturn;

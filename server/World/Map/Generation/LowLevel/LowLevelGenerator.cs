@@ -87,7 +87,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
         }
 
         // generate the actual area
-        public AreaData Generate()
+        public LowLevelData Generate()
         {
             // generate the exits
             TileBlockData exits = environmentManager.GenerateExits(isStub, seed, GetExitChance());
@@ -117,7 +117,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             if (isStub) environmentManager.SaveStaticTiles();
 
             // generate the area data and return it
-            return GenerateAreaData();
+            return GenerateReturnData();
         }
 
         protected virtual void DoBeforeExpansion() { }
@@ -289,12 +289,16 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             }
         }
 
-        // area data for a low level generator is just the tiles it generated
-        protected AreaData GenerateAreaData()
+        // return the three maps that the low level generator builds, plus the area type
+        protected LowLevelData GenerateReturnData()
         {
-            AreaData toReturn = new AreaData();
+            LowLevelData toReturn = new LowLevelData();
 
-            toReturn.tiles = tilemap.GetTiles();
+            toReturn.areaType = GetAreaType();
+
+            toReturn.connectionmap = connectionmap;
+            toReturn.tilemap = tilemap;
+            toReturn.valuemap = valuemap;
 
             return toReturn;
         }
