@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World.Map.IO.MapFile
 {
     public class TileData
     {
         public int ID;
         public TileType type;
-        public String representation;
+        public TileRepresentation representation;
         public Location location;
         public String[] links;
 

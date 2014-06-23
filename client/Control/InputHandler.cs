@@ -6,6 +6,8 @@ using System.Diagnostics;
 
 using TCPGameClient.Model;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameClient.Control
 {
     class InputHandler
@@ -146,7 +148,12 @@ namespace TCPGameClient.Control
                 int xPos = int.Parse(inputPart[3]);
                 int yPos = int.Parse(inputPart[4]);
                 int zPos = int.Parse(inputPart[5]);
-                String representation = inputPart[6];
+                String representationString = inputPart[6];
+
+                Debug.Print("parsing " + representationString);
+
+                CreatureRepresentation representation = 
+                    (CreatureRepresentation) Enum.Parse(typeof(CreatureRepresentation), representationString);
 
                 // add creature to the model
                 model.AddCreature(xPos, yPos, zPos, representation);
@@ -162,7 +169,10 @@ namespace TCPGameClient.Control
                 int xPos = int.Parse(inputPart[3]);
                 int yPos = int.Parse(inputPart[4]);
                 int zPos = int.Parse(inputPart[5]);
-                String representation = inputPart[6];
+                String representationString = inputPart[6];
+
+                TileRepresentation representation =
+                    (TileRepresentation)Enum.Parse(typeof(TileRepresentation), representationString);
 
                 model.AddTile(xPos, yPos, zPos, representation);
             }

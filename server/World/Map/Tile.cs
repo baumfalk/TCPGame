@@ -5,13 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.Control.Output;
-
 using TCPGameServer.World.Map.Tiles;
+
+using TCPGameSharedInfo;
 
 namespace TCPGameServer.World.Map
 {
-    public enum TileType { Floor, Wall, Stairs, Campfire };
-
     public abstract class Tile
     {
         // area and world the tile is part of
@@ -45,7 +44,7 @@ namespace TCPGameServer.World.Map
         private bool hasAreaLink;
 
         // representation is a string key for a specific image
-        private String representation;
+        private TileRepresentation representation;
 
         // the occupant of the tile. Null means noone is there.
         private Creature occupant = null;
@@ -57,7 +56,7 @@ namespace TCPGameServer.World.Map
         private int color;
 
         // fills fields and initializes arrays
-        protected Tile(String representation, Location location, int ID, Area area, World world)
+        protected Tile(TileRepresentation representation, Location location, int ID, Area area, World world)
         {
             this.representation = representation;
 
@@ -74,7 +73,7 @@ namespace TCPGameServer.World.Map
         }
 
         // creates a tile of the right kind
-        public static Tile CreateTileOfType(TileType type, String representation, Location location, int ID, Area area, World world)
+        public static Tile CreateTileOfType(TileType type, TileRepresentation representation, Location location, int ID, Area area, World world)
         {
             switch (type)
             {
@@ -302,7 +301,7 @@ namespace TCPGameServer.World.Map
         public abstract TileType GetTileType();
 
         // get the image key for this tile
-        public String GetRepresentation()
+        public TileRepresentation GetRepresentation()
         {
             return representation;
         }

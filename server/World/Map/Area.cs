@@ -9,6 +9,8 @@ using TCPGameServer.World.Map.Generation;
 
 using TCPGameServer.Control.Output;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World.Map
 {
     public class Area
@@ -36,7 +38,7 @@ namespace TCPGameServer.World.Map
             this.world = world;
             this.name = name;
 
-            defaultTile = Tile.CreateTileOfType(TileType.Floor, "floor", new Location(int.MaxValue, int.MaxValue, int.MaxValue), int.MaxValue, this, world);
+            defaultTile = Tile.CreateTileOfType(TileType.Floor, TileRepresentation.Floor, new Location(int.MaxValue, int.MaxValue, int.MaxValue), int.MaxValue, this, world);
 
             if (AreaFile.Exists(name))
             {

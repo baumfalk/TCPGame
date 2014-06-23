@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using System.Diagnostics;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameClient.Model
 {
     public class LocalModel
@@ -43,7 +45,7 @@ namespace TCPGameClient.Model
         }
 
         // add a new creature to the map
-        public void AddCreature(int xPos, int yPos, int zPos, String representation)
+        public void AddCreature(int xPos, int yPos, int zPos, CreatureRepresentation representation)
         {
             // calculate position relative to the player
             int relPosX = xPos - currentX;
@@ -60,7 +62,7 @@ namespace TCPGameClient.Model
             return creatures;
         }
 
-        public void AddTile(int xPos, int yPos, int zPos, String representation)
+        public void AddTile(int xPos, int yPos, int zPos, TileRepresentation representation)
         {
             // calculate position relative to the center of the map
             int mapPosX = gridSizeX / 2 + (xPos - currentX);

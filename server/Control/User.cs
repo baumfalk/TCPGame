@@ -8,6 +8,8 @@ using TCPGameServer.World;
 using TCPGameServer.Control.Output;
 using TCPGameServer.Control.Input;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.Control
 {
     public class User
@@ -27,7 +29,7 @@ namespace TCPGameServer.Control
             this.client = client;
 
             // create a body for the player
-            Creature playerBody = new Creature("player");
+            Creature playerBody = new Creature(CreatureRepresentation.Player);
 
             // create the player with that body
             player = new Player(playerBody);

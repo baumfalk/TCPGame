@@ -5,6 +5,8 @@ using System.Text;
 
 using TCPGameServer.World.Map.IO.MapFile;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
 {
     public class Tilemap
@@ -69,7 +71,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             {
                 Location mapLocation = MapGridHelper.TileLocationToCurrentMapLocation(tilesToAdd.tileData[n].location);
                 TileType type = tilesToAdd.tileData[n].type;
-                String representation = tilesToAdd.tileData[n].representation;
+                TileRepresentation representation = tilesToAdd.tileData[n].representation;
 
                 Tile tile = AddTile(mapLocation, tilesToAdd.tileData[n].location, type, representation);
 
@@ -77,14 +79,14 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Tiles
             }
         }
 
-        public Tile AddTile(Location mapLocation, TileType type, String representation)
+        public Tile AddTile(Location mapLocation, TileType type, TileRepresentation representation)
         {
             Location tileLocation = MapGridHelper.CurrentMapLocationToTileLocation(mapLocation, bottomLeft);
 
             return AddTile(mapLocation, tileLocation, type, representation);
         }
 
-        public Tile AddTile(Location mapLocation, Location tileLocation, TileType type, String representation)
+        public Tile AddTile(Location mapLocation, Location tileLocation, TileType type, TileRepresentation representation)
         {
             if (tiles[mapLocation.x, mapLocation.y] != null) return null;
 

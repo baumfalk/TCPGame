@@ -5,6 +5,8 @@ using System.Text;
 
 using System.IO;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World.Map.IO.MapFile.Parts
 {
     public class IOTile
@@ -15,7 +17,8 @@ namespace TCPGameServer.World.Map.IO.MapFile.Parts
 
             toReturn.ID = int.Parse(fileReader.ReadLine());
             toReturn.type = (TileType) Enum.Parse(typeof(TileType), fileReader.ReadLine());
-            toReturn.representation = fileReader.ReadLine();
+            toReturn.representation =
+                (TileRepresentation)Enum.Parse(typeof(TileRepresentation), fileReader.ReadLine());
             toReturn.location.x = int.Parse(fileReader.ReadLine());
             toReturn.location.y = int.Parse(fileReader.ReadLine());
             toReturn.location.z = int.Parse(fileReader.ReadLine());

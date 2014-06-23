@@ -7,12 +7,11 @@ using TCPGameServer.World.Map.Generation.LowLevel.Values;
 using TCPGameServer.World.Map.Generation.LowLevel.Tiles;
 using TCPGameServer.World.Map.Generation.LowLevel.Connections;
 using TCPGameServer.World.Map.Generation.LowLevel.Connections.Expansion;
-
 using TCPGameServer.General;
-
 using TCPGameServer.World.Map.IO.MapFile;
-
 using TCPGameServer.Control.Output;
+
+using TCPGameSharedInfo;
 
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
@@ -164,7 +163,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                 Partition partition = DeterminePartitionToExpand();
 
                 TileType type = DetermineTypeOfNewPosition(partition);
-                String representation = DetermineRepresentationOfNewPosition(partition, type);
+                TileRepresentation representation = DetermineRepresentationOfNewPosition(partition, type);
 
                 Location pointAdded = Expand(partition, type, representation, true);
 
@@ -188,12 +187,12 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
             return TileType.Floor;
         }
 
-        protected virtual String DetermineRepresentationOfNewPosition(Partition partition, TileType type)
+        protected virtual TileRepresentation DetermineRepresentationOfNewPosition(Partition partition, TileType type)
         {
-            return "floor";
+            return TileRepresentation.Floor;
         }
 
-        protected virtual Location Expand(Partition partition, TileType type, String representation, bool expand)
+        protected virtual Location Expand(Partition partition, TileType type, TileRepresentation representation, bool expand)
         {
             int index = partition.GetIndex();
 

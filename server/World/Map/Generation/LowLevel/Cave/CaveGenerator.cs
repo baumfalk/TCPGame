@@ -15,6 +15,8 @@ using TCPGameServer.World.Map.Generation.LowLevel.Connections;
 
 using TCPGameServer.World.Map.IO.MapFile;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 {
     public class CaveGenerator : LowLevelGenerator
@@ -54,7 +56,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Cave
 
             while (expansionFront[finalPartition.GetIndex()].HasNext())
             {
-                Expand(finalPartition, TileType.Wall, "wall", false);
+                Expand(finalPartition, TileType.Wall, TileRepresentation.Wall, false);
             }
         }
 

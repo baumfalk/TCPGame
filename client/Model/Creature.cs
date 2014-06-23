@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameClient.Model
 {
     public class Creature
@@ -12,9 +14,9 @@ namespace TCPGameClient.Model
         private int y;
         private int z;
 
-        private String representation;
+        private CreatureRepresentation representation;
 
-        public Creature(int x, int y, int z, String representation)
+        public Creature(int x, int y, int z, CreatureRepresentation representation)
         {
             this.representation = representation;
 
@@ -23,7 +25,7 @@ namespace TCPGameClient.Model
             this.z = z;
         }
 
-        public String GetRepresentation()
+        public CreatureRepresentation GetRepresentation()
         {
             return representation;
         }

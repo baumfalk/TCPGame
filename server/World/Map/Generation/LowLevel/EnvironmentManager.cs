@@ -8,6 +8,8 @@ using TCPGameServer.World.Map.IO;
 
 using TCPGameServer.Control.Output;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World.Map.Generation.LowLevel
 {
     public class EnvironmentManager
@@ -117,7 +119,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
                     }
 
                     TileType type = (shift.z == 0) ? TileType.Floor : TileType.Stairs;
-                    String representation = (shift.z == 0) ? "floor" : "stairs";
+                    TileRepresentation representation = (shift.z == 0) ? TileRepresentation.Floor : TileRepresentation.Stairs;
 
                     TileData exit = new TileData();
                     exit.type = type;

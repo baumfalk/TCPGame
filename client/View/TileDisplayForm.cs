@@ -13,6 +13,8 @@ using System.Diagnostics;
 using TCPGameClient.Control;
 using TCPGameClient.Model;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameClient.View
 {
     public partial class TileDisplayForm : Form
@@ -116,7 +118,7 @@ namespace TCPGameClient.View
                         Field fieldToDraw = theModel.GetFieldAtPosition(playerPositionX + x, playerPositionY + y, playerPositionZ);
 
                         // get the internal name of it's image
-                        String fieldRepresentation = fieldToDraw.GetRepresentation();
+                        TileRepresentation fieldRepresentation = fieldToDraw.GetRepresentation();
 
                         // get the actual image from the image buffer, with the name as a key
                         Image imToDraw = imageBuffer.GetImage(fieldRepresentation);
@@ -137,7 +139,7 @@ namespace TCPGameClient.View
                     yPos >= minY && yPos <= maxY &&
                     zPos == 0)
                 {
-                    String creatureRepresentation = creature.GetRepresentation();
+                    CreatureRepresentation creatureRepresentation = creature.GetRepresentation();
 
                     Image imToDraw = imageBuffer.GetImage(creatureRepresentation);
 

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World.Map.Tiles
 {
     class Stairs : Tile
     {
-        public Stairs(String representation, Location location, int ID, Area area, World world)
+        public Stairs(TileRepresentation representation, Location location, int ID, Area area, World world)
             : base(representation, location, ID, area, world)
         {
 

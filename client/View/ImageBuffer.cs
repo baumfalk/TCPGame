@@ -7,12 +7,17 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameClient.View
 {
     class ImageBuffer
     {
-        // dictionary to translate string keys to images
-        Dictionary<String, Image> images;
+        // dictionary to translate tilerepresentation enum to images
+        Dictionary<TileRepresentation, Image> tileImages;
+
+        // dictionary to translate creaturerepresentation enum to images
+        Dictionary<CreatureRepresentation, Image> creatureImages;
 
         // a default image to return when a key isn't matched
         private Image defaultImage;
@@ -24,8 +29,11 @@ namespace TCPGameClient.View
             // create the default image
             SetDefault(defaultWidth, defaultHeight);
 
-            // initialize the dictionary
-            images = new Dictionary<String,Image>();
+            // initialize the tile dictionary
+            tileImages = new Dictionary<TileRepresentation, Image>();
+
+            // initialize the creature dictionary
+            creatureImages = new Dictionary<CreatureRepresentation, Image>();
 
             // the path is the executing directory + \images for now
             String path = Directory.GetCurrentDirectory() + @"\images";
@@ -33,32 +41,64 @@ namespace TCPGameClient.View
             // images folder in the git..
             String gitPath = @"..\..\..\images";
 
-            // load the images from the path specified. Should be "path", but "gitPath" is handier
+            // load the tile images from the path specified. Should be "path", but "gitPath" is handier
             // for now.
-            loadImages(gitPath);
+            loadTiles(gitPath);
+
+            // same for the creatures
+            loadCreatures(gitPath);
         }
 
-        private void loadImages(String path) {
-            // try to load the images from the specified path
-            foreach (String fileName in Directory.GetFiles(path))
+        // loads the tiles into the dictionary
+        private void loadTiles(String path)
+        {
+            Array representations = Enum.GetValues(typeof(TileRepresentation));
+
+            foreach (TileRepresentation representation in representations)
             {
-                try
-                {
-                    // split to extract the name of the file
-                    String[] splitFile = fileName.Split('\\');
+                String fileName = path + @"\tiles\" + Representation.toString(representation) + ".png";
 
-                    // the last element is the filename
-                    String name = splitFile[splitFile.Count() - 1];
-                    // take off the extension for the name
-                    name = name.Substring(0, name.Length - 4);
+                Image toAdd = loadImage(fileName);
 
-                    // add the image to the imagebuffer
-                    images.Add(name, Image.FromFile(fileName));
-                }
-                catch (System.IO.FileNotFoundException e)
-                {
-                    System.Diagnostics.Debug.Print(e.Message);
-                }
+                tileImages.Add(representation, toAdd);
+            }
+        }
+
+        // loads the creatures into the dictionary
+        private void loadCreatures(String path)
+        {
+            Array representations = Enum.GetValues(typeof(CreatureRepresentation));
+
+            foreach (CreatureRepresentation representation in representations)
+            {
+                String fileName = path + @"\creatures\" + Representation.toString(representation) + ".png";
+
+                Image toAdd = loadImage(fileName);
+
+                creatureImages.Add(representation, toAdd);
+            }
+        }
+
+        private Image loadImage(String fileName)
+        {
+            try
+            {
+                // split to extract the name of the file
+                String[] splitFile = fileName.Split('\\');
+
+                // the last element is the filename
+                String name = splitFile[splitFile.Count() - 1];
+                // take off the extension for the name
+                name = name.Substring(0, name.Length - 4);
+
+                // add the image to the imagebuffer
+                return Image.FromFile(fileName);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                System.Diagnostics.Debug.Print(e.Message);
+
+                return defaultImage;
             }
         }
 
@@ -75,11 +115,20 @@ namespace TCPGameClient.View
         }
 
         // getImage returns an image from the dictionary if it's there, and otherwise the default
-        public Image GetImage(String imageName)
+        public Image GetImage(TileRepresentation imageName)
         {
             Image imReturn;
 
-            if (images.TryGetValue(imageName, out imReturn)) return imReturn;
+            if (tileImages.TryGetValue(imageName, out imReturn)) return imReturn;
+            return defaultImage;
+        }
+
+        // getImage returns an image from the dictionary if it's there, and otherwise the default
+        public Image GetImage(CreatureRepresentation imageName)
+        {
+            Image imReturn;
+
+            if (creatureImages.TryGetValue(imageName, out imReturn)) return imReturn;
             return defaultImage;
         }
     }

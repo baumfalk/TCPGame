@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using TCPGameServer.World.Map;
 
+using TCPGameSharedInfo;
+
 namespace TCPGameServer.World
 {
     // a creature is any mobile object, including players and such which may extend it
@@ -14,12 +16,12 @@ namespace TCPGameServer.World
         private Player player;
 
         // image key
-        private String representation;
+        private CreatureRepresentation representation;
         // position in the world
         private Tile position;
 
         // created with it's representation
-        public Creature(String representation)
+        public Creature(CreatureRepresentation representation)
         {
             this.representation = representation;
         }
@@ -50,11 +52,11 @@ namespace TCPGameServer.World
         }
 
         // image key can be requested and changed freely
-        public void SetRepresentation(String representation)
+        public void SetRepresentation(CreatureRepresentation representation)
         {
             this.representation = representation;
         }
-        public String GetRepresentation()
+        public CreatureRepresentation GetRepresentation()
         {
             return representation;
         }
