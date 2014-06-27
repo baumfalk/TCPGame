@@ -41,6 +41,7 @@ namespace TCPGameServer.World.Map
                     if (fileName.EndsWith(".are")) File.Delete(fileName);
                 }
             }
+            else Directory.CreateDirectory(mapPath);
         }
 
         private static void WriteDefaultArea(World world)
