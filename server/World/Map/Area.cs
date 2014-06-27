@@ -50,7 +50,7 @@ namespace TCPGameServer.World.Map
             }
             else
             {
-                // should not happen
+                
                 Log.Print("loading area (" + name + ") that does not exist");
 
                 tiles = new Tile[0];

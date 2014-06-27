@@ -35,18 +35,15 @@ namespace TCPGameClient.View
             // initialize the creature dictionary
             creatureImages = new Dictionary<CreatureRepresentation, Image>();
 
-            // the path is the executing directory + \images for now
-            String path = Directory.GetCurrentDirectory() + @"\images";
-
-            // images folder in the git..
-            String gitPath = @"..\..\..\images";
+            // images folder
+            String path = TCPGameSharedInfo.FileLocations.imagePath;
 
             // load the tile images from the path specified. Should be "path", but "gitPath" is handier
             // for now.
-            loadTiles(gitPath);
+            loadTiles(path);
 
             // same for the creatures
-            loadCreatures(gitPath);
+            loadCreatures(path);
         }
 
         // loads the tiles into the dictionary

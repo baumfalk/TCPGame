@@ -17,6 +17,7 @@ namespace TCPGameServer.World.ActionHandling
         private PlayerActionHandler playerActionHandler;
         private LookActionHandler lookActionHandler;
         private MessageActionHandler messageActionHandler;
+        private ResetActionHandler resetActionHandler;
 
         public ActionHandler(Model model)
         {
@@ -27,7 +28,7 @@ namespace TCPGameServer.World.ActionHandling
             playerActionHandler = new PlayerActionHandler(model);
             lookActionHandler = new LookActionHandler(model);
             messageActionHandler = new MessageActionHandler(model);
-
+            resetActionHandler = new ResetActionHandler(model);
         }
 
         public void Handle(Player player, String [] cmdAndParameters, int tick)
@@ -35,6 +36,9 @@ namespace TCPGameServer.World.ActionHandling
             // hand off command handling to specialized classes
             switch (cmdAndParameters[0])
             {
+                case "RESET":
+                    resetActionHandler.Handle(player, cmdAndParameters, tick);
+                    return;
                 case "LOGIN":
                     loginActionHandler.Handle(player, cmdAndParameters, tick);
                     return;

@@ -31,6 +31,11 @@ namespace TCPGameServer.Control.Input
                     // unset the running flag, server will shut down on the next cycle
                     Controller.Stop();
                 }
+                else if (command.Equals("reset"))
+                {
+                    // reset the map
+                    player.AddImmediateCommand(new String[] { "RESET" });
+                }
                 else if (command.Equals("log"))
                 {
                     Log.Print("Sending log to user");

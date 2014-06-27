@@ -8,18 +8,17 @@ using System.Diagnostics;
 
 using TCPGameServer.World.ActionHandling;
 using TCPGameServer.World.Map;
+using TCPGameServer.World.Map.IO.MapFile;
 using TCPGameServer.World.Map.Generation;
 
 using TCPGameServer.Control.Output;
-
-
 
 namespace TCPGameServer.World
 {
     public class Model
     {
         // the map. Loads and unloads areas and tiles when needed
-        private Map.World theWorld = new Map.World();
+        private Map.World theWorld;
 
         // the list of player objects
         private List<Player> players;
@@ -175,10 +174,21 @@ namespace TCPGameServer.World
             return theWorld.GetTile(area, TileID);
         }
 
-        // creating a world is just a matter of creating the object at the moment
+        public void ResetMap()
+        {
+            MapReset.ResetMap(this);
+        }
+
         private void createWorld()
         {
-            Map.World world = new Map.World();
+            if (!AreaFile.Exists("x0y0z0"))
+            {
+                theWorld = MapReset.ResetMap(this);
+            }
+            else
+            {
+                theWorld = new Map.World();
+            }
         }
     }
 }

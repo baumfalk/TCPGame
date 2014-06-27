@@ -150,8 +150,6 @@ namespace TCPGameClient.Control
                 int zPos = int.Parse(inputPart[5]);
                 String representationString = inputPart[6];
 
-                Debug.Print("parsing " + representationString);
-
                 CreatureRepresentation representation = 
                     (CreatureRepresentation) Enum.Parse(typeof(CreatureRepresentation), representationString);
 

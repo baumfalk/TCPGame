@@ -69,9 +69,11 @@
     <Compile Include="World\ActionHandling\MoveActionHandler.cs" />
     <Compile Include="World\ActionHandling\PlayerActionHandler.cs" />
     <Compile Include="World\ActionHandling\MessageActionHandler.cs" />
+    <Compile Include="World\ActionHandling\ResetActionHandler.cs" />
     <Compile Include="World\Creature.cs" />
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Map\Area.cs" />
+    <Compile Include="World\Map\MapReset.cs" />
     <Compile Include="World\Map\Generation\AreaGenerator.cs" />
     <Compile Include="World\Map\Generation\LowLevelData.cs" />
     <Compile Include="World\Map\Generation\LowLevel\Cave\CaveGenerator.cs" />

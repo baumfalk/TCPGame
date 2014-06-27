@@ -14,7 +14,7 @@ namespace TCPGameServer.World.Map.IO.MapFile
         private static String GetFileName(String name)
         {
             // path, based on where the files are in the git repository
-            String areaPath = @"../../../map/";
+            String areaPath = TCPGameSharedInfo.FileLocations.mapPath;
 
             return areaPath + name + ".are";
         }
