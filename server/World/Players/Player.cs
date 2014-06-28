@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 using TCPGameServer.Control.Output;
 
-namespace TCPGameServer.World
+using TCPGameServer.World.Players.PlayerFiles;
+
+namespace TCPGameServer.World.Players
 {
     // a player is an object registered to a user on the server, which tells the ticker
     // which body is linked to it and which maintains a blocking and a non-blocking command
@@ -33,14 +35,9 @@ namespace TCPGameServer.World
         // commandState to toggle which commands are legitimate and which are not. (For
         // example: you want to have some sort of login, where direction commands and the
         // like shouldn't be accepted)
-        private int commandState = 0;
+        private CommandState commandState = CommandState.Idle;
 
-        // constants for the different command states
-        public const int COMMANDSTATE_IDLE = 0;
-        public const int COMMANDSTATE_LOGIN = 1;
-        public const int COMMANDSTATE_PLACEMENT = 2;
-        public const int COMMANDSTATE_NORMAL = 3;
-        public const int COMMANDSTATE_DISCONNECTED = 4;
+        public enum CommandState { Idle, Login, Password, Placement, Normal, Disconnected };
 
         // flag to show a player is disconnected
         private bool disconnected = false;
@@ -63,8 +60,10 @@ namespace TCPGameServer.World
         }
 
         // remove the player from the world
-        public void Remove()
+        public void SaveAndRemove()
         {
+            SavePlayer();
+
             // if the player was on the map, remove him
             if (body.GetPosition() != null)
             {
@@ -74,6 +73,20 @@ namespace TCPGameServer.World
             SetDisconnected(true);
         }
 
+        // saves the player file
+        private void SavePlayer()
+        {
+            PlayerFileData fileData = new PlayerFileData();
+
+            HeaderData header = PlayerFile.ReadHeader(name);
+            header.area = body.GetPosition().GetArea().GetName();
+            header.tileIndex = body.GetPosition().GetID();
+
+            fileData.header = header;
+
+            PlayerFile.Write(fileData, name);
+        }
+
         // disconnected state can be set and retrieved
         public void SetDisconnected(bool disconnected)
         {
@@ -81,8 +94,8 @@ namespace TCPGameServer.World
 
             // if disconnected, set the commandstate to disconnected, if not,
             // set it back to normal
-            if (disconnected) commandState = COMMANDSTATE_DISCONNECTED;
-            else commandState = COMMANDSTATE_NORMAL;
+            if (disconnected) commandState = CommandState.Disconnected;
+            else commandState = CommandState.Normal;
         }
         public bool IsDisconnected()
         {
@@ -176,11 +189,11 @@ namespace TCPGameServer.World
 
         // command state regulates which commands are valid at any time. The constants
         // at the top of this file should be used.
-        public void SetCommandState(int commandState)
+        public void SetCommandState(CommandState commandState)
         {
             this.commandState = commandState;
         }
-        public int GetCommandState()
+        public CommandState GetCommandState()
         {
             return commandState;
         }

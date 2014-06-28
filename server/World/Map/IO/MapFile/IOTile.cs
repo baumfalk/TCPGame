@@ -7,7 +7,7 @@ using System.IO;
 
 using TCPGameSharedInfo;
 
-namespace TCPGameServer.World.Map.IO.MapFile.Parts
+namespace TCPGameServer.World.Map.IO.MapFile
 {
     public class IOTile
     {

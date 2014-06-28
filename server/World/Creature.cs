@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.World.Map;
+using TCPGameServer.World.Players;
 
 using TCPGameSharedInfo;
 

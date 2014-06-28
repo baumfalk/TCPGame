@@ -5,7 +5,7 @@ using System.Text;
 
 using System.IO;
 
-namespace TCPGameServer.World.Map.IO.MapFile.Parts
+namespace TCPGameServer.World.Map.IO.MapFile
 {
     public class Header
     {

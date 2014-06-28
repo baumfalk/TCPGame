@@ -108,12 +108,12 @@
     <Compile Include="World\Map\IO\MapFile\AreaFileData.cs" />
     <Compile Include="World\Map\IO\AreaReader.cs" />
     <Compile Include="World\Map\IO\AreaWriter.cs" />
-    <Compile Include="World\Map\IO\MapFile\Parts\IOTile.cs" />
+    <Compile Include="World\Map\IO\MapFile\IOTile.cs" />
     <Compile Include="World\Map\Location.cs" />
     <Compile Include="World\Map\MapGridHelper.cs" />
-    <Compile Include="World\Map\IO\MapFile\Parts\TileBlock.cs" />
+    <Compile Include="World\Map\IO\MapFile\TileBlock.cs" />
     <Compile Include="World\Map\IO\MapFile\TileBlockData.cs" />
-    <Compile Include="World\Map\IO\MapFile\Parts\Header.cs" />
+    <Compile Include="World\Map\IO\MapFile\Header.cs" />
     <Compile Include="World\Map\IO\MapFile\HeaderData.cs" />
     <Compile Include="World\Map\IO\MapFile\TileData.cs" />
     <Compile Include="World\Map\Tiles\Campfire.cs" />
@@ -121,9 +121,14 @@
     <Compile Include="World\Map\Tiles\Stairs.cs" />
     <Compile Include="World\Map\Tiles\Wall.cs" />
     <Compile Include="World\Map\World.cs" />
-    <Compile Include="World\Player.cs" />
+    <Compile Include="World\Players\Player.cs" />
     <Compile Include="World\Map\Tile.cs" />
     <Compile Include="World\Model.cs" />
+    <Compile Include="World\Players\PlayerFiles\Header.cs" />
+    <Compile Include="World\Players\PlayerFiles\HeaderData.cs" />
+    <Compile Include="World\Players\PlayerFiles\PasswordHashing.cs" />
+    <Compile Include="World\Players\PlayerFiles\PlayerFile.cs" />
+    <Compile Include="World\Players\PlayerFiles\PlayerFileData.cs" />
     <EmbeddedResource Include="Control\Output\ServerOutputWindow.resx">
       <DependentUpon>ServerOutputWindow.cs</DependentUpon>
     </EmbeddedResource>

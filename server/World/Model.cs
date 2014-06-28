@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 
 using TCPGameServer.World.ActionHandling;
+using TCPGameServer.World.Players;
 using TCPGameServer.World.Map;
 using TCPGameServer.World.Map.IO.MapFile;
 using TCPGameServer.World.Map.Generation;
@@ -82,6 +83,7 @@ namespace TCPGameServer.World
             // remove all disconnected players from the player list
             foreach (Player disconnected in disconnectedPlayers)
             {
+                disconnected.SaveAndRemove();
                 removePlayer(disconnected);
             }
         }

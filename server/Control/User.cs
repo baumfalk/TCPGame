@@ -5,6 +5,7 @@ using System.Text;
 
 using TCPGameServer.Network;
 using TCPGameServer.World;
+using TCPGameServer.World.Players;
 using TCPGameServer.Control.Output;
 using TCPGameServer.Control.Input;
 
@@ -38,7 +39,7 @@ namespace TCPGameServer.Control
             control.RegisterPlayer(player);
 
             // start the login procedure
-            player.SetCommandState(Player.COMMANDSTATE_LOGIN);
+            player.SetCommandState(Player.CommandState.Login);
             AddMessage("MESSAGE,LOGIN,please input your character name", int.MinValue);
         }
 
@@ -50,7 +51,7 @@ namespace TCPGameServer.Control
 
             client.SendMessages(quitQueue);
 
-            player.Remove();
+            player.SetDisconnected(true);
             client.Remove();
         }
 

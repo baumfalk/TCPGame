@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.World;
+using TCPGameServer.World.Players;
+using TCPGameServer.World.Players.PlayerFiles;
 
 using TCPGameServer.Control;
 using TCPGameServer.Control.Output;
@@ -61,13 +63,16 @@ namespace TCPGameServer.Control.Input
                     // the command on to the proper method.
                     switch (player.GetCommandState())
                     {
-                        case Player.COMMANDSTATE_IDLE:
+                        case Player.CommandState.Idle:
                             HandleIdle(command, player);
                             break;
-                        case Player.COMMANDSTATE_LOGIN:
+                        case Player.CommandState.Login:
                             HandleLogin(command, player);
                             break;
-                        case Player.COMMANDSTATE_NORMAL:
+                        case Player.CommandState.Password:
+                            HandlePassword(command, player);
+                            break;
+                        case Player.CommandState.Normal:
                             HandleNormal(command, player);
                             break;
                     }
@@ -85,14 +90,64 @@ namespace TCPGameServer.Control.Input
         // TODO: make login dynamic, reading from a file
         private static void HandleLogin(String command, Player player)
         {
-            // place the player on the map
-            if (command.Equals("geerten")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "x0y0z0", "12" });
-            else if (command.Equals("jetze")) player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "x0y0z0", "16" });
-            else player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", "x0y0z0", "19" });
-
             // set the player's name to whatever he used to log in
             player.SetName(command);
-            // tell the model the player is logged in
+
+            if (command.Equals("admin"))
+            {
+                DoLogin(player, "x0y0z0", "0");
+            }
+
+            if (PlayerFile.Exists(command))
+            {
+                player.AddMessage("MESSAGE,LOGIN,Please input your password", int.MinValue);
+
+                player.SetCommandState(Player.CommandState.Password);
+            }
+            else
+            {
+                player.AddMessage("MESSAGE,LOGIN,New account " + command + ", please input a password", int.MinValue);
+
+                player.SetCommandState(Player.CommandState.Password);
+            }
+        }
+
+        private static void HandlePassword(String command, Player player)
+        {
+            if (PlayerFile.Exists(player.GetName()))
+            {
+                HeaderData header = PlayerFile.ReadHeader(player.GetName());
+
+                String password = header.password;
+
+                if (PasswordHashing.VerifyHash(command, password))
+                {
+                    DoLogin(player, header.area, header.tileIndex.ToString());
+                }
+                else
+                {
+                    player.AddMessage("MESSAGE,LOGIN,Password incorrect, please try again", int.MinValue);
+                }
+            }
+            else
+            {
+                PlayerFileData playerFile = new PlayerFileData();
+                
+                playerFile.header = new HeaderData();
+                playerFile.header.name = player.GetName();
+                playerFile.header.password = PasswordHashing.ComputeHash(command, null);
+                playerFile.header.area = "x0y0z0";
+                playerFile.header.tileIndex = 12;
+
+                PlayerFile.Write(playerFile, player.GetName());
+
+                DoLogin(player, "x0y0z0", "12");
+            }
+        }
+
+        private static void DoLogin(Player player, String area, String tileIndex)
+        {
+            player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", area, tileIndex });
             player.AddImmediateCommand(new String[] { "LOGIN", "COMPLETE" });
         }
 

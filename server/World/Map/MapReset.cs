@@ -8,6 +8,7 @@ using System.IO;
 using TCPGameServer.World;
 using TCPGameServer.World.Map.IO;
 using TCPGameServer.World.Map.IO.MapFile;
+using TCPGameServer.World.Players;
 
 using TCPGameSharedInfo;
 

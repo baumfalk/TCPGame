@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Threading;
 
 using TCPGameServer.World;
+using TCPGameServer.World.Players;
 using TCPGameServer.Network;
 
 using TCPGameServer.Control.Output;

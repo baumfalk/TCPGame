@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.World.Map;
+using TCPGameServer.World.Players;
 
 namespace TCPGameServer.World.ActionHandling
 {
@@ -32,7 +33,7 @@ namespace TCPGameServer.World.ActionHandling
                     Tile position = model.GetTile(area, ID);
 
                     // don't accept commands until the player has been placed
-                    player.SetCommandState(Player.COMMANDSTATE_PLACEMENT);
+                    player.SetCommandState(Player.CommandState.Placement);
 
                     // add the player to the tile. For now, if someone else is there, just wait until he's gone
                     // and send a message to everyone. If it's an NPC, remove it.
@@ -66,7 +67,7 @@ namespace TCPGameServer.World.ActionHandling
                     position.SetOccupant(player.GetBody());
 
                     // if the player has just been placed and wasn't logged in yet, he is now
-                    if (player.GetCommandState() == Player.COMMANDSTATE_PLACEMENT) player.SetCommandState(Player.COMMANDSTATE_NORMAL);
+                    if (player.GetCommandState() == Player.CommandState.Placement) player.SetCommandState(Player.CommandState.Normal);
 
                     // make the player look around
                     player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });

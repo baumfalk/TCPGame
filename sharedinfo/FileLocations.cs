@@ -9,5 +9,6 @@ namespace TCPGameSharedInfo
     {
         public const String mapPath = @"../../../map/";
         public const String imagePath = @"../../../images/";
+        public const String playerPath = @"../../../players/";
     }
 }
