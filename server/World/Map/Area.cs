@@ -39,6 +39,7 @@ namespace TCPGameServer.World.Map
             this.name = name;
 
             defaultTile = Tile.CreateTileOfType(TileType.Floor, TileRepresentation.Floor, new Location(int.MaxValue, int.MaxValue, int.MaxValue), int.MaxValue, this, world);
+            defaultTile.CreateAreaLink(Directions.DOWN, "x0y0z0", 0);
 
             if (AreaFile.Exists(name))
             {

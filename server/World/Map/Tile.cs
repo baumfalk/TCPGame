@@ -238,10 +238,8 @@ namespace TCPGameServer.World.Map
                 // get the neighboring tile by requesting it from the world object
                 Tile neighbor = world.GetTile(areaLink.areaName, areaLink.targetID);
 
-                // link this tile, and link back right away so this code won't have
-                // to run twice.
+                // link this tile
                 Link(direction, neighbor);
-                neighbor.Link(Directions.Inverse(direction), this);
             }
             return neighbors[direction];
         }
