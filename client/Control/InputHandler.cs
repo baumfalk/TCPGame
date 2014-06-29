@@ -15,6 +15,8 @@ namespace TCPGameClient.Control
         private Controller control;
         private LocalModel model;
 
+        private bool sendingPassword;
+
         // last tick where data was sent
         private int tick = 0;
 
@@ -27,7 +29,7 @@ namespace TCPGameClient.Control
         // intercepts special input typed into the input textbox by the user,
         // returns a bool which indicates if the input should be sent to the
         // server.
-        public bool HandleUserInput(String input)
+        public String HandleUserInput(String input)
         {
             if (input.StartsWith("connect"))
             {
@@ -36,7 +38,7 @@ namespace TCPGameClient.Control
                 control.Connect(connectInfo);
 
                 // don't send data, input has been handled
-                return false;
+                return null;
             } // intercept a zoom command
             else if (input.StartsWith("zoom"))
             {
@@ -66,11 +68,18 @@ namespace TCPGameClient.Control
                 control.Redraw();
 
                 // don't send data, input has been handled
-                return false;
+                return null;
+            }
+
+            if (sendingPassword)
+            {
+                input = Hasher.ComputeHash(input);
+
+                sendingPassword = false;
             }
 
             // no special commands found, so send the data to the server
-            return true;
+            return input;
         }
 
         // handles input sent by the server and tells the model or the controller
@@ -103,6 +112,7 @@ namespace TCPGameClient.Control
                         control.AddMessage(input);
                         break;
                     case "LOGIN":
+                        ParseLoginCommand(inputPart);
                         break;
                     case "PLAYER":
                         ParsePlayerCommand(inputPart);
@@ -136,6 +146,16 @@ namespace TCPGameClient.Control
 
                 // shift the map (which is player-centered)
                 model.ShiftMap(newX, newY, newZ);
+            }
+        }
+
+        private void ParseLoginCommand(String[] inputPart)
+        {
+            if (inputPart[2].Equals("SALT"))
+            {
+                Hasher.saltBytes = Convert.FromBase64String(inputPart[3]);
+
+                sendingPassword = true;
             }
         }
 

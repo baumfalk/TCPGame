@@ -14,12 +14,22 @@ namespace TCPGameServer.World.Players.PlayerFiles
             // path, based on where the files are in the git repository
             String playerPath = TCPGameSharedInfo.FileLocations.playerPath;
 
+            // create the folder if it doesn't exist
+            if (!Directory.Exists(playerPath)) Directory.CreateDirectory(playerPath);
+
             return playerPath + name + ".pla";
         }
 
         public static bool Exists(String name)
         {
             return (File.Exists(GetFileName(name)));
+        }
+
+        public static bool IsStub(String name)
+        {
+            HeaderData header = ReadHeader(name);
+
+            return header.password == "";
         }
 
         public static PlayerFileData Read(String name)

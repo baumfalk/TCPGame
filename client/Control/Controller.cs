@@ -70,10 +70,10 @@ namespace TCPGameClient.Control
             // let the inputhandler check for special commands that can be handled
             // client-side (such as "connect"). Returns true if nothing has been intercepted
             // and the data should be sent to the server.
-            bool continueToSend = inputHandler.HandleUserInput(input);
+            String parsedInput = inputHandler.HandleUserInput(input);
 
             // if we have to send, send.
-            if (continueToSend) connection.SendData(input);
+            if (parsedInput != null) connection.SendData(parsedInput);
         }
 
         public void DoUpdate(List<String> updateData)

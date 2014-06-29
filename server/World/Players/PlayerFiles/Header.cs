@@ -14,6 +14,7 @@ namespace TCPGameServer.World.Players.PlayerFiles
             HeaderData toReturn = new HeaderData();
 
             toReturn.name = fileReader.ReadLine();
+            toReturn.salt = Convert.FromBase64String(fileReader.ReadLine());
             toReturn.password = fileReader.ReadLine();
             toReturn.area = fileReader.ReadLine();
             toReturn.tileIndex = int.Parse(fileReader.ReadLine());
@@ -24,6 +25,7 @@ namespace TCPGameServer.World.Players.PlayerFiles
         public static void Write(HeaderData toWrite, StreamWriter fileWriter)
         {
             fileWriter.WriteLine(toWrite.name);
+            fileWriter.WriteLine(Convert.ToBase64String(toWrite.salt));
             fileWriter.WriteLine(toWrite.password);
             fileWriter.WriteLine(toWrite.area);
             fileWriter.WriteLine(toWrite.tileIndex);

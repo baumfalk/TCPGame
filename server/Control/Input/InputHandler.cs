@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using TCPGameServer.World;
@@ -90,6 +91,10 @@ namespace TCPGameServer.Control.Input
         // TODO: make login dynamic, reading from a file
         private static void HandleLogin(String command, Player player)
         {
+            // nothing but letters allowed in names
+            Regex rgx = new Regex("[^a-zA-Z]");
+            command = rgx.Replace(command, "");
+
             // set the player's name to whatever he used to log in
             player.SetName(command);
 
@@ -98,51 +103,75 @@ namespace TCPGameServer.Control.Input
                 DoLogin(player, "x0y0z0", "0");
             }
 
-            if (PlayerFile.Exists(command))
+            HeaderData header;
+
+            if (PlayerFile.Exists(command) && !PlayerFile.IsStub(command))
             {
                 player.AddMessage("MESSAGE,LOGIN,Please input your password", int.MinValue);
+                
+                header = PlayerFile.ReadHeader(command);
 
                 player.SetCommandState(Player.CommandState.Password);
             }
             else
             {
+                PlayerFileData newStub = CreateStub(command);
+
+                header = newStub.header;
+
                 player.AddMessage("MESSAGE,LOGIN,New account " + command + ", please input a password", int.MinValue);
 
                 player.SetCommandState(Player.CommandState.Password);
             }
+
+            // salt opsturen
+            player.AddMessage("LOGIN,SALT," + Convert.ToBase64String(header.salt), int.MinValue);
         }
 
         private static void HandlePassword(String command, Player player)
         {
-            if (PlayerFile.Exists(player.GetName()))
+            if (!PlayerFile.IsStub(player.GetName()))
             {
                 HeaderData header = PlayerFile.ReadHeader(player.GetName());
 
                 String password = header.password;
 
-                if (PasswordHashing.VerifyHash(command, password))
+                if (PasswordHashing.VerifyPassword(password, command))
                 {
                     DoLogin(player, header.area, header.tileIndex.ToString());
                 }
                 else
                 {
                     player.AddMessage("MESSAGE,LOGIN,Password incorrect, please try again", int.MinValue);
+                    player.AddMessage("LOGIN,SALT," + Convert.ToBase64String(header.salt), int.MinValue);
                 }
             }
             else
             {
-                PlayerFileData playerFile = new PlayerFileData();
-                
-                playerFile.header = new HeaderData();
-                playerFile.header.name = player.GetName();
-                playerFile.header.password = PasswordHashing.ComputeHash(command, null);
-                playerFile.header.area = "x0y0z0";
-                playerFile.header.tileIndex = 12;
+                PlayerFileData playerFile = PlayerFile.Read(player.GetName());
+
+                playerFile.header.password = command;
 
                 PlayerFile.Write(playerFile, player.GetName());
 
-                DoLogin(player, "x0y0z0", "12");
+                DoLogin(player, playerFile.header.area, playerFile.header.tileIndex.ToString());
             }
+        }
+
+        private static PlayerFileData CreateStub(String name)
+        {
+            PlayerFileData playerFile = new PlayerFileData();
+
+            playerFile.header = new HeaderData();
+            playerFile.header.name = name;
+            playerFile.header.salt = PasswordHashing.generateSalt();
+            playerFile.header.password = "";
+            playerFile.header.area = "x0y0z0";
+            playerFile.header.tileIndex = 12;
+
+            PlayerFile.Write(playerFile, name);
+
+            return playerFile;
         }
 
         private static void DoLogin(Player player, String area, String tileIndex)
