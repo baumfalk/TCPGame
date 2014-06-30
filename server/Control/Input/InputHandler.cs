@@ -93,7 +93,7 @@ namespace TCPGameServer.Control.Input
         {
             // nothing but letters allowed in names
             Regex rgx = new Regex("[^a-zA-Z]");
-            command = rgx.Replace(command, "");
+            command = rgx.Replace(command, "").ToLower();
 
             // set the player's name to whatever he used to log in
             player.SetName(command);
@@ -136,7 +136,7 @@ namespace TCPGameServer.Control.Input
 
                 String password = header.password;
 
-                if (PasswordHashing.VerifyPassword(password, command))
+                if (PasswordHashing.VerifyPassword(command, password))
                 {
                     DoLogin(player, header.area, header.tileIndex.ToString());
                 }
@@ -150,7 +150,7 @@ namespace TCPGameServer.Control.Input
             {
                 PlayerFileData playerFile = PlayerFile.Read(player.GetName());
 
-                playerFile.header.password = command;
+                playerFile.header.password = PasswordHashing.Rehash(command);
 
                 PlayerFile.Write(playerFile, player.GetName());
 

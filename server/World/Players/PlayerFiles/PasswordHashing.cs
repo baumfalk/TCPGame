@@ -5,6 +5,8 @@ using System.Web;
 using System.Text;
 using System.Security.Cryptography;
 
+using TCPGameServer.Control.Output;
+
 namespace TCPGameServer.World.Players.PlayerFiles
 {
     class PasswordHashing
@@ -31,9 +33,27 @@ namespace TCPGameServer.World.Players.PlayerFiles
             return saltBytes;
         }
 
-        public static bool VerifyPassword(string password, string hashValue)
+        public static string Rehash(string passwordHashedByClient)
         {
-            return (hashValue == password);
+            // Convert plain text into a byte array.
+            byte[] passwordBytes = Convert.FromBase64String(passwordHashedByClient);
+
+            HashAlgorithm hash = new SHA512Managed();
+
+            // Compute hash value of our plain text with appended salt.
+            byte[] hashBytes = hash.ComputeHash(passwordBytes);
+
+            // Convert result into a base64-encoded string.
+            string passwordRehashed = Convert.ToBase64String(hashBytes);
+
+            return passwordRehashed;
+        }
+
+        public static bool VerifyPassword(string passwordHashedByClient, string hashValueInSave)
+        {
+            string passwordRehashed = Rehash(passwordHashedByClient);
+
+            return (passwordRehashed.Equals(hashValueInSave));
         }
     }
 }

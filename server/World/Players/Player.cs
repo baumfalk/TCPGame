@@ -62,7 +62,8 @@ namespace TCPGameServer.World.Players
         // remove the player from the world
         public void SaveAndRemove()
         {
-            SavePlayer();
+            // save the player if he's in the game. Don't if he's still logging on.
+            if (commandState == CommandState.Normal || commandState == CommandState.Disconnected) SavePlayer();
 
             // if the player was on the map, remove him
             if (body.GetPosition() != null)
