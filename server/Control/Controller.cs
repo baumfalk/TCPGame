@@ -206,9 +206,9 @@ namespace TCPGameServer.Control
         private string GetPlayerList()
         {
             string playerlist = "";
-            foreach(User user in users)
+            foreach(Player player in this.model.getCopyOfPlayerList())
             {
-                playerlist += user.GetPlayerName() + ":" + user.GetPlayerLocation() +",";
+                playerlist += player.GetName() + ":" + player.GetBody().GetPosition().GetArea().GetName()+",";
             }
             if (playerlist == "") playerlist = " ";
             return playerlist.Substring(0,playerlist.Length-1);
@@ -235,7 +235,7 @@ namespace TCPGameServer.Control
                         user.AddMessage("PING", tick);
                         
                     }
-                    if ((tick % 10) == 0)
+                    if ((tick % 10) == 0 && playerListMessage != "")
                     {
                         user.AddMessage("WHOLIST," + playerListMessage, tick);
                     }

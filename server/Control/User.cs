@@ -158,21 +158,5 @@ namespace TCPGameServer.Control
             // send the updates to the input handler
             InputHandler.Handle(inputList, player, this);
         }
-
-        public string GetPlayerName()
-        {
-            if (player == null)
-            {
-                return "anon";
-            }
-            return player.GetName();
-        }
-
-        public string GetPlayerLocation()
-        {
-            if (player == null || player.GetBody().GetPosition() == null)
-                return "nowhere";
-            return player.GetBody().GetPosition().GetArea().GetName();
-        }
     }
 }
