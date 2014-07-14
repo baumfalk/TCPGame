@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using TCPGameSharedInfo;
 namespace TCPGameServer.World.Map.Generation.LowLevel.Values
 {
     class ValuemapGenerator
     {
         public virtual int[][] Generate(ValuemapData mapData)
         {
-            Random rnd = new Random(mapData.seed);
+            CrossPlatformRandom rnd = new CrossPlatformRandom(mapData.seed);
 
             int[][] generatedMap = new int[mapData.width][];
 

@@ -5,7 +5,7 @@ using System.Text;
 
 using TCPGameServer.Control.Output;
 using System.Drawing;
-
+using TCPGameSharedInfo;
 namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
 {
     class PerlinNoise : ValuemapGenerator
@@ -18,7 +18,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
             int octaves = perlinMapData.octaves;
             double persistence = perlinMapData.persistence;
 
-            Random rnd = new Random(mapData.seed);
+            CrossPlatformRandom rnd = new CrossPlatformRandom(mapData.seed);
 
             // first pass, we always handle single pixels
             int frequency = 1;

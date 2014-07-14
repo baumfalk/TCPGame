@@ -51,7 +51,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
 
         public static Bitmap GetNoisyBitmap(int seed, int width, int height, int octaves, double frequencyIncrease, double persistence, bool smoothInbetween, bool smoothAfter, bool bowl, bool normalize)
         {
-            Random rnd = new Random(seed);
+            CrossPlatformRandom rnd = new CrossPlatformRandom(seed);
 
             int[][] returnmap = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, frequencyIncrease, persistence, smoothInbetween, smoothAfter, bowl, normalize);
 
@@ -61,7 +61,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel.Values.Perlin
         // just for fun, practically the same as GetNoisyBitmap, but uses three different noisemaps as RGB channels
         public static Bitmap GetNoisyBitmapRGB(int seed, int width, int height, int octaves, double frequencyIncrease, double persistence, bool smoothInbetween, bool smoothAfter, bool bowl, bool normalize)
         {
-            Random rnd = new Random(seed);
+            CrossPlatformRandom rnd = new CrossPlatformRandom(seed);
 
             int[][] returnmapR = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, frequencyIncrease, persistence, smoothInbetween, smoothAfter, bowl, normalize);
             int[][] returnmapG = PerlinNoise.Noise(rnd.Next(int.MaxValue), width, height, octaves, frequencyIncrease, persistence, smoothInbetween, smoothAfter, bowl, normalize);

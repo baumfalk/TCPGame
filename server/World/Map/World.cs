@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.Control.Output;
-
+using TCPGameSharedInfo;
 namespace TCPGameServer.World.Map
 {
     public class World
@@ -26,7 +26,7 @@ namespace TCPGameServer.World.Map
         // tells the map generator which type of map to make at which point of the world
         public String GetAreaType(Location worldGrid)
         {
-            Random rnd = new Random(GetAreaSeed(worldGrid));
+            CrossPlatformRandom rnd = new CrossPlatformRandom(GetAreaSeed(worldGrid));
 
             double chance = rnd.NextDouble();
 

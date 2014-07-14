@@ -80,7 +80,7 @@ namespace TCPGameServer.World.Map.Generation.LowLevel
 
             if (isStub) possibleDirections = GetPossibleDirections(mapGridLocation, entrances, fixedTiles);
 
-            Random rnd = new Random(seed);
+            CrossPlatformRandom rnd = new CrossPlatformRandom(seed);
 
             int exitNum = entrances.numberOfTiles;
 

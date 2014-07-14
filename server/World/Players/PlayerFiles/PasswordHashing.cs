@@ -6,7 +6,7 @@ using System.Text;
 using System.Security.Cryptography;
 
 using TCPGameServer.Control.Output;
-
+using TCPGameSharedInfo;
 namespace TCPGameServer.World.Players.PlayerFiles
 {
     class PasswordHashing
@@ -17,8 +17,8 @@ namespace TCPGameServer.World.Players.PlayerFiles
             int minSaltSize = 4;
             int maxSaltSize = 8;
 
-            // Generate a random number for the size of the salt.
-            Random random = new Random();
+            // Generate a CrossPlatformRandom number for the size of the salt.
+            CrossPlatformRandom random = new CrossPlatformRandom();
             int saltSize = random.Next(minSaltSize, maxSaltSize);
 
             // Allocate a byte array, which will hold the salt.
