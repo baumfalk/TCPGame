@@ -211,7 +211,6 @@ namespace TCPGameClient.View
             SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Pink);
             StringFormat drawFormat = new System.Drawing.StringFormat();
 
-            Console.WriteLine(Math.Max(0, localCopy.Count - 10));
             for (int i = Math.Max(0, localCopy.Count - 10); i < localCopy.Count; i++)
             {
                 String[] message = localCopy[i].Split(new char[] { ',' }, 4); // split in 4 parts: time, command, from, and message.
@@ -222,9 +221,10 @@ namespace TCPGameClient.View
                 totalStringSize.Width =  Math.Max(stringSize.Width,totalStringSize.Width);
             }
 
-            g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, (int)Math.Ceiling(totalStringSize.Width), (int)Math.Ceiling( totalStringSize.Height)));
+            int begin = pictureBox1.Height - (int)Math.Ceiling( totalStringSize.Height);
+            g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, begin, (int)Math.Ceiling(totalStringSize.Width), pictureBox1.Height));
 
-            int curHeight = 0;
+            int curHeight = begin;
             for (int i = Math.Max(0, localCopy.Count - 10); i < localCopy.Count; i++)
             {
                 SizeF stringSize = new SizeF();
