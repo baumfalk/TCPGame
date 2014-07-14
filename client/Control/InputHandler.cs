@@ -144,6 +144,12 @@ namespace TCPGameClient.Control
         private void SplitPersonList(String [] inputPart)
         {
             Console.WriteLine(inputPart[1]);
+            for (int i = 2; i < inputPart.Length; i++)
+            {
+                String[] nameAndLoc = inputPart[i].Split(':');
+                control.UpdatePlayerLoc(nameAndLoc[0], nameAndLoc[1]);
+            }
+
         }
 
         // handles player-type updates. Only "position" update exists at the moment.

@@ -27,7 +27,7 @@ namespace TCPGameClient.View
         private Controller control;
 
         // current online list
-        private List<String> playersOnline;
+        private Dictionary<String,String> playersOnline;
         private List<String> receivedMessages;
 
         // image buffer containing preloaded images
@@ -38,6 +38,11 @@ namespace TCPGameClient.View
 
         // to close the form safely
         private delegate void CloseCallback();
+
+        public const int LEFTUP     = 0;
+        public const int RIGHTUP    = 1;
+        public const int LEFTDOWN   = 2;
+        public const int RIGHTDOWN  = 3;
 
         // automatic code by Visual Studio
         public TileDisplayForm()
@@ -63,7 +68,7 @@ namespace TCPGameClient.View
             // controller is created, this "starts the program"
             control = new Controller(this);
             receivedMessages = new List<string>();
-            playersOnline = new List<string>();
+            playersOnline = new Dictionary<string,string>();
         }
 
 
@@ -152,7 +157,8 @@ namespace TCPGameClient.View
                     g.DrawImage(imToDraw, centerX + xPos * sizeX - sizeX / 4, centerY - yPos * sizeY + sizeY / 4 * 3, sizeX / 2, sizeY / 2);
                 }
             }
-            DrawStrings(receivedMessages, g);
+            DrawStrings(receivedMessages, g,LEFTDOWN);
+            DrawStrings(GetPlayerLocList(), g, LEFTUP);
             // dispose of the graphics object
             g.Dispose();
             // set the image of the picturebox to be the buffer
@@ -188,13 +194,13 @@ namespace TCPGameClient.View
             // create graphics object for buffer
             g = Graphics.FromImage(drawBuffer);
 
-            DrawStrings(receivedMessages, g);
+            DrawStrings(receivedMessages, g,LEFTDOWN);
             pictureBox1.Image = drawBuffer;
                 
             canDraw = true;           
         }
 
-        private void DrawStrings(List<String> stringList, Graphics g)
+        private void DrawStrings(List<String> stringList, Graphics g, int corner,int maxNumberOfMessages = 10)
         {
             List<string> localCopy = new List<string>();
             foreach(string str in stringList) {
@@ -207,7 +213,7 @@ namespace TCPGameClient.View
             SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Pink);
             StringFormat drawFormat = new System.Drawing.StringFormat();
 
-            for (int i = Math.Max(0, localCopy.Count - 10); i < localCopy.Count; i++)
+            for (int i = Math.Max(0, localCopy.Count - maxNumberOfMessages); i < localCopy.Count; i++)
             {
                 String[] message = localCopy[i].Split(new char[] { ',' }, 4); // split in 4 parts: time, command, from, and message.
                 localCopy[i] = message[2] + ": " + message[3];
@@ -216,11 +222,36 @@ namespace TCPGameClient.View
                 totalStringSize.Height += stringSize.Height + 2;
                 totalStringSize.Width =  Math.Max(stringSize.Width,totalStringSize.Width);
             }
+            int x = 0, y = 0, width = 0, height = 0;
+            switch (corner)
+            {
+                case LEFTUP:
+                    width = (int)Math.Ceiling(totalStringSize.Width);
+                    height = (int)Math.Ceiling(totalStringSize.Height);
+                    break;
+                case RIGHTUP:
+                    x = pictureBox1.Width - (int)Math.Ceiling(totalStringSize.Width);
+                    width = (int)Math.Ceiling(totalStringSize.Width);
+                    height = (int)Math.Ceiling(totalStringSize.Height);
+                    break;
+                case LEFTDOWN:
+                    y = pictureBox1.Height - (int)Math.Ceiling(totalStringSize.Height);
+                    width = (int)Math.Ceiling(totalStringSize.Width);
+                    height = pictureBox1.Height;
+                    break;
+                case RIGHTDOWN:
+                    x = pictureBox1.Width - (int)Math.Ceiling(totalStringSize.Width);
+                    y = pictureBox1.Height - (int)Math.Ceiling(totalStringSize.Height);
+                    width = (int)Math.Ceiling(totalStringSize.Width);
+                    height = pictureBox1.Height;
+                    break;
+                default:
+                    break;
+            }
+            
+            g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(x, y, width, height));
 
-            int begin = pictureBox1.Height - (int)Math.Ceiling( totalStringSize.Height);
-            g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, begin, (int)Math.Ceiling(totalStringSize.Width), pictureBox1.Height));
-
-            int curHeight = begin;
+            int curHeight = y;
             for (int i = Math.Max(0, localCopy.Count - 10); i < localCopy.Count; i++)
             {
                 SizeF stringSize = new SizeF();
@@ -232,6 +263,19 @@ namespace TCPGameClient.View
             drawBrush.Dispose();
         }
 
+        public void UpdatePlayerLoc(string playerName, string playerLoc)
+        {
+            playersOnline[playerName] = playerLoc;
+        }
+
+        private List<string> GetPlayerLocList()
+        {
+            List<string> lst = new List<string>();
+            foreach(var tuple in playersOnline) {
+                lst.Add(",,"+tuple.Key + "," + tuple.Value);
+            }
+            return lst;
+        }
         // checks if input in the textbox is a full line and adds it to the list of inputs
         private void textBox1_TextChanged(object sender, EventArgs e)
         {

@@ -203,9 +203,10 @@ namespace TCPGameServer.Control
             string playerlist = "";
             foreach(User user in users)
             {
-                playerlist += user.GetPlayerName() + "/" + user.GetPlayerLocation() +";";
+                playerlist += user.GetPlayerName() + ":" + user.GetPlayerLocation() +",";
             }
-            return playerlist;
+            if (playerlist == "") playerlist = " ";
+            return playerlist.Substring(0,playerlist.Length-1);
         }
 
         // send output, and return which players are disconnected
@@ -214,7 +215,7 @@ namespace TCPGameServer.Control
             // a list of disconnected users. 
             List<User> disconnectedUsers = new List<User>();
             String playerListMessage = null;
-            if ((tick % 100) == 0)
+            if ((tick % 10) == 0)
             {
                 playerListMessage = GetPlayerList();
             }
@@ -227,6 +228,10 @@ namespace TCPGameServer.Control
                     if ((tick % 100) == 0)
                     {
                         user.AddMessage("PING", tick);
+                        
+                    }
+                    if ((tick % 10) == 0)
+                    {
                         user.AddMessage("WHOLIST," + playerListMessage, tick);
                     }
                     user.SendMessages(tick);
