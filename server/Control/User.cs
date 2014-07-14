@@ -161,12 +161,16 @@ namespace TCPGameServer.Control
 
         public string GetPlayerName()
         {
+            if (player == null)
+            {
+                return "anon";
+            }
             return player.GetName();
         }
 
         public string GetPlayerLocation()
         {
-            if (player.GetBody().GetPosition() == null)
+            if (player == null || player.GetBody().GetPosition() == null)
                 return "nowhere";
             return player.GetBody().GetPosition().GetArea().GetName();
         }
