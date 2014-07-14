@@ -33,8 +33,6 @@ namespace TCPGameClient.View
         // image buffer containing preloaded images
         private ImageBuffer imageBuffer;
 
-        private object bufferLock = new object();
-
         // bool which indicated the drawing context is free
         private volatile bool canDraw = true;
 
@@ -79,14 +77,12 @@ namespace TCPGameClient.View
 
         // draws the model onto the form
         public void DrawModel(LocalModel theModel)
-        {
-          
-        if (WindowState == FormWindowState.Minimized) return;
+        {       
+            if (WindowState == FormWindowState.Minimized) return;
 
-        // check if we can draw. If we can, noone else can until we're done
-        if (!canDraw) return;
-        canDraw = false;
-
+            // check if we can draw. If we can, noone else can until we're done
+            if (!canDraw) return;
+            canDraw = false;
              
             // create bitmap to draw on
             Image drawBuffer = new Bitmap(pictureBox1.Width, pictureBox1.Height);

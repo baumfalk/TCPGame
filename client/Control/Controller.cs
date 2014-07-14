@@ -101,6 +101,7 @@ namespace TCPGameClient.Control
         {
             tdView.AddReceivedMessage(message);
             tdView.DrawMessages();
+            System.Threading.Thread.Sleep(10);
         }
     }
 }
