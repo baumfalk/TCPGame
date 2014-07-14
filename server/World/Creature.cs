@@ -42,6 +42,30 @@ namespace TCPGameServer.World
             return player;
         }
 
+        public void VisionEvent(Tile changedTile, int tick)
+        {
+            if (IsPlayer())
+            {
+                Location tileLocation = changedTile.GetLocation();
+
+                player.AddMessage("TILE,DETECTED," +
+                    tileLocation.x + "," +
+                    tileLocation.y + "," +
+                    tileLocation.z + "," +
+                    changedTile.GetRepresentation(),
+                    tick);
+                if (changedTile.GetOccupant() != null)
+                {
+                    player.AddMessage("CREATURE,DETECTED," + 
+                        tileLocation.x + "," + 
+                        tileLocation.y + "," + 
+                        tileLocation.z + "," + 
+                        changedTile.GetOccupant().GetRepresentation(), 
+                        tick);
+                }
+            }
+        }
+
         // position can be changed and requested freely
         public void SetPosition(Tile position)
         {

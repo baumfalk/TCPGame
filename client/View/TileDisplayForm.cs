@@ -167,19 +167,21 @@ namespace TCPGameClient.View
         }
 
         public void DrawMessages()
-        {          
+        {
             if (WindowState == FormWindowState.Minimized) return;
+
+            return;
 
             // check if we can draw. If we can, noone else can until we're done 
             if (!canDraw) return;
             canDraw = false;
-                
+
             // create bitmap to draw on
             Image drawBuffer = pictureBox1.Image;
             Graphics g;
+
             if (drawBuffer == null)
             {
-
                 drawBuffer = new Bitmap(pictureBox1.Width, pictureBox1.Height);
 
                 // create graphics object for buffer
@@ -188,14 +190,18 @@ namespace TCPGameClient.View
                 // make the buffer solid black
                 g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
             }
-
-            // create graphics object for buffer
-            g = Graphics.FromImage(drawBuffer);
+            else
+            {
+                // create graphics object for buffer
+                g = Graphics.FromImage(drawBuffer);
+            }
 
             DrawStrings(receivedMessages, g);
             pictureBox1.Image = drawBuffer;
-                
-            canDraw = true;           
+
+            g.Dispose();
+
+            canDraw = true;
         }
 
         private void DrawStrings(List<String> stringList, Graphics g)

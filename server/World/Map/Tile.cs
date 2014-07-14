@@ -21,6 +21,12 @@ namespace TCPGameServer.World.Map
         // the neighbors that are already linked up
         private Tile[] neighbors;
 
+        // list containing lists of tiles at a specific range (tilesAtRange[0] = all tiles at range 1, [1] -> all at range 2, etc)
+        private List<List<Tile>> tilesAtRange = new List<List<Tile>>();
+
+        // list of all creatures that can see this tile
+        private List<Creature> creaturesInVisionRange;
+
         // struct designating a link to another area
         private struct AreaLink
         {
@@ -65,6 +71,8 @@ namespace TCPGameServer.World.Map
             this.ID = ID;
             this.area = area;
             this.world = world;
+
+            tilesAtRange.Add(new List<Tile>(new Tile[] { this }));
 
             // create the neighbor-arrays (6 directions)
             hasNeighbor = new bool[6];
@@ -293,6 +301,11 @@ namespace TCPGameServer.World.Map
                 // if there's no link, return -1
                 return "-1";
             }
+        }
+
+        public List<Tile> GetTilesInRange(int range)
+        {
+            return Geography.GetTilesInRange(range, tilesAtRange);
         }
 
         // the type of tile

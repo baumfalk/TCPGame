@@ -207,7 +207,7 @@ namespace TCPGameServer.Control.Input
             } // look if the command is to look
             else if (command.ToLower().Equals("l") || command.ToLower().Equals("look"))
             {
-                player.AddBlockingCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+                player.AddBlockingCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "REGISTER_NONE" });
             }
             else if (command.ToLower().StartsWith("say")) // format: say *message*
             {

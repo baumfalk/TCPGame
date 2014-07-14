@@ -11,6 +11,8 @@ namespace TCPGameServer.World.ActionHandling
 {
     class LookActionHandler
     {
+        private enum RegisterMode { None, Outer, All };
+
         private Model model;
 
         public LookActionHandler(Model model)
@@ -24,6 +26,13 @@ namespace TCPGameServer.World.ActionHandling
             bool includeTiles = splitCommand[1].Equals("TILES_INCLUDED");
             // check if the player should be included
             bool includePlayer = splitCommand[2].Equals("PLAYER_INCLUDED");
+            // with which tiles should the player register
+            RegisterMode registerMode;
+
+            if (splitCommand[3].Equals("REGISTER_NONE")) registerMode = RegisterMode.None;
+            if (splitCommand[3].Equals("REGISTER_OUTER")) registerMode = RegisterMode.Outer;
+            if (splitCommand[3].Equals("REGISTER_ALL")) registerMode = RegisterMode.All;
+
             // position of the player
             Tile playerPosition = player.GetBody().GetPosition();
 
@@ -34,7 +43,7 @@ namespace TCPGameServer.World.ActionHandling
             Location playerLocation = playerPosition.GetLocation();
 
             // get the tiles surrounding the player
-            List<Tile> tilesToSend = Geography.getSurroundingTiles(playerPosition, 5, true);
+            List<Tile> tilesToSend = playerPosition.GetTilesInRange(5);
 
             // if we need to include player data, send X,Y and Z coordinates
             if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.x + "," + playerLocation.y + "," + playerLocation.z, tick);

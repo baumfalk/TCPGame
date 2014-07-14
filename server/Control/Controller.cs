@@ -39,7 +39,7 @@ namespace TCPGameServer.Control
         private bool newuser_block = false;
 
         // number of ticks that have passed since game start
-        int tick;
+        private int tick;
 
         public Controller(bool headless_mode)
         {

@@ -64,7 +64,7 @@ namespace TCPGameServer.World.ActionHandling
                     position.SetOccupant(player.GetBody());
 
                     // make the player look around
-                    player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+                    player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "REGISTER_ALL" });
                     return;
             }
         }
