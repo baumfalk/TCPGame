@@ -26,8 +26,9 @@ namespace TCPGameClient.View
         // controller running everything
         private Controller control;
 
-        // for the incoming chatmessages
-        public ChatMessages cmView;
+        // current online list
+        private List<String> playersOnline;
+        private List<String> receivedMessages;
 
         // image buffer containing preloaded images
         private ImageBuffer imageBuffer;
@@ -44,6 +45,11 @@ namespace TCPGameClient.View
             InitializeComponent();
         }
 
+        public void AddReceivedMessage(string receivedMessage)
+        {
+            receivedMessages.Add(receivedMessage);
+        }
+
         // image buffer and controller are created on launch
         private void TileDisplayForm_Load(object sender, EventArgs e)
         {
@@ -56,11 +62,10 @@ namespace TCPGameClient.View
 
             // controller is created, this "starts the program"
             control = new Controller(this);
-
-            // create and show chat message form
-            cmView = new ChatMessages();
-            cmView.Show();
+            receivedMessages = new List<string>();
+            playersOnline = new List<string>();
         }
+
 
         public void SetZoom(int zoomLevelX, int zoomLevelY)
         {
@@ -146,15 +151,69 @@ namespace TCPGameClient.View
                     g.DrawImage(imToDraw, centerX + xPos * sizeX - sizeX / 4, centerY - yPos * sizeY + sizeY / 4 * 3, sizeX / 2, sizeY / 2);
                 }
             }
-
+            drawStrings(receivedMessages, g);
             // dispose of the graphics object
             g.Dispose();
-
             // set the image of the picturebox to be the buffer
             pictureBox1.Image = drawBuffer;
 
             // re-allow drawing
             canDraw = true;
+        }
+
+        public void DrawMessages()
+        {
+            if (WindowState == FormWindowState.Minimized) return;
+
+            // check if we can draw. If we can, noone else can until we're done
+            if (!canDraw) return;
+            canDraw = false;
+
+            // create bitmap to draw on
+            Image drawBuffer = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+
+            // create graphics object for buffer
+            Graphics g = Graphics.FromImage(drawBuffer);
+
+            drawStrings(receivedMessages, g);
+            canDraw = true;
+        }
+
+        private void drawStrings(List<String> stringList, Graphics g)
+        {
+            List<string> localCopy = new List<string>();
+            foreach(string str in stringList) {
+                string newstr = string.Copy(str);
+                localCopy.Add(newstr);
+            }
+
+            SizeF totalStringSize = new SizeF();
+            Font drawFont = new System.Drawing.Font("Arial", 8);
+            SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Pink);
+            StringFormat drawFormat = new System.Drawing.StringFormat();
+
+            for(int i =0; i < localCopy.Count;i++)
+            {
+                String[] message = localCopy[i].Split(new char[] { ',' }, 4); // split in 4 parts: time, command, from, and message.
+                localCopy[i] = message[2] + ": " + message[3];
+                SizeF stringSize = new SizeF();
+                stringSize = g.MeasureString(localCopy[i], drawFont);
+                totalStringSize.Height += stringSize.Height + 2;
+                totalStringSize.Width =  Math.Max(stringSize.Width,totalStringSize.Width);
+            }
+
+            g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, (int)Math.Ceiling(totalStringSize.Width), (int)Math.Ceiling( totalStringSize.Height)));
+
+            int curHeight = 0;
+            foreach(string str in localCopy)
+            {
+                SizeF stringSize = new SizeF();
+                stringSize = g.MeasureString(str, drawFont);
+                g.DrawString(str, drawFont, drawBrush, 0, curHeight, drawFormat);
+                curHeight += (int)stringSize.Height + 2;             
+            }
+            drawFont.Dispose();
+            drawBrush.Dispose();
         }
 
         // checks if input in the textbox is a full line and adds it to the list of inputs
