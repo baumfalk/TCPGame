@@ -99,7 +99,8 @@ namespace TCPGameClient.Control
 
         public void AddMessage(String message)
         {
-            tdView.cmView.addMessage(message);
+            tdView.AddReceivedMessage(message);
+            tdView.DrawMessages();
         }
     }
 }
