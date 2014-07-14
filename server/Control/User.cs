@@ -28,7 +28,7 @@ namespace TCPGameServer.Control
 
         // login state which shows at which point of the login process we are
         private LoginState loginState = LoginState.NotStarted;
-        public enum LoginState { NotStarted, Login, Password, Finished };
+        public enum LoginState { NotStarted, Name, Password, Finished };
 
         // creates a creature for the player to control and starts the login process
         public User(Controller control, NetClient client)
@@ -43,7 +43,7 @@ namespace TCPGameServer.Control
             // create the message queue
             messages = new Queue<String>();
 
-            SetLoginState(LoginState.Login);
+            SetLoginState(LoginState.Name);
             AddMessage("MESSAGE,LOGIN,please input your character name", int.MinValue);
         }
 

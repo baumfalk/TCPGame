@@ -67,7 +67,7 @@ namespace TCPGameServer.Control.Input
                         case User.LoginState.NotStarted:
                             HandleNotStarted(command, user);
                             break;
-                        case User.LoginState.Login:
+                        case User.LoginState.Name:
                             HandleLogin(command, user);
                             break;
                         case User.LoginState.Password:
