@@ -100,6 +100,7 @@ namespace TCPGameClient.Control
         public void AddMessage(String message)
         {
             tdView.AddReceivedMessage(message);
+            tdView.DrawMessages();
         }
     }
 }

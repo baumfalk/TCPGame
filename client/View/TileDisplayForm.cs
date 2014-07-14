@@ -33,8 +33,10 @@ namespace TCPGameClient.View
         // image buffer containing preloaded images
         private ImageBuffer imageBuffer;
 
+        private object bufferLock = new object();
+
         // bool which indicated the drawing context is free
-        private bool canDraw = true;
+        private volatile bool canDraw = true;
 
         // to close the form safely
         private delegate void CloseCallback();
@@ -78,12 +80,14 @@ namespace TCPGameClient.View
         // draws the model onto the form
         public void DrawModel(LocalModel theModel)
         {
-            if (WindowState == FormWindowState.Minimized) return;
+          
+        if (WindowState == FormWindowState.Minimized) return;
 
-            // check if we can draw. If we can, noone else can until we're done
-            if (!canDraw) return;
-            canDraw = false;
+        // check if we can draw. If we can, noone else can until we're done
+        if (!canDraw) return;
+        canDraw = false;
 
+             
             // create bitmap to draw on
             Image drawBuffer = new Bitmap(pictureBox1.Width, pictureBox1.Height);
 
@@ -135,7 +139,8 @@ namespace TCPGameClient.View
             }
 
             // draw creatures onto the grid
-            foreach (Creature creature in theModel.GetCreatures()) {
+            foreach (Creature creature in theModel.GetCreatures())
+            {
                 int xPos = creature.GetX();
                 int yPos = creature.GetY();
                 int zPos = creature.GetZ();
@@ -151,7 +156,7 @@ namespace TCPGameClient.View
                     g.DrawImage(imToDraw, centerX + xPos * sizeX - sizeX / 4, centerY - yPos * sizeY + sizeY / 4 * 3, sizeX / 2, sizeY / 2);
                 }
             }
-            drawStrings(receivedMessages, g);
+            DrawStrings(receivedMessages, g);
             // dispose of the graphics object
             g.Dispose();
             // set the image of the picturebox to be the buffer
@@ -162,24 +167,38 @@ namespace TCPGameClient.View
         }
 
         public void DrawMessages()
-        {
+        {          
             if (WindowState == FormWindowState.Minimized) return;
 
-            // check if we can draw. If we can, noone else can until we're done
+            // check if we can draw. If we can, noone else can until we're done 
             if (!canDraw) return;
             canDraw = false;
-
+                
             // create bitmap to draw on
-            Image drawBuffer = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            Image drawBuffer = pictureBox1.Image;
+            Graphics g;
+            if (drawBuffer == null)
+            {
+
+                drawBuffer = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+
+                // create graphics object for buffer
+                g = Graphics.FromImage(drawBuffer);
+
+                // make the buffer solid black
+                g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
+            }
 
             // create graphics object for buffer
-            Graphics g = Graphics.FromImage(drawBuffer);
+            g = Graphics.FromImage(drawBuffer);
 
-            drawStrings(receivedMessages, g);
-            canDraw = true;
+            DrawStrings(receivedMessages, g);
+            pictureBox1.Image = drawBuffer;
+                
+            canDraw = true;           
         }
 
-        private void drawStrings(List<String> stringList, Graphics g)
+        private void DrawStrings(List<String> stringList, Graphics g)
         {
             List<string> localCopy = new List<string>();
             foreach(string str in stringList) {
@@ -192,7 +211,8 @@ namespace TCPGameClient.View
             SolidBrush drawBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Pink);
             StringFormat drawFormat = new System.Drawing.StringFormat();
 
-            for(int i =0; i < localCopy.Count;i++)
+            Console.WriteLine(Math.Max(0, localCopy.Count - 10));
+            for (int i = Math.Max(0, localCopy.Count - 10); i < localCopy.Count; i++)
             {
                 String[] message = localCopy[i].Split(new char[] { ',' }, 4); // split in 4 parts: time, command, from, and message.
                 localCopy[i] = message[2] + ": " + message[3];
@@ -205,11 +225,11 @@ namespace TCPGameClient.View
             g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, (int)Math.Ceiling(totalStringSize.Width), (int)Math.Ceiling( totalStringSize.Height)));
 
             int curHeight = 0;
-            foreach(string str in localCopy)
+            for (int i = Math.Max(0, localCopy.Count - 10); i < localCopy.Count; i++)
             {
                 SizeF stringSize = new SizeF();
-                stringSize = g.MeasureString(str, drawFont);
-                g.DrawString(str, drawFont, drawBrush, 0, curHeight, drawFormat);
+                stringSize = g.MeasureString(localCopy[i], drawFont);
+                g.DrawString(localCopy[i], drawFont, drawBrush, 0, curHeight, drawFormat);
                 curHeight += (int)stringSize.Height + 2;             
             }
             drawFont.Dispose();
