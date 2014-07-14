@@ -91,6 +91,8 @@ namespace TCPGameClient.Control
             // loop through all strings we received
             foreach (String input in inputData)
             {
+                if (input == "")
+                    continue;
                 // split the inputs
                 String[] inputPart = input.Split(',');
 
@@ -126,6 +128,10 @@ namespace TCPGameClient.Control
                         UpdateCreature(inputPart);
                         DoRedraw = true;
                         break;
+                    case "WHOLIST":
+                        SplitPersonList(inputPart);
+                        DoRedraw = true;
+                        break;
                     default:
                         System.Diagnostics.Debug.Print("NOT HANDLED: " + input);
                         break;
@@ -133,6 +139,17 @@ namespace TCPGameClient.Control
             }
 
             return DoRedraw;
+        }
+
+        private void SplitPersonList(String [] inputPart)
+        {
+            Console.WriteLine(inputPart[1]);
+            for (int i = 2; i < inputPart.Length; i++)
+            {
+                String[] nameAndLoc = inputPart[i].Split(':');
+                control.UpdatePlayerLoc(nameAndLoc[0], nameAndLoc[1]);
+            }
+
         }
 
         // handles player-type updates. Only "position" update exists at the moment.
