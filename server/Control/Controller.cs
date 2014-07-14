@@ -198,20 +198,37 @@ namespace TCPGameServer.Control
             model.doUpdate(tick);
         }
 
+        private string GetPlayerList()
+        {
+            string playerlist = "";
+            foreach(User user in users)
+            {
+                playerlist += user.GetPlayerName() + "/" + user.GetPlayerLocation() +";";
+            }
+            return playerlist;
+        }
+
         // send output, and return which players are disconnected
         private List<User> DoUserOutputAndReturnDisconnects()
         {
             // a list of disconnected users. 
             List<User> disconnectedUsers = new List<User>();
-
+            String playerListMessage = null;
+            if ((tick % 100) == 0)
+            {
+                playerListMessage = GetPlayerList();
+            }
             foreach (User user in users)
             {
                 if (user.IsConnected())
                 {
                     // we can only check if people are online if we send them data
                     // now and then.
-                    if ((tick % 100) == 0) user.AddMessage("PING", tick);
-
+                    if ((tick % 100) == 0)
+                    {
+                        user.AddMessage("PING", tick);
+                        user.AddMessage("WHOLIST," + playerListMessage, tick);
+                    }
                     user.SendMessages(tick);
                 }
                 else
