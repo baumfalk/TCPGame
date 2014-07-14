@@ -109,6 +109,11 @@ namespace TCPGameServer.Control
         {
             model.addPlayer(player);
         }
+        // the list of players currently registered to the server
+        public List<Player> GetRegisteredPlayers()
+        {
+            return model.getCopyOfPlayerList();
+        }
 
         // add a new user. Won't alter the new user list while it's being worked on.
         public void AddUser(User newUser)
@@ -243,7 +248,7 @@ namespace TCPGameServer.Control
             // remove each user that has disconnected from the list, also
             // send the user object notification for cleanup.
             foreach(User user in disconnectedUsers) {
-                user.Remove();
+                user.Disconnect();
                 users.Remove(user);
             }
             // clear the disconnected user list

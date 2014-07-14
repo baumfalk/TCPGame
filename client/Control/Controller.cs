@@ -33,7 +33,7 @@ namespace TCPGameClient.Control
             this.tdView = tdView;
 
             // we need to locally model the world to display it
-            worldModel = new LocalModel(51,51,3);
+            worldModel = new LocalModel(51, 51, 3);
 
             inputHandler = new InputHandler(this, worldModel);
 

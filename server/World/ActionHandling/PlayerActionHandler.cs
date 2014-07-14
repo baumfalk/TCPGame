@@ -32,9 +32,6 @@ namespace TCPGameServer.World.ActionHandling
                     // get the position to place the player from the world
                     Tile position = model.GetTile(area, ID);
 
-                    // don't accept commands until the player has been placed
-                    player.SetCommandState(Player.CommandState.Placement);
-
                     // add the player to the tile. For now, if someone else is there, just wait until he's gone
                     // and send a message to everyone. If it's an NPC, remove it.
                     if (position.HasOccupant())
@@ -65,9 +62,6 @@ namespace TCPGameServer.World.ActionHandling
 
                     // place the player at the location
                     position.SetOccupant(player.GetBody());
-
-                    // if the player has just been placed and wasn't logged in yet, he is now
-                    if (player.GetCommandState() == Player.CommandState.Placement) player.SetCommandState(Player.CommandState.Normal);
 
                     // make the player look around
                     player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });

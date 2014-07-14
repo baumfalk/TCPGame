@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TCPGameServer.Control;
 using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Players.PlayerFiles;
@@ -15,6 +16,9 @@ namespace TCPGameServer.World.Players
     // buffer.
     public class Player
     {
+        // the controlling user object
+        private User user;
+
         // a body
         private Creature body;
 
@@ -28,19 +32,10 @@ namespace TCPGameServer.World.Players
         // they should just be handled and the results returned on the next tick.
         private Queue<String[]> immediateCommands;
 
-        // a queue of messages to send to the client, queried by the user linked to this
-        // player object every tick.
-        private Queue<String> messages;
-
-        // commandState to toggle which commands are legitimate and which are not. (For
-        // example: you want to have some sort of login, where direction commands and the
-        // like shouldn't be accepted)
-        private CommandState commandState = CommandState.Idle;
-
-        public enum CommandState { Idle, Login, Password, Placement, Normal, Disconnected };
-
         // flag to show a player is disconnected
         private bool disconnected = false;
+        // flag to show someone reconnected to this player (so don't save or remove the body)
+        private bool reconnected = false;
 
         // blocking queue delay
         private int blockDelay = 0;
@@ -48,30 +43,29 @@ namespace TCPGameServer.World.Players
         // unique identifier
         private string name = "anon";
 
-        public Player(Creature body)
+        public Player(User user, Creature body)
         {
+            this.user = user;
             this.body = body;
 
             body.SetPlayer(this);
 
             blockingCommands = new Queue<String[]>();
             immediateCommands = new Queue<String[]>();
-            messages = new Queue<String>();
         }
 
         // remove the player from the world
         public void SaveAndRemove()
         {
-            // save the player if he's in the game. Don't if he's still logging on.
-            if (commandState == CommandState.Normal || commandState == CommandState.Disconnected) SavePlayer();
+            if (reconnected) return;
+
+            if (body.GetPosition() != null) SavePlayer();
 
             // if the player was on the map, remove him
             if (body.GetPosition() != null)
             {
                 body.GetPosition().Vacate();
             }
-            // set the player's disconnected state to true
-            SetDisconnected(true);
         }
 
         // saves the player file
@@ -88,15 +82,13 @@ namespace TCPGameServer.World.Players
             PlayerFile.Write(fileData, name);
         }
 
-        // disconnected state can be set and retrieved
-        public void SetDisconnected(bool disconnected)
+        public void Disconnect(bool isReconnect)
         {
-            this.disconnected = disconnected;
+            reconnected = true;
+            disconnected = true;
 
-            // if disconnected, set the commandstate to disconnected, if not,
-            // set it back to normal
-            if (disconnected) commandState = CommandState.Disconnected;
-            else commandState = CommandState.Normal;
+            // remove the user
+            user.Disconnect();
         }
         public bool IsDisconnected()
         {
@@ -146,7 +138,6 @@ namespace TCPGameServer.World.Players
             }
         }
 
-
         // immediate commands are all handled each tick. 
         public bool HasImmediateCommands()
         {
@@ -174,29 +165,9 @@ namespace TCPGameServer.World.Players
             }
         }
 
-        // messages are sent across the connection to the player
-        public bool HasMessages()
-        {
-            return (messages.Count > 0);
-        }
         public void AddMessage(String message, int tick)
         {
-            messages.Enqueue(tick + "," + message);
-        }
-        public Queue<String> GetMessages()
-        {
-            return messages;
-        }
-
-        // command state regulates which commands are valid at any time. The constants
-        // at the top of this file should be used.
-        public void SetCommandState(CommandState commandState)
-        {
-            this.commandState = commandState;
-        }
-        public CommandState GetCommandState()
-        {
-            return commandState;
+            user.AddMessage(message, tick);
         }
 
         // body can be requested, but not changed

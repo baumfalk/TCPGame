@@ -21,6 +21,14 @@ namespace TCPGameServer.Control
         private NetClient client;
         // the controller
         private Controller control;
+        // data that needs to be saved during login
+        private LoginInfo loginInfo;
+        // a queue of messages to send to the client
+        private Queue<String> messages;
+
+        // login state which shows at which point of the login process we are
+        private LoginState loginState = LoginState.NotStarted;
+        public enum LoginState { NotStarted, Login, Password, Finished };
 
         // creates a creature for the player to control and starts the login process
         public User(Controller control, NetClient client)
@@ -29,30 +37,87 @@ namespace TCPGameServer.Control
             this.control = control;
             this.client = client;
 
-            // create a body for the player
-            Creature playerBody = new Creature(CreatureRepresentation.Player);
+            // start the login procedure
+            loginInfo = new LoginInfo();
+
+            // create the message queue
+            messages = new Queue<String>();
+
+            SetLoginState(LoginState.Login);
+            AddMessage("MESSAGE,LOGIN,please input your character name", int.MinValue);
+        }
+
+        public void SetLoginState(LoginState loginState)
+        {
+            this.loginState = loginState;
+        }
+        public LoginState GetLoginState()
+        {
+            return loginState;
+        }
+
+        public LoginInfo GetLoginInfo()
+        {
+            return loginInfo;
+        }
+
+        public void CompleteLogin()
+        {
+            // get a new body, or the body of a player already logged in with the same name.
+            Creature playerBody = GetBodyOf(loginInfo.name);
 
             // create the player with that body
-            player = new Player(playerBody);
+            player = new Player(this, playerBody);
+
+            // set the player's name
+            player.SetName(loginInfo.name);
 
             // register the player with the world (via the controller)
             control.RegisterPlayer(player);
 
-            // start the login procedure
-            player.SetCommandState(Player.CommandState.Login);
-            AddMessage("MESSAGE,LOGIN,please input your character name", int.MinValue);
+            // place the player in the world if he hasn't taken over an existing body
+            if (player.GetBody().GetPosition() == null)
+            {
+                player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", loginInfo.areaName, loginInfo.tileIndex });
+            }
+            else
+            {
+                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+            }
+            player.AddImmediateCommand(new String[] { "LOGIN", "COMPLETE" });
+            
+            // we're done with the login process
+            loginState = LoginState.Finished;
+        }
+
+        private Creature GetBodyOf(String name)
+        {
+            List<Player> RegisteredPlayers = control.GetRegisteredPlayers();
+
+            // check if someone by this name is already online, and if so, take over his body
+            for (int n = 0; n < RegisteredPlayers.Count; n++)
+            {
+                if (RegisteredPlayers[n].GetName().Equals(name))
+                {
+                    RegisteredPlayers[n].Disconnect(true);
+                    return RegisteredPlayers[n].GetBody();
+                }
+            }
+
+            // create a body for the player
+            return new Creature(CreatureRepresentation.Player);
         }
 
         // removing the user tells the player and the client to remove themselves
-        public void Remove()
+        public void Disconnect()
         {
             Queue<String> quitQueue = new Queue<String>();
             quitQueue.Enqueue("0,QUIT");
 
             client.SendMessages(quitQueue);
 
-            player.SetDisconnected(true);
-            client.Remove();
+            if (player != null && !player.IsDisconnected()) player.Disconnect(false);
+            client.Disconnect();
         }
 
         // a user is connected if it's netclient is connected
@@ -61,27 +126,23 @@ namespace TCPGameServer.Control
             return client.IsConnected();
         }
 
-        // disconnecting a user disconnects the client, and tells the player it's
-        // been disconnected.
-        public void Disconnect()
+        // messages are sent across the connection to the player
+        public bool HasMessages()
         {
-            player.SetDisconnected(true);
-
-            client.Disconnect();
+            return (messages.Count > 0);
         }
-
-        // messages from the server could be kept in a separate list, but for now we
-        // just add them to the messages the player object maintains.
         public void AddMessage(String message, int tick)
         {
-            player.AddMessage(message, tick);
+            messages.Enqueue(tick + "," + message);
+        }
+        public Queue<String> GetMessages()
+        {
+            return messages;
         }
 
-        // get the message queue the player object maintains, and pass it to the client
+        // simply passes the message queue to the client
         public void SendMessages(int tick)
         {
-            Queue<String> messages = player.GetMessages();
-
             client.SendMessages(messages);
         }
 

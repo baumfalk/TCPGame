@@ -56,6 +56,9 @@ namespace TCPGameServer.Network
         // disconnect the client
         public void Disconnect()
         {
+            // don't bother if already disconnected
+            if (!connected) return;
+
             // close the TCP client
             client.Close();
 
@@ -151,12 +154,6 @@ namespace TCPGameServer.Network
             return inputList;
         }
 
-        // disconnect if we're still connected.
-        public void Remove()
-        {
-            if (connected) Disconnect();
-        }
-
         // format a queue of strings and send them across the link
         public void SendMessages(Queue<String> messagesFromModel)
         {
@@ -185,7 +182,6 @@ namespace TCPGameServer.Network
 
                 if (connected) Disconnect();
             }
-            
         }
 
         private void MessageSent(IAsyncResult sent)
@@ -206,6 +202,13 @@ namespace TCPGameServer.Network
                 if (connected) Disconnect();
             }
             catch (SocketException e)
+            {
+                Log.Print("socket exception on write");
+                Log.Print(e.Message);
+
+                if (connected) Disconnect();
+            }
+            catch (ObjectDisposedException e)
             {
                 Log.Print("object disposed on write");
                 Log.Print(e.Message);

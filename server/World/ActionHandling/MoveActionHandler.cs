@@ -26,6 +26,9 @@ namespace TCPGameServer.World.ActionHandling
             // get the player position
             Tile position = player.GetBody().GetPosition();
             
+            // don't handle if the player has no position
+            if (position == null) return;
+
             // position to move to
             Tile target = null;
 

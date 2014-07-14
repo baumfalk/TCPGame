@@ -55,25 +55,25 @@ namespace TCPGameServer.Control.Input
                 } // quit command
                 else if (command.Equals("quit"))
                 {
-                    user.Remove();
+                    user.Disconnect();
                 }
                 else
                 {
-                    // switch on commandstate of the player. We don't want players
+                    // switch on commandstate of the user. We don't want players
                     // to be able to move before logging in, or similar things. Send
                     // the command on to the proper method.
-                    switch (player.GetCommandState())
+                    switch (user.GetLoginState())
                     {
-                        case Player.CommandState.Idle:
-                            HandleIdle(command, player);
+                        case User.LoginState.NotStarted:
+                            HandleNotStarted(command, user);
                             break;
-                        case Player.CommandState.Login:
-                            HandleLogin(command, player);
+                        case User.LoginState.Login:
+                            HandleLogin(command, user);
                             break;
-                        case Player.CommandState.Password:
-                            HandlePassword(command, player);
+                        case User.LoginState.Password:
+                            HandlePassword(command, user);
                             break;
-                        case Player.CommandState.Normal:
+                        case User.LoginState.Finished:
                             HandleNormal(command, player);
                             break;
                     }
@@ -83,88 +83,102 @@ namespace TCPGameServer.Control.Input
 
         // Users shouldn't be able to send anything while idle. Just in case, it will generate
         // a message to the log.
-        private static void HandleIdle(String command, Player player)
+        private static void HandleNotStarted(String command, User user)
         {
-            Log.Print(player.GetName() + " is idle but sending commands");
+            Log.Print("A user is idle but sending commands");
         }
 
-        // TODO: make login dynamic, reading from a file
-        private static void HandleLogin(String command, Player player)
+        private static void HandleLogin(String command, User user)
         {
             // nothing but letters allowed in names
             Regex rgx = new Regex("[^a-zA-Z]");
             command = rgx.Replace(command, "").ToLower();
 
-            // set the player's name to whatever he used to log in
-            player.SetName(command);
-
-            if (command.Equals("admin"))
+            // don't accept empty string as a name
+            if (command.Equals(""))
             {
-                DoLogin(player, "x0y0z0", "0");
-            }
-
-            HeaderData header;
-
-            if (PlayerFile.Exists(command) && !PlayerFile.IsStub(command))
-            {
-                player.AddMessage("MESSAGE,LOGIN,Please input your password", int.MinValue);
-                
-                header = PlayerFile.ReadHeader(command);
-
-                player.SetCommandState(Player.CommandState.Password);
+                user.AddMessage("MESSAGE,LOGIN,Name invalid", int.MinValue);
             }
             else
             {
-                PlayerFileData newStub = CreateStub(command);
+                // save the name in the login info
+                user.GetLoginInfo().name = command;
 
-                header = newStub.header;
+                HeaderData header;
 
-                player.AddMessage("MESSAGE,LOGIN,New account " + command + ", please input a password", int.MinValue);
+                // if a player file exists, and it's not a stub, ask for the password and read the header to get
+                // the salt
+                if (PlayerFile.Exists(command) && !PlayerFile.IsStub(command))
+                {
+                    user.AddMessage("MESSAGE,LOGIN,Please input your password", int.MinValue);
 
-                player.SetCommandState(Player.CommandState.Password);
+                    header = PlayerFile.ReadHeader(command);
+
+                    user.GetLoginInfo().newUser = false;
+                    user.GetLoginInfo().salt = header.salt;
+
+                    user.SetLoginState(User.LoginState.Password);
+                }
+                else
+                {
+                    user.GetLoginInfo().newUser = true;
+                    user.GetLoginInfo().salt = PasswordHashing.generateSalt();
+
+                    user.AddMessage("MESSAGE,LOGIN,New account " + command + ", please input a password", int.MinValue);
+
+                    user.SetLoginState(User.LoginState.Password);
+                }
+
+                // send the salt
+                user.AddMessage("LOGIN,SALT," + Convert.ToBase64String(user.GetLoginInfo().salt), int.MinValue);
             }
-
-            // salt opsturen
-            player.AddMessage("LOGIN,SALT," + Convert.ToBase64String(header.salt), int.MinValue);
         }
 
-        private static void HandlePassword(String command, Player player)
+        private static void HandlePassword(String command, User user)
         {
-            if (!PlayerFile.IsStub(player.GetName()))
+            String name = user.GetLoginInfo().name;
+
+            if (!user.GetLoginInfo().newUser)
             {
-                HeaderData header = PlayerFile.ReadHeader(player.GetName());
+                HeaderData header = PlayerFile.ReadHeader(name);
 
                 String password = header.password;
 
                 if (PasswordHashing.VerifyPassword(command, password))
                 {
-                    DoLogin(player, header.area, header.tileIndex.ToString());
+                    user.GetLoginInfo().areaName = header.area;
+                    user.GetLoginInfo().tileIndex = header.tileIndex.ToString();
+
+                    user.CompleteLogin();
                 }
                 else
                 {
-                    player.AddMessage("MESSAGE,LOGIN,Password incorrect, please try again", int.MinValue);
-                    player.AddMessage("LOGIN,SALT," + Convert.ToBase64String(header.salt), int.MinValue);
+                    user.AddMessage("MESSAGE,LOGIN,Password incorrect, please try again", int.MinValue);
+                    user.AddMessage("LOGIN,SALT," + Convert.ToBase64String(header.salt), int.MinValue);
                 }
             }
             else
             {
-                PlayerFileData playerFile = PlayerFile.Read(player.GetName());
+                PlayerFileData playerFile = CreatePlayerFile(name, user.GetLoginInfo().salt);
 
                 playerFile.header.password = PasswordHashing.Rehash(command);
 
-                PlayerFile.Write(playerFile, player.GetName());
+                PlayerFile.Write(playerFile, name);
 
-                DoLogin(player, playerFile.header.area, playerFile.header.tileIndex.ToString());
+                user.GetLoginInfo().areaName = playerFile.header.area;
+                user.GetLoginInfo().tileIndex = playerFile.header.tileIndex.ToString();
+
+                user.CompleteLogin();
             }
         }
 
-        private static PlayerFileData CreateStub(String name)
+        private static PlayerFileData CreatePlayerFile(String name, byte[] salt)
         {
             PlayerFileData playerFile = new PlayerFileData();
 
             playerFile.header = new HeaderData();
             playerFile.header.name = name;
-            playerFile.header.salt = PasswordHashing.generateSalt();
+            playerFile.header.salt = salt;
             playerFile.header.password = "";
             playerFile.header.area = "x0y0z0";
             playerFile.header.tileIndex = 12;
@@ -172,12 +186,6 @@ namespace TCPGameServer.Control.Input
             PlayerFile.Write(playerFile, name);
 
             return playerFile;
-        }
-
-        private static void DoLogin(Player player, String area, String tileIndex)
-        {
-            player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", area, tileIndex });
-            player.AddImmediateCommand(new String[] { "LOGIN", "COMPLETE" });
         }
 
         // handle "normal" logins. This should probably be split at some point, like the actionhandlers in

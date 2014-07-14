@@ -26,6 +26,10 @@ namespace TCPGameServer.World.ActionHandling
             bool includePlayer = splitCommand[2].Equals("PLAYER_INCLUDED");
             // position of the player
             Tile playerPosition = player.GetBody().GetPosition();
+
+            // don't handle if position is null
+            if (playerPosition == null) return;
+
             // x/y/z location of the player
             Location playerLocation = playerPosition.GetLocation();
 

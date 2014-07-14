@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Control\Input\InputHandler.cs" />
+    <Compile Include="Control\Input\LoginInfo.cs" />
     <Compile Include="Control\Output\Log.cs" />
     <Compile Include="Control\Output\ServerOutputWindow.cs">
       <SubType>Form</SubType>
