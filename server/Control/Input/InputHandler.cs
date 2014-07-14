@@ -201,7 +201,7 @@ namespace TCPGameServer.Control.Input
             {
                 player.AddBlockingCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
             }
-            else if (command.ToLower().StartsWith("say")) // formay say *message*
+            else if (command.ToLower().StartsWith("say")) // format: say *message*
             {
                 // split the string in two
                 string[] splittedString = command.Split(new char[] { ' ' }, 2);
