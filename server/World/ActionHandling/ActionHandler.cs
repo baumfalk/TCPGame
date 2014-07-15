@@ -15,7 +15,7 @@ namespace TCPGameServer.World.ActionHandling
 
         private LoginActionHandler loginActionHandler;
         private MoveActionHandler moveActionHandler;
-        private PlayerActionHandler playerActionHandler;
+        private TeleportActionHandler teleportActionHandler;
         private LookActionHandler lookActionHandler;
         private MessageActionHandler messageActionHandler;
         private ResetActionHandler resetActionHandler;
@@ -26,7 +26,7 @@ namespace TCPGameServer.World.ActionHandling
 
             loginActionHandler = new LoginActionHandler(model);
             moveActionHandler = new MoveActionHandler(model);
-            playerActionHandler = new PlayerActionHandler(model);
+            teleportActionHandler = new TeleportActionHandler(model);
             lookActionHandler = new LookActionHandler(model);
             messageActionHandler = new MessageActionHandler(model);
             resetActionHandler = new ResetActionHandler(model);
@@ -46,8 +46,8 @@ namespace TCPGameServer.World.ActionHandling
                 case "MOVE":
                     moveActionHandler.Handle(player, cmdAndParameters, tick);
                     return;
-                case "PLAYER":
-                    playerActionHandler.Handle(player, cmdAndParameters, tick);
+                case "TELEPORT":
+                    teleportActionHandler.Handle(player, cmdAndParameters, tick);
                     return;
                 case "LOOK":
                     lookActionHandler.Handle(player, cmdAndParameters, tick);

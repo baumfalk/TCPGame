@@ -9,7 +9,7 @@ using TCPGameServer.World.Players;
 
 using TCPGameSharedInfo;
 
-namespace TCPGameServer.World
+namespace TCPGameServer.World.Creatures
 {
     // a creature is any mobile object, including players and such which may extend it
     public class Creature
@@ -21,6 +21,8 @@ namespace TCPGameServer.World
         // position in the world
         private Tile position;
 
+        private VisionSystem vision;
+        
         // created with it's representation
         public Creature(CreatureRepresentation representation)
         {
@@ -44,26 +46,7 @@ namespace TCPGameServer.World
 
         public void VisionEvent(Tile changedTile, int tick)
         {
-            if (IsPlayer())
-            {
-                Location tileLocation = changedTile.GetLocation();
-
-                player.AddMessage("TILE,DETECTED," +
-                    tileLocation.x + "," +
-                    tileLocation.y + "," +
-                    tileLocation.z + "," +
-                    changedTile.GetRepresentation(),
-                    tick);
-                if (changedTile.GetOccupant() != null)
-                {
-                    player.AddMessage("CREATURE,DETECTED," + 
-                        tileLocation.x + "," + 
-                        tileLocation.y + "," + 
-                        tileLocation.z + "," + 
-                        changedTile.GetOccupant().GetRepresentation(), 
-                        tick);
-                }
-            }
+            vision.DoEvent(changedTile, this, tick);
         }
 
         // position can be changed and requested freely

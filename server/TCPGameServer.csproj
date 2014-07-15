@@ -68,10 +68,11 @@
     <Compile Include="World\ActionHandling\LoginActionHandler.cs" />
     <Compile Include="World\ActionHandling\LookActionHandler.cs" />
     <Compile Include="World\ActionHandling\MoveActionHandler.cs" />
-    <Compile Include="World\ActionHandling\PlayerActionHandler.cs" />
     <Compile Include="World\ActionHandling\MessageActionHandler.cs" />
     <Compile Include="World\ActionHandling\ResetActionHandler.cs" />
-    <Compile Include="World\Creature.cs" />
+    <Compile Include="World\ActionHandling\TeleportActionHandler.cs" />
+    <Compile Include="World\Creatures\Creature.cs" />
+    <Compile Include="World\Creatures\VisionSystem.cs" />
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Map\Area.cs" />
     <Compile Include="World\Map\MapReset.cs" />

@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.World.Map;
+using TCPGameServer.World.Creatures;
 using TCPGameServer.World.Players;
 
 namespace TCPGameServer.World.ActionHandling
 {
     class LookActionHandler
     {
-        private enum RegisterMode { None, Outer, All };
         private enum UpdateMode { None, Outer, All };
 
         private Model model;
@@ -33,12 +33,6 @@ namespace TCPGameServer.World.ActionHandling
             bool includeTiles = splitCommand[1].Equals("TILES_INCLUDED");
             // check if the player should be included
             bool includePlayer = splitCommand[2].Equals("PLAYER_INCLUDED");
-            // with which tiles should the player register
-            RegisterMode registerMode = RegisterMode.None;
-
-            if (splitCommand[3].Equals("REGISTER_NONE")) registerMode = RegisterMode.None;
-            if (splitCommand[3].Equals("REGISTER_OUTER")) registerMode = RegisterMode.Outer;
-            if (splitCommand[3].Equals("REGISTER_ALL")) registerMode = RegisterMode.All;
 
             UpdateMode updateMode = UpdateMode.None;
 

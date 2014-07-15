@@ -9,7 +9,7 @@ namespace TCPGameServer.World.ActionHandling
 {
     class ResetActionHandler
     {
-        Model model;
+        private Model model;
 
         public ResetActionHandler(Model model)
         {

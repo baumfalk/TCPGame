@@ -250,8 +250,8 @@ namespace TCPGameServer.Control.Input
             {
                 string[] splittedString = command.Split(' ');
 
-                if (splittedString.Length == 2) player.AddBlockingCommand(new String[] { "MOVE", "TELEPORT", player.GetBody().GetPosition().GetArea().GetName(), splittedString[1] });
-                if (splittedString.Length == 3) player.AddBlockingCommand(new String[] { "MOVE", "TELEPORT", splittedString[1], splittedString[2] });
+                if (splittedString.Length == 2) player.AddBlockingCommand(new String[] { "TELEPORT", player.GetBody().GetPosition().GetArea().GetName(), splittedString[1] });
+                if (splittedString.Length == 3) player.AddBlockingCommand(new String[] { "TELEPORT", splittedString[1], splittedString[2] });
             }
         }
     }
