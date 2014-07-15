@@ -9,40 +9,36 @@ namespace TCPGameServer.World.Map
 {
     class Geography
     {
-        public static List<Tile> GetTilesInRange(int range, List<List<Tile>> tilesAtRange)
+        public static void FillTilesAtRange(int range, ref List<List<Tile>> tilesAtRange)
         {
-            List<Tile> toReturn = new List<Tile>();
+            int exploredRange = tilesAtRange.Count;
 
-            tilesAtRange[0][0].SetColor(1);
-            toReturn.Add(tilesAtRange[0][0]);
+            if (exploredRange > 1) MarkExplored(tilesAtRange[exploredRange - 2]);
+            MarkExplored(tilesAtRange[exploredRange - 1]);
 
-            int exploredRange = tilesAtRange.Count - 1;
-
-            for (int currentRange = 1; currentRange <= range; currentRange++)
+            for (int currentRange = exploredRange; currentRange <= range; currentRange++)
             {
-                if (currentRange > exploredRange)
-                {
-                    tilesAtRange.Add(Geography.GetNextLayer(tilesAtRange[currentRange - 1]));
-                }
+                tilesAtRange.Add(Geography.GetNextLayer(tilesAtRange[currentRange - 1]));
 
-                foreach (Tile tile in tilesAtRange[currentRange])
-                {
-                    toReturn.Add(tile);
-                    if (exploredRange < range) tile.SetColor(1);
-                }
+                MarkExplored(tilesAtRange[currentRange]);
             }
 
-            if (exploredRange < range)
+            for (int marked = exploredRange - 2; marked <= range; marked++)
             {
-                foreach (Tile tile in toReturn)
-                {
-                    tile.SetColor(0);
-                }
+                if (marked == -1) continue;
+
+                ClearMark(tilesAtRange[marked]);
             }
+        }
 
-            tilesAtRange[0][0].SetColor(0);
+        private static void MarkExplored(List<Tile> toMark)
+        {
+            foreach (Tile tile in toMark) tile.SetColor(1);
+        }
 
-            return toReturn;
+        private static void ClearMark(List<Tile> marked)
+        {
+            foreach (Tile tile in marked) tile.SetColor(0);
         }
 
         private static List<Tile> GetNextLayer(List<Tile> tileFront)
@@ -51,13 +47,15 @@ namespace TCPGameServer.World.Map
 
             foreach (Tile tile in tileFront)
             {
+                if (!tile.IsPassable()) continue;
+
                 for (int direction = 0; direction < 6; direction++)
                 {
                     if (tile.HasNeighbor(direction))
                     {
                         Tile neighbor = tile.GetNeighbor(direction);
 
-                        if (neighbor.GetColor() != 1 && neighbor.IsPassable())
+                        if (neighbor.GetColor() != 1)
                         {
                             neighbor.SetColor(1);
 

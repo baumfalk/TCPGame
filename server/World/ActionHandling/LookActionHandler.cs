@@ -12,6 +12,7 @@ namespace TCPGameServer.World.ActionHandling
     class LookActionHandler
     {
         private enum RegisterMode { None, Outer, All };
+        private enum UpdateMode { None, Outer, All };
 
         private Model model;
 
@@ -32,6 +33,12 @@ namespace TCPGameServer.World.ActionHandling
             if (splitCommand[3].Equals("REGISTER_NONE")) registerMode = RegisterMode.None;
             if (splitCommand[3].Equals("REGISTER_OUTER")) registerMode = RegisterMode.Outer;
             if (splitCommand[3].Equals("REGISTER_ALL")) registerMode = RegisterMode.All;
+
+            UpdateMode updateMode;
+
+            if (splitCommand[4].Equals("UPDATE_ALL")) updateMode = UpdateMode.All;
+            if (splitCommand[4].Equals("UPDATE_OUTER")) updateMode = UpdateMode.Outer;
+            if (splitCommand[4].Equals("UPDATE_NONE")) updateMode = UpdateMode.None;
 
             // position of the player
             Tile playerPosition = player.GetBody().GetPosition();

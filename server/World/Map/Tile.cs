@@ -303,9 +303,41 @@ namespace TCPGameServer.World.Map
             }
         }
 
+        // gets the tiles at a certain range of this one (0 = this tile, 5 = all tiles at a distance of 5).
+        public List<Tile> GetTilesAtRange(int range)
+        {
+            // ensure the tilesAtRange list has been loaded to this range and fill it to this range if needed
+            FillTilesAtRangeTo(range);
+            
+            // return the correct set of tiles
+            return tilesAtRange[range];
+        }
+
+        // gets all the tiles within a certain range of this one (0 = this tile, 5 = all tiles at a distance of 5 or less).
         public List<Tile> GetTilesInRange(int range)
         {
-            return Geography.GetTilesInRange(range, tilesAtRange);
+            // ensure the tilesAtRange list has been loaded to this range and fill it to this range if needed
+            FillTilesAtRangeTo(range);
+
+            // a list to aggregate the tiles at all the different ranges
+            List<Tile> aggregateTiles = new List<Tile>();
+
+            // get the tiles at each range up to and including the range asked and add them to the result
+            for (int n = 0; n <= range; n++)
+            {
+                aggregateTiles.AddRange(tilesAtRange[n]);
+            }
+
+            // return the result
+            return aggregateTiles;
+        }
+
+        // checks if the tiles at this range are already in memory, and if not, adds them.
+        private void FillTilesAtRangeTo(int range)
+        {
+            // range 0 is just this tile, at that point the count of tilesAtRange is 1. For each layer added
+            // the count goes up by one, so if the count is not at least equal to the range we need to add more layers
+            if (tilesAtRange.Count < range) Geography.FillTilesAtRange(range, ref tilesAtRange);
         }
 
         // the type of tile
