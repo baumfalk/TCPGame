@@ -14,6 +14,8 @@ namespace TCPGameServer.World.ActionHandling
 {
     class MoveActionHandler
     {
+        private enum RegisterMode { Stationary, Moved, All };
+
         private Model model;
 
         public MoveActionHandler(Model model)

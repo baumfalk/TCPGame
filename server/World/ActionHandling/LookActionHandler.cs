@@ -23,34 +23,56 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String[] splitCommand, int tick)
         {
-            // check if tiles should be included 
-            bool includeTiles = splitCommand[1].Equals("TILES_INCLUDED");
-            // check if the player should be included
-            bool includePlayer = splitCommand[2].Equals("PLAYER_INCLUDED");
-            // with which tiles should the player register
-            RegisterMode registerMode;
-
-            if (splitCommand[3].Equals("REGISTER_NONE")) registerMode = RegisterMode.None;
-            if (splitCommand[3].Equals("REGISTER_OUTER")) registerMode = RegisterMode.Outer;
-            if (splitCommand[3].Equals("REGISTER_ALL")) registerMode = RegisterMode.All;
-
-            UpdateMode updateMode;
-
-            if (splitCommand[4].Equals("UPDATE_ALL")) updateMode = UpdateMode.All;
-            if (splitCommand[4].Equals("UPDATE_OUTER")) updateMode = UpdateMode.Outer;
-            if (splitCommand[4].Equals("UPDATE_NONE")) updateMode = UpdateMode.None;
-
             // position of the player
             Tile playerPosition = player.GetBody().GetPosition();
 
             // don't handle if position is null
             if (playerPosition == null) return;
 
+            // check if tiles should be included 
+            bool includeTiles = splitCommand[1].Equals("TILES_INCLUDED");
+            // check if the player should be included
+            bool includePlayer = splitCommand[2].Equals("PLAYER_INCLUDED");
+            // with which tiles should the player register
+            RegisterMode registerMode = RegisterMode.None;
+
+            if (splitCommand[3].Equals("REGISTER_NONE")) registerMode = RegisterMode.None;
+            if (splitCommand[3].Equals("REGISTER_OUTER")) registerMode = RegisterMode.Outer;
+            if (splitCommand[3].Equals("REGISTER_ALL")) registerMode = RegisterMode.All;
+
+            UpdateMode updateMode = UpdateMode.None;
+
+            if (splitCommand[4].Equals("UPDATE_ALL")) updateMode = UpdateMode.All;
+            if (splitCommand[4].Equals("UPDATE_OUTER")) updateMode = UpdateMode.Outer;
+            if (splitCommand[4].Equals("UPDATE_NONE")) updateMode = UpdateMode.None;
+
+            SendTilesToPlayer(player, updateMode, includePlayer, includeTiles, tick);
+        }
+
+        private void SendTilesToPlayer(Player player, UpdateMode updateMode, bool includePlayer, bool includeTiles, int tick)
+        {
+            // position of the player
+            Tile playerPosition = player.GetBody().GetPosition();
+
             // x/y/z location of the player
             Location playerLocation = playerPosition.GetLocation();
 
-            // get the tiles surrounding the player
-            List<Tile> tilesToSend = playerPosition.GetTilesInRange(5);
+            // send tiles as indicated by the update mode
+            List<Tile> tilesToSend;
+            switch (updateMode)
+            {
+                case UpdateMode.Outer:
+                    tilesToSend = playerPosition.GetTilesAtRange(5);
+                    break;
+                case UpdateMode.All:
+                    // get the tiles surrounding the player
+                    tilesToSend = playerPosition.GetTilesInRange(5);
+                    break;
+                case UpdateMode.None:
+                default: 
+                    tilesToSend = new List<Tile>();
+                    break;
+            }
 
             // if we need to include player data, send X,Y and Z coordinates
             if (includePlayer) player.AddMessage("PLAYER,POSITION," + playerLocation.x + "," + playerLocation.y + "," + playerLocation.z, tick);
