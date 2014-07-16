@@ -65,7 +65,7 @@ namespace TCPGameServer.World.Players
             // if the player was on the map, remove him
             if (body.GetPosition() != null)
             {
-                body.GetPosition().Vacate();
+                body.GetPosition().Vacate(int.MinValue);
             }
         }
 
@@ -85,7 +85,7 @@ namespace TCPGameServer.World.Players
 
         public void Disconnect(bool isReconnect)
         {
-            reconnected = true;
+            reconnected = isReconnect;
             disconnected = true;
 
             // remove the user

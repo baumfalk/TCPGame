@@ -75,10 +75,22 @@ namespace TCPGameServer.World.Map
 
             tilesAtRange.Add(new List<Tile>(new Tile[] { this }));
 
+            creaturesInVisionRange = new List<Creature>();
+
             // create the neighbor-arrays (6 directions)
             hasNeighbor = new bool[6];
             neighbors = new Tile[6];
             areaLinks = new AreaLink[6];
+        }
+
+        // creatures can register as viewing this tile or not viewing this tile
+        public void RegisterAsViewing(Creature viewingCreature)
+        {
+            creaturesInVisionRange.Add(viewingCreature);
+        }
+        public void DeregisterAsViewing(Creature viewingCreature)
+        {
+            creaturesInVisionRange.Remove(viewingCreature);
         }
 
         // creates a tile of the right kind
@@ -207,19 +219,29 @@ namespace TCPGameServer.World.Map
         }
 
         // sets the occupant and sets this tile as it's position
-        public void SetOccupant(Creature occupant)
+        public void SetOccupant(Creature occupant, int tick)
         {
             this.occupant = occupant;
             occupant.SetPosition(this);
+
+            foreach (Creature viewingCreature in creaturesInVisionRange)
+            {
+                viewingCreature.VisionEvent(this, tick);
+            }
 
             // this area is active at this point
             area.SetActive();
         }
 
         // clears the occupant from this tile
-        public void Vacate()
+        public void Vacate(int tick)
         {
             this.occupant = null;
+
+            foreach (Creature viewingCreature in creaturesInVisionRange)
+            {
+                viewingCreature.VisionEvent(this, tick);
+            }
         }
 
         // the x/y/z location in the world

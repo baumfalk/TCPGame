@@ -11,7 +11,7 @@ namespace TCPGameServer.World.Creatures
     class VisionSystem
     {
         // vision range
-        private int visionrange = 5;
+        private int visionRange = 5;
 
         public void DoEvent(Tile changedTile, Creature owner, int tick)
         {
@@ -37,6 +37,16 @@ namespace TCPGameServer.World.Creatures
                         tick);
                 }
             }
+        }
+
+        public int GetVisionRange()
+        {
+            return visionRange;
+        }
+
+        public void SetVisionRange(int visionRange)
+        {
+            this.visionRange = visionRange;
         }
     }
 }

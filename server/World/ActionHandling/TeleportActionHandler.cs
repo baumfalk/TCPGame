@@ -20,8 +20,8 @@ namespace TCPGameServer.World.ActionHandling
 
         public void Handle(Player player, String[] splitCommand, int tick)
         {
-            String area = splitCommand[2];
-            int ID = int.Parse(splitCommand[3]);
+            String area = splitCommand[1];
+            int ID = int.Parse(splitCommand[2]);
             String name = player.GetName();
 
             // get the position to place the player from the world
@@ -51,15 +51,15 @@ namespace TCPGameServer.World.ActionHandling
                 else
                 {
                     // if it's an NPC, remove it.
-                    position.Vacate();
+                    position.Vacate(tick);
                 }
             }
 
             // place the player at the location
-            position.SetOccupant(player.GetBody());
+            position.SetOccupant(player.GetBody(), tick);
 
             // make the player look around
-            player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "REGISTER_ALL" });
+            player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL" });
         }
     }
 }

@@ -54,11 +54,11 @@ namespace TCPGameServer.World.ActionHandling
             // as the occupant of the new tile.
             if (target != null)
             {
-                position.Vacate();
-                target.SetOccupant(player.GetBody());
+                position.Vacate(tick);
+                target.SetOccupant(player.GetBody(), tick);
 
                 // look on arrival
-                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "REGISTER_OUTER" });
+                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_OUTER" });
             }
         }
     }

@@ -27,6 +27,8 @@ namespace TCPGameServer.World.Creatures
         public Creature(CreatureRepresentation representation)
         {
             this.representation = representation;
+
+            vision = new VisionSystem();
         }
 
         // a creature can be a player. Methods to check if this is the case, and make
@@ -44,6 +46,7 @@ namespace TCPGameServer.World.Creatures
             return player;
         }
 
+        // the creature sees something
         public void VisionEvent(Tile changedTile, int tick)
         {
             vision.DoEvent(changedTile, this, tick);

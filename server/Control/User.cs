@@ -83,7 +83,7 @@ namespace TCPGameServer.Control
             }
             else
             {
-                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL" });
             }
             player.AddImmediateCommand(new String[] { "LOGIN", "COMPLETE" });
             

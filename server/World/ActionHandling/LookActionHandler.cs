@@ -36,9 +36,9 @@ namespace TCPGameServer.World.ActionHandling
 
             UpdateMode updateMode = UpdateMode.None;
 
-            if (splitCommand[4].Equals("UPDATE_ALL")) updateMode = UpdateMode.All;
-            if (splitCommand[4].Equals("UPDATE_OUTER")) updateMode = UpdateMode.Outer;
-            if (splitCommand[4].Equals("UPDATE_NONE")) updateMode = UpdateMode.None;
+            if (splitCommand[3].Equals("UPDATE_ALL")) updateMode = UpdateMode.All;
+            if (splitCommand[3].Equals("UPDATE_OUTER")) updateMode = UpdateMode.Outer;
+            if (splitCommand[3].Equals("UPDATE_NONE")) updateMode = UpdateMode.None;
 
             SendTilesToPlayer(player, updateMode, includePlayer, includeTiles, tick);
         }
