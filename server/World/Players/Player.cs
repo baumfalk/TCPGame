@@ -84,7 +84,7 @@ namespace TCPGameServer.World.Players
 
         public void Disconnect(bool isReconnect)
         {
-            reconnected = true;
+            reconnected = isReconnect;
             disconnected = true;
 
             // remove the user
