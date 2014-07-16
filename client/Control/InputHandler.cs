@@ -94,14 +94,6 @@ namespace TCPGameClient.Control
                 // split the inputs
                 String[] inputPart = input.Split(',');
 
-                // creature information is complete per tick. If we received
-                // multiple ticks, reset creatures when handling later ones.
-                if (tick != int.Parse(inputPart[0]))
-                {
-                    tick = int.Parse(inputPart[0]);
-                    model.ResetCreatures();
-                }
-
                 // switch on the type of input, let other methods handle them.
                 switch (inputPart[1])
                 {
@@ -120,10 +112,6 @@ namespace TCPGameClient.Control
                         break;
                     case "TILE":
                         UpdateTile(inputPart);
-                        DoRedraw = true;
-                        break;
-                    case "CREATURE":
-                        UpdateCreature(inputPart);
                         DoRedraw = true;
                         break;
                     default:
@@ -159,40 +147,30 @@ namespace TCPGameClient.Control
             }
         }
 
-        // handles "creature" type updates. Only "detection" updates exist at the moment.
-        private void UpdateCreature(String[] inputPart)
-        {
-            if (inputPart[2].Equals("DETECTED"))
-            {
-                // get position and representation from the input
-                int xPos = int.Parse(inputPart[3]);
-                int yPos = int.Parse(inputPart[4]);
-                int zPos = int.Parse(inputPart[5]);
-                String representationString = inputPart[6];
-
-                CreatureRepresentation representation = 
-                    (CreatureRepresentation) Enum.Parse(typeof(CreatureRepresentation), representationString);
-
-                // add creature to the model
-                model.AddCreature(xPos, yPos, zPos, representation);
-            }
-        }
-
         // handles "tile" type updates. Only "detection" updates exist at the moment.
         private void UpdateTile(String[] inputPart)
         {
             if (inputPart[2].Equals("DETECTED"))
             {
+                Debug.Print("detected got called");
+            }
+
+            if (inputPart[2].Equals("CHANGED"))
+            {
                 // get position and representation from the input
                 int xPos = int.Parse(inputPart[3]);
                 int yPos = int.Parse(inputPart[4]);
                 int zPos = int.Parse(inputPart[5]);
-                String representationString = inputPart[6];
+                String tileRepresentationString = inputPart[6];
+                String creatureRepresentationString = inputPart[7];
 
-                TileRepresentation representation =
-                    (TileRepresentation)Enum.Parse(typeof(TileRepresentation), representationString);
+                TileRepresentation tileRepresentation =
+                    (TileRepresentation)Enum.Parse(typeof(TileRepresentation), tileRepresentationString);
 
-                model.AddTile(xPos, yPos, zPos, representation);
+                CreatureRepresentation creatureRepresentation =
+                    (CreatureRepresentation)Enum.Parse(typeof(CreatureRepresentation), creatureRepresentationString);
+
+                model.AddTile(xPos, yPos, zPos, tileRepresentation, creatureRepresentation);
             }
         }
     }

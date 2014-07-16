@@ -80,14 +80,12 @@ namespace TCPGameClient.View
         // draws the model onto the form
         public void DrawModel(LocalModel theModel)
         {
-          
-        if (WindowState == FormWindowState.Minimized) return;
+            if (WindowState == FormWindowState.Minimized) return;
 
-        // check if we can draw. If we can, noone else can until we're done
-        if (!canDraw) return;
-        canDraw = false;
+            // check if we can draw. If we can, noone else can until we're done
+            if (!canDraw) return;
+            canDraw = false;
 
-             
             // create bitmap to draw on
             Image drawBuffer = new Bitmap(pictureBox1.Width, pictureBox1.Height);
 
@@ -134,28 +132,21 @@ namespace TCPGameClient.View
 
                         // draw the image onto the bitmap
                         g.DrawImage(imToDraw, centerX + x * sizeX - (sizeX / 2), centerY - y * sizeY + sizeY / 2, sizeX, sizeY);
+
+                        // get the representation of the creature on the field
+                        CreatureRepresentation creatureRepresentation = fieldToDraw.GetCreature();
+
+                        if (creatureRepresentation != CreatureRepresentation.None)
+                        {
+                            // get the image from the image buffer
+                            Image creatureImage = imageBuffer.GetImage(creatureRepresentation);
+
+                            g.DrawImage(creatureImage, centerX + x * sizeX - sizeX / 4, centerY - y * sizeY + sizeY / 4 * 3, sizeX / 2, sizeY / 2);
+                        }
                     }
                 }
             }
 
-            // draw creatures onto the grid
-            foreach (Creature creature in theModel.GetCreatures())
-            {
-                int xPos = creature.GetX();
-                int yPos = creature.GetY();
-                int zPos = creature.GetZ();
-
-                if (xPos >= minX && xPos <= maxX &&
-                    yPos >= minY && yPos <= maxY &&
-                    zPos == 0)
-                {
-                    CreatureRepresentation creatureRepresentation = creature.GetRepresentation();
-
-                    Image imToDraw = imageBuffer.GetImage(creatureRepresentation);
-
-                    g.DrawImage(imToDraw, centerX + xPos * sizeX - sizeX / 4, centerY - yPos * sizeY + sizeY / 4 * 3, sizeX / 2, sizeY / 2);
-                }
-            }
             DrawStrings(receivedMessages, g);
             // dispose of the graphics object
             g.Dispose();

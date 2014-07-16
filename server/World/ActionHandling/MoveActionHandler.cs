@@ -14,8 +14,6 @@ namespace TCPGameServer.World.ActionHandling
 {
     class MoveActionHandler
     {
-        private enum RegisterMode { Stationary, Moved, All };
-
         private Model model;
 
         public MoveActionHandler(Model model)
@@ -54,11 +52,15 @@ namespace TCPGameServer.World.ActionHandling
             // as the occupant of the new tile.
             if (target != null)
             {
-                position.Vacate(tick);
-                target.SetOccupant(player.GetBody(), tick);
+                player.GetBody().VisionDeregister(Creatures.Creature.RegisterMode.Outer);
+
+                position.Vacate();
+                target.SetOccupant(player.GetBody());
 
                 // look on arrival
                 player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_OUTER" });
+                
+                player.GetBody().VisionRegister(Creatures.Creature.RegisterMode.Outer);
             }
         }
     }

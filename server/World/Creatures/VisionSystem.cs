@@ -4,49 +4,15 @@ using System.Linq;
 using System.Text;
 
 using TCPGameServer.World.Map;
-using TCPGameServer.World.Players;
 
 namespace TCPGameServer.World.Creatures
 {
-    class VisionSystem
+    interface VisionSystem
     {
-        // vision range
-        private int visionRange = 5;
+        void DoVisionEvent(Tile changedTile);
+        void HandleVisionEvents(Creature owner, int tick);
 
-        public void DoEvent(Tile changedTile, Creature owner, int tick)
-        {
-            if (owner.IsPlayer())
-            {
-                Player player = owner.GetPlayer();
-
-                Location tileLocation = changedTile.GetLocation();
-
-                player.AddMessage("TILE,DETECTED," +
-                    tileLocation.x + "," +
-                    tileLocation.y + "," +
-                    tileLocation.z + "," +
-                    changedTile.GetRepresentation(),
-                    tick);
-                if (changedTile.GetOccupant() != null)
-                {
-                    player.AddMessage("CREATURE,DETECTED," +
-                        tileLocation.x + "," +
-                        tileLocation.y + "," +
-                        tileLocation.z + "," +
-                        changedTile.GetOccupant().GetRepresentation(),
-                        tick);
-                }
-            }
-        }
-
-        public int GetVisionRange()
-        {
-            return visionRange;
-        }
-
-        public void SetVisionRange(int visionRange)
-        {
-            this.visionRange = visionRange;
-        }
+        void SetVisionRange(int visionRange);
+        int GetVisionRange();
     }
 }

@@ -82,14 +82,15 @@ namespace TCPGameServer.World.Map
         }
 
         // when something happens in the area, set the time it was last active to this
-        // moment. At the moment, only creatures entering an area set its activity flag
+        // moment. At the moment, area creation and creatures moving around in an area 
+        // set its activity flag
         public void SetActive()
         {
             LastActivity = DateTime.Now;
         }
 
         // check how long an area has been inactive
-        public TimeSpan GetLastActivity()
+        public TimeSpan GetTimeInactive()
         {
             return DateTime.Now - LastActivity;
         }

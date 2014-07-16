@@ -78,16 +78,8 @@ namespace TCPGameServer.World.ActionHandling
                 Location tileLocation = toSend.GetLocation();
 
                 // if we need to include tile data, send X, Y, Z and representation
-                if (includeTiles) player.AddMessage("TILE,DETECTED," + tileLocation.x + "," + tileLocation.y + "," + tileLocation.z + "," + toSend.GetRepresentation(), tick);
-
-                // Check if a tile has a creature. The player-body is a creature. If we're not sending player data, ignore him. 
-                if (toSend.HasOccupant() && (!(toSend == playerPosition) || includePlayer))
-                {
-                    Creature occupant = toSend.GetOccupant();
-
-                    // send X, Y, Z and representation of any creatures nearby
-                    player.AddMessage("CREATURE,DETECTED," + tileLocation.x + "," + tileLocation.y + "," + tileLocation.z + "," + occupant.GetRepresentation(), tick);
-                }
+                //if (includeTiles) player.AddMessage("TILE,DETECTED," + tileLocation.x + "," + tileLocation.y + "," + tileLocation.z + "," + toSend.GetRepresentation(), tick);
+                if (includeTiles) player.GetBody().VisionEvent(toSend);
             }
         }
     }

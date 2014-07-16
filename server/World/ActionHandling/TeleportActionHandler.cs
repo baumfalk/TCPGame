@@ -24,6 +24,13 @@ namespace TCPGameServer.World.ActionHandling
             int ID = int.Parse(splitCommand[2]);
             String name = player.GetName();
 
+            // remove the player from his position, if he has one.
+            if (player.GetBody().GetPosition() != null)
+            {
+                player.GetBody().VisionDeregister(Creature.RegisterMode.All);
+                player.GetBody().GetPosition().Vacate();
+            }
+
             // get the position to place the player from the world
             Tile position = model.GetTile(area, ID);
 
@@ -51,15 +58,18 @@ namespace TCPGameServer.World.ActionHandling
                 else
                 {
                     // if it's an NPC, remove it.
-                    position.Vacate(tick);
+                    position.Vacate();
                 }
             }
 
             // place the player at the location
-            position.SetOccupant(player.GetBody(), tick);
+            position.SetOccupant(player.GetBody());
+
+            // register with all tiles nearby
+            player.GetBody().VisionRegister(Creature.RegisterMode.All);
 
             // make the player look around
-            player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL" });
+            player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL"});
         }
     }
 }

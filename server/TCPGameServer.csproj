@@ -72,6 +72,8 @@
     <Compile Include="World\ActionHandling\ResetActionHandler.cs" />
     <Compile Include="World\ActionHandling\TeleportActionHandler.cs" />
     <Compile Include="World\Creatures\Creature.cs" />
+    <Compile Include="World\Creatures\NPCVisionSystem.cs" />
+    <Compile Include="World\Creatures\PlayerVisionSystem.cs" />
     <Compile Include="World\Creatures\VisionSystem.cs" />
     <Compile Include="World\Directions.cs" />
     <Compile Include="World\Map\Area.cs" />

@@ -26,7 +26,7 @@ namespace TCPGameServer.World.Map
         private List<List<Tile>> tilesAtRange = new List<List<Tile>>();
 
         // list of all creatures that can see this tile
-        private List<Creature> creaturesInVisionRange;
+        private HashSet<Creature> creaturesInVisionRange;
 
         // struct designating a link to another area
         private struct AreaLink
@@ -75,7 +75,7 @@ namespace TCPGameServer.World.Map
 
             tilesAtRange.Add(new List<Tile>(new Tile[] { this }));
 
-            creaturesInVisionRange = new List<Creature>();
+            creaturesInVisionRange = new HashSet<Creature>();
 
             // create the neighbor-arrays (6 directions)
             hasNeighbor = new bool[6];
@@ -91,6 +91,13 @@ namespace TCPGameServer.World.Map
         public void DeregisterAsViewing(Creature viewingCreature)
         {
             creaturesInVisionRange.Remove(viewingCreature);
+        }
+        private void SendVisionEvents()
+        {
+            foreach (Creature viewingCreature in creaturesInVisionRange)
+            {
+                viewingCreature.VisionEvent(this);
+            }
         }
 
         // creates a tile of the right kind
@@ -219,29 +226,23 @@ namespace TCPGameServer.World.Map
         }
 
         // sets the occupant and sets this tile as it's position
-        public void SetOccupant(Creature occupant, int tick)
+        public void SetOccupant(Creature occupant)
         {
             this.occupant = occupant;
             occupant.SetPosition(this);
 
-            foreach (Creature viewingCreature in creaturesInVisionRange)
-            {
-                viewingCreature.VisionEvent(this, tick);
-            }
+            SendVisionEvents();
 
             // this area is active at this point
             area.SetActive();
         }
 
         // clears the occupant from this tile
-        public void Vacate(int tick)
+        public void Vacate()
         {
             this.occupant = null;
 
-            foreach (Creature viewingCreature in creaturesInVisionRange)
-            {
-                viewingCreature.VisionEvent(this, tick);
-            }
+            SendVisionEvents();
         }
 
         // the x/y/z location in the world

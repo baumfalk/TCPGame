@@ -22,13 +22,14 @@ namespace TCPGameServer.World.Creatures
         private Tile position;
 
         private VisionSystem vision;
+        public enum RegisterMode { None, Outer, All };
         
         // created with it's representation
         public Creature(CreatureRepresentation representation)
         {
             this.representation = representation;
 
-            vision = new VisionSystem();
+            vision = new NPCVisionSystem();
         }
 
         // a creature can be a player. Methods to check if this is the case, and make
@@ -40,6 +41,9 @@ namespace TCPGameServer.World.Creatures
         public void SetPlayer(Player player)
         {
             this.player = player;
+
+            if (player == null) vision = new NPCVisionSystem();
+            else vision = new PlayerVisionSystem();
         }
         public Player GetPlayer()
         {
@@ -47,9 +51,58 @@ namespace TCPGameServer.World.Creatures
         }
 
         // the creature sees something
-        public void VisionEvent(Tile changedTile, int tick)
+        public void VisionEvent(Tile changedTile)
         {
-            vision.DoEvent(changedTile, this, tick);
+            vision.DoVisionEvent(changedTile);
+        }
+        public void UpdateVision(int tick)
+        {
+            vision.HandleVisionEvents(this, tick);
+        }
+
+        public void VisionDeregister(RegisterMode registerMode)
+        {
+            switch (registerMode)
+            {
+                case RegisterMode.None:
+                    break;
+                case RegisterMode.Outer:
+                    VisionDeregister(GetPosition().GetTilesAtRange(vision.GetVisionRange()));
+                    break;
+                case RegisterMode.All:
+                    VisionDeregister(GetPosition().GetTilesInRange(vision.GetVisionRange()));
+                    break;
+            }
+        }
+        public void VisionDeregister(List<Tile> tilesToDeregister)
+        {
+            foreach (Tile tile in tilesToDeregister)
+            {
+                tile.DeregisterAsViewing(this);
+            }
+        }
+
+        public void VisionRegister(RegisterMode registerMode)
+        {
+            switch (registerMode)
+            {
+                case RegisterMode.None:
+                    break;
+                case RegisterMode.Outer:
+                    VisionRegister(GetPosition().GetTilesAtRange(vision.GetVisionRange()));
+                    VisionRegister(GetPosition().GetTilesAtRange(vision.GetVisionRange() - 1));
+                    break;
+                case RegisterMode.All:
+                    VisionRegister(GetPosition().GetTilesInRange(vision.GetVisionRange()));
+                    break;
+            }
+        }
+        public void VisionRegister(List<Tile> tilesToRegister)
+        {
+            foreach (Tile tile in tilesToRegister)
+            {
+                tile.RegisterAsViewing(this);
+            }
         }
 
         // position can be changed and requested freely

@@ -65,7 +65,7 @@ namespace TCPGameServer.World.Players
             // if the player was on the map, remove him
             if (body.GetPosition() != null)
             {
-                body.GetPosition().Vacate(int.MinValue);
+                body.GetPosition().Vacate();
             }
         }
 

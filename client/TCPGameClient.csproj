@@ -49,7 +49,6 @@
     <Compile Include="Control\Hasher.cs" />
     <Compile Include="Control\InputHandler.cs" />
     <Compile Include="Control\NetConnector.cs" />
-    <Compile Include="Model\Creature.cs" />
     <Compile Include="Model\Field.cs" />
     <Compile Include="View\ChatMessages.cs">
       <SubType>Form</SubType>

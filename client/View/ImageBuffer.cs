@@ -68,6 +68,8 @@ namespace TCPGameClient.View
 
             foreach (CreatureRepresentation representation in representations)
             {
+                if (representation == CreatureRepresentation.None) continue;
+
                 String fileName = path + @"\creatures\" + Representation.toString(representation) + ".png";
 
                 Image toAdd = loadImage(fileName);
