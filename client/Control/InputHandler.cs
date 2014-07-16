@@ -17,9 +17,6 @@ namespace TCPGameClient.Control
 
         private bool sendingPassword;
 
-        // last tick where data was sent
-        private int tick = 0;
-
         public InputHandler(Controller control, LocalModel model)
         {
             this.control = control;
