@@ -207,7 +207,7 @@ namespace TCPGameServer.Control.Input
             } // look if the command is to look
             else if (command.ToLower().Equals("l") || command.ToLower().Equals("look"))
             {
-                player.AddBlockingCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+                player.AddBlockingCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL" });
             }
             else if (command.ToLower().StartsWith("say")) // format: say *message*
             {
@@ -250,8 +250,8 @@ namespace TCPGameServer.Control.Input
             {
                 string[] splittedString = command.Split(' ');
 
-                if (splittedString.Length == 2) player.AddBlockingCommand(new String[] { "MOVE", "TELEPORT", player.GetBody().GetPosition().GetArea().GetName(), splittedString[1] });
-                if (splittedString.Length == 3) player.AddBlockingCommand(new String[] { "MOVE", "TELEPORT", splittedString[1], splittedString[2] });
+                if (splittedString.Length == 2) player.AddBlockingCommand(new String[] { "TELEPORT", player.GetBody().GetPosition().GetArea().GetName(), splittedString[1] });
+                if (splittedString.Length == 3) player.AddBlockingCommand(new String[] { "TELEPORT", splittedString[1], splittedString[2] });
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.Control;
+using TCPGameServer.World.Creatures;
 using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Players.PlayerFiles;

@@ -55,6 +55,9 @@ namespace TCPGameServer.World
             // handle model commands (like "player has logged on" messages)
             HandleModelCommands(tick);
 
+            // update vision for all players
+            UpdateVision(tick);
+
             // unload areas that have been inactive
             UnloadInactiveAreas(tick);
         }
@@ -129,6 +132,16 @@ namespace TCPGameServer.World
                 String[] cmdAndParameters = modelCommands.Dequeue();
 
                 actionHandler.Handle(null, cmdAndParameters, tick);
+            }
+        }
+
+        // makes players handle their vision commands (should be expanded
+        // to handle NPC vision stuff as well at some point).
+        private void UpdateVision(int tick)
+        {
+            foreach (Player player in players)
+            {
+                player.GetBody().UpdateVision(tick);
             }
         }
 

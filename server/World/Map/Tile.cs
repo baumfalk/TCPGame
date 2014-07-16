@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TCPGameServer.Control.Output;
+using TCPGameServer.World.Creatures;
 using TCPGameServer.World.Map.Tiles;
 
 using TCPGameSharedInfo;
@@ -20,6 +21,12 @@ namespace TCPGameServer.World.Map
 
         // the neighbors that are already linked up
         private Tile[] neighbors;
+
+        // list containing lists of tiles at a specific range (tilesAtRange[0] = all tiles at range 1, [1] -> all at range 2, etc)
+        private List<List<Tile>> tilesAtRange = new List<List<Tile>>();
+
+        // list of all creatures that can see this tile
+        private HashSet<Creature> creaturesInVisionRange;
 
         // struct designating a link to another area
         private struct AreaLink
@@ -66,10 +73,31 @@ namespace TCPGameServer.World.Map
             this.area = area;
             this.world = world;
 
+            tilesAtRange.Add(new List<Tile>(new Tile[] { this }));
+
+            creaturesInVisionRange = new HashSet<Creature>();
+
             // create the neighbor-arrays (6 directions)
             hasNeighbor = new bool[6];
             neighbors = new Tile[6];
             areaLinks = new AreaLink[6];
+        }
+
+        // creatures can register as viewing this tile or not viewing this tile
+        public void RegisterAsViewing(Creature viewingCreature)
+        {
+            creaturesInVisionRange.Add(viewingCreature);
+        }
+        public void DeregisterAsViewing(Creature viewingCreature)
+        {
+            creaturesInVisionRange.Remove(viewingCreature);
+        }
+        private void SendVisionEvents()
+        {
+            foreach (Creature viewingCreature in creaturesInVisionRange)
+            {
+                viewingCreature.VisionEvent(this);
+            }
         }
 
         // creates a tile of the right kind
@@ -203,6 +231,8 @@ namespace TCPGameServer.World.Map
             this.occupant = occupant;
             occupant.SetPosition(this);
 
+            SendVisionEvents();
+
             // this area is active at this point
             area.SetActive();
         }
@@ -211,6 +241,8 @@ namespace TCPGameServer.World.Map
         public void Vacate()
         {
             this.occupant = null;
+
+            SendVisionEvents();
         }
 
         // the x/y/z location in the world
@@ -293,6 +325,43 @@ namespace TCPGameServer.World.Map
                 // if there's no link, return -1
                 return "-1";
             }
+        }
+
+        // gets the tiles at a certain range of this one (0 = this tile, 5 = all tiles at a distance of 5).
+        public List<Tile> GetTilesAtRange(int range)
+        {
+            // ensure the tilesAtRange list has been loaded to this range and fill it to this range if needed
+            FillTilesAtRangeTo(range);
+            
+            // return the correct set of tiles
+            return tilesAtRange[range];
+        }
+
+        // gets all the tiles within a certain range of this one (0 = this tile, 5 = all tiles at a distance of 5 or less).
+        public List<Tile> GetTilesInRange(int range)
+        {
+            // ensure the tilesAtRange list has been loaded to this range and fill it to this range if needed
+            FillTilesAtRangeTo(range);
+
+            // a list to aggregate the tiles at all the different ranges
+            List<Tile> aggregateTiles = new List<Tile>();
+
+            // get the tiles at each range up to and including the range asked and add them to the result
+            for (int n = 0; n <= range; n++)
+            {
+                aggregateTiles.AddRange(tilesAtRange[n]);
+            }
+
+            // return the result
+            return aggregateTiles;
+        }
+
+        // checks if the tiles at this range are already in memory, and if not, adds them.
+        private void FillTilesAtRangeTo(int range)
+        {
+            // range 0 is just this tile, at that point the count of tilesAtRange is 1. For each layer added
+            // the count goes up by one, so if the count is not at least equal to the range we need to add more layers
+            if (tilesAtRange.Count < range) Geography.FillTilesAtRange(range, ref tilesAtRange);
         }
 
         // the type of tile

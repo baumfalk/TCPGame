@@ -48,7 +48,7 @@ namespace TCPGameServer.World.Map
                 Area area = entry.Value;
 
                 // check the period the area has been inactive
-                TimeSpan inactivity = area.GetLastActivity();
+                TimeSpan inactivity = area.GetTimeInactive();
 
                 // if it's more than 30 minutes, add it to the unload buffer
                 if (inactivity.TotalMinutes > 30) unloadList.Add(entry);

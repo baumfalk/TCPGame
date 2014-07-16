@@ -6,6 +6,7 @@ using System.Text;
 using TCPGameServer.Network;
 using TCPGameServer.World;
 using TCPGameServer.World.Players;
+using TCPGameServer.World.Creatures;
 using TCPGameServer.Control.Output;
 using TCPGameServer.Control.Input;
 
@@ -78,11 +79,11 @@ namespace TCPGameServer.Control
             // place the player in the world if he hasn't taken over an existing body
             if (player.GetBody().GetPosition() == null)
             {
-                player.AddImmediateCommand(new String[] { "PLAYER", "PLACE", loginInfo.areaName, loginInfo.tileIndex });
+                player.AddImmediateCommand(new String[] { "TELEPORT", loginInfo.areaName, loginInfo.tileIndex });
             }
             else
             {
-                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL" });
             }
             player.AddImmediateCommand(new String[] { "LOGIN", "COMPLETE" });
             

@@ -25,35 +25,26 @@ namespace TCPGameServer.World.ActionHandling
         {
             // get the player position
             Tile position = player.GetBody().GetPosition();
-            
+
             // don't handle if the player has no position
             if (position == null) return;
 
             // position to move to
             Tile target = null;
 
-            // check if we're teleporting or moving normally
-            if (splitCommand[1].Equals("TELEPORT"))
-            {
-                // parse teleporting arguments (area name, tile ID)
-                target = model.GetTile(splitCommand[2], int.Parse(splitCommand[3]));
-            }
-            else
-            {
-                // get the direction the player wants to move to
-                int direction = int.Parse(splitCommand[1]);
+            // get the direction the player wants to move to
+            int direction = int.Parse(splitCommand[1]);
 
-                // if there is no neighbor in that direction, abort
-                if (position.HasNeighbor(direction))
+            // if there is no neighbor in that direction, abort
+            if (position.HasNeighbor(direction))
+            {
+                // get the tile in the direction the player wants to move to
+                Tile neighbor = position.GetNeighbor(direction);
+
+                // if it's passable and empty, set the target tile to the neighboring tile
+                if (neighbor.IsPassable() && !neighbor.HasOccupant())
                 {
-                    // get the tile in the direction the player wants to move to
-                    Tile neighbor = position.GetNeighbor(direction);
-
-                    // if it's passable and empty, set the target tile to the neighboring tile
-                    if (neighbor.IsPassable() && !neighbor.HasOccupant())
-                    {
-                        target = neighbor;
-                    }
+                    target = neighbor;
                 }
             }
 
@@ -61,11 +52,15 @@ namespace TCPGameServer.World.ActionHandling
             // as the occupant of the new tile.
             if (target != null)
             {
+                player.GetBody().VisionDeregister(Creatures.Creature.RegisterMode.Outer);
+
                 position.Vacate();
                 target.SetOccupant(player.GetBody());
 
                 // look on arrival
-                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED" });
+                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_OUTER" });
+                
+                player.GetBody().VisionRegister(Creatures.Creature.RegisterMode.Outer);
             }
         }
     }

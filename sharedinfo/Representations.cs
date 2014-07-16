@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TCPGameSharedInfo
 {
     public enum TileRepresentation { Floor, Floor2, Wall, Campfire, Stairs };
-    public enum CreatureRepresentation { Player };
+    public enum CreatureRepresentation { None, RedDot, Player };
 
     public static class Representation
     {
@@ -36,6 +36,9 @@ namespace TCPGameSharedInfo
             {
                 case CreatureRepresentation.Player:
                     return "player";
+                case CreatureRepresentation.RedDot:
+                    return "red dot";
+                case CreatureRepresentation.None:
                 default:
                     return "default";
             }

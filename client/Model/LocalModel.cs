@@ -24,7 +24,6 @@ namespace TCPGameClient.Model
 
         // display grid
         private Field[, ,] map;
-        private List<Creature> creatures;
 
         // constructor allows the controller to give a grid size, which is
         // the area that will be "remembered"
@@ -35,34 +34,9 @@ namespace TCPGameClient.Model
             this.gridSizeZ = gridSizeZ;
 
             map = new Field[gridSizeX, gridSizeY, gridSizeZ];
-            creatures = new List<Creature>();
         }
 
-        // clear the creature list
-        public void ResetCreatures()
-        {
-            creatures = new List<Creature>();
-        }
-
-        // add a new creature to the map
-        public void AddCreature(int xPos, int yPos, int zPos, CreatureRepresentation representation)
-        {
-            // calculate position relative to the player
-            int relPosX = xPos - currentX;
-            int relPosY = yPos - currentY;
-            int relPosZ = zPos - currentZ;
-
-            // add creature to creature list
-            creatures.Add(new Creature(relPosX, relPosY, relPosZ, representation));
-        }
-
-        // returns the list of nearby creatures
-        public List<Creature> GetCreatures()
-        {
-            return creatures;
-        }
-
-        public void AddTile(int xPos, int yPos, int zPos, TileRepresentation representation)
+        public void AddTile(int xPos, int yPos, int zPos, TileRepresentation representation, CreatureRepresentation creature)
         {
             // calculate position relative to the center of the map
             int mapPosX = gridSizeX / 2 + (xPos - currentX);
@@ -70,7 +44,7 @@ namespace TCPGameClient.Model
             int mapPosZ = gridSizeZ / 2 + (zPos - currentZ);
 
             // add tile to the grid
-            if (IsInBounds(mapPosX, mapPosY, mapPosZ)) map[mapPosX, mapPosY, mapPosZ] = new Field(representation);
+            if (IsInBounds(mapPosX, mapPosY, mapPosZ)) map[mapPosX, mapPosY, mapPosZ] = new Field(representation, creature);
         }
 
         // shift the map. This is needed when the player moves, since the map is centered

@@ -9,8 +9,68 @@ namespace TCPGameServer.World.Map
 {
     class Geography
     {
+        public static void FillTilesAtRange(int range, ref List<List<Tile>> tilesAtRange)
+        {
+            int exploredRange = tilesAtRange.Count;
+
+            if (exploredRange > 1) MarkExplored(tilesAtRange[exploredRange - 2]);
+            MarkExplored(tilesAtRange[exploredRange - 1]);
+
+            for (int currentRange = exploredRange; currentRange <= range; currentRange++)
+            {
+                tilesAtRange.Add(Geography.GetNextLayer(tilesAtRange[currentRange - 1]));
+
+                MarkExplored(tilesAtRange[currentRange]);
+            }
+
+            for (int marked = exploredRange - 2; marked <= range; marked++)
+            {
+                if (marked == -1) continue;
+
+                ClearMark(tilesAtRange[marked]);
+            }
+        }
+
+        private static void MarkExplored(List<Tile> toMark)
+        {
+            foreach (Tile tile in toMark) tile.SetColor(1);
+        }
+
+        private static void ClearMark(List<Tile> marked)
+        {
+            foreach (Tile tile in marked) tile.SetColor(0);
+        }
+
+        private static List<Tile> GetNextLayer(List<Tile> tileFront)
+        {
+            List<Tile> toReturn = new List<Tile>();
+
+            foreach (Tile tile in tileFront)
+            {
+                if (!tile.IsPassable()) continue;
+
+                for (int direction = 0; direction < 6; direction++)
+                {
+                    if (tile.HasNeighbor(direction))
+                    {
+                        Tile neighbor = tile.GetNeighbor(direction);
+
+                        if (neighbor.GetColor() != 1)
+                        {
+                            neighbor.SetColor(1);
+
+                            toReturn.Add(neighbor);
+                        }
+                    }
+                }
+            }
+
+            return toReturn;
+        }
+
+        /*
         // gets the tiles surrounding a tile to a certain range
-        public static List<Tile> getSurroundingTiles(Tile centerTile, int depth, bool vision)
+        private static List<Tile> getSurroundingTiles(Tile centerTile, int depth, bool vision)
         {
             // return buffer
             List<Tile> tilesToSend = new List<Tile>();
@@ -74,6 +134,6 @@ namespace TCPGameServer.World.Map
                     }
                 }
             }
-        }
+        }*/
     }
 }
