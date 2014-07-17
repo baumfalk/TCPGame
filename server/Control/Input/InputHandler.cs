@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using TCPGameServer.World;
 using TCPGameServer.World.Players;
+using TCPGameServer.World.Players.Commands;
 using TCPGameServer.World.Players.PlayerFiles;
 
 using TCPGameServer.Control;
@@ -16,7 +17,7 @@ namespace TCPGameServer.Control.Input
 {
     class InputHandler
     {
-        public static void Handle(List<String> commands, Player player, User user)
+        public static void Handle(List<String> commands, Model model, Player player, User user)
         {
             // if there are no commands to handle, don't handle commands
             if (commands.Count == 0) return;
@@ -37,7 +38,7 @@ namespace TCPGameServer.Control.Input
                 else if (command.Equals("reset"))
                 {
                     // reset the map
-                    player.AddImmediateCommand(new String[] { "RESET" });
+                    model.AddModelCommand(new ResetPlayerCommand(model));
                 }
                 else if (command.Equals("log"))
                 {
@@ -74,7 +75,7 @@ namespace TCPGameServer.Control.Input
                             HandlePassword(command, user);
                             break;
                         case User.LoginState.Finished:
-                            HandleNormal(command, player);
+                            HandleNormal(command, model, player);
                             break;
                     }
                 }
@@ -147,7 +148,7 @@ namespace TCPGameServer.Control.Input
                 if (PasswordHashing.VerifyPassword(command, password))
                 {
                     user.GetLoginInfo().areaName = header.area;
-                    user.GetLoginInfo().tileIndex = header.tileIndex.ToString();
+                    user.GetLoginInfo().tileIndex = header.tileIndex;
 
                     user.CompleteLogin();
                 }
@@ -166,7 +167,7 @@ namespace TCPGameServer.Control.Input
                 PlayerFile.Write(playerFile, name);
 
                 user.GetLoginInfo().areaName = playerFile.header.area;
-                user.GetLoginInfo().tileIndex = playerFile.header.tileIndex.ToString();
+                user.GetLoginInfo().tileIndex = playerFile.header.tileIndex;
 
                 user.CompleteLogin();
             }
@@ -190,7 +191,7 @@ namespace TCPGameServer.Control.Input
 
         // handle "normal" logins. This should probably be split at some point, like the actionhandlers in
         // the model, but for now there aren't many commands.
-        private static void HandleNormal(String command, Player player)
+        private static void HandleNormal(String command, Model model, Player player)
         {
             // something is a movement command if it can be parsed to a direction
             bool isMovementCommand = Directions.FromShortString(command) > -1 || Directions.FromString(command) > -1;
@@ -203,11 +204,11 @@ namespace TCPGameServer.Control.Input
                 int direction = Directions.FromShortString(command);
                 if (direction == -1) direction = Directions.FromString(command);
 
-                player.AddBlockingCommand(new String[] { "MOVE", "" + direction });
+                player.AddBlockingCommand(new MovePlayerCommand(player, direction));
             } // look if the command is to look
             else if (command.ToLower().Equals("l") || command.ToLower().Equals("look"))
             {
-                player.AddBlockingCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL" });
+                player.AddBlockingCommand(new LookPlayerCommand(player, LookPlayerCommand.IncludePlayerLocation.Yes, LookPlayerCommand.UpdateMode.All));
             }
             else if (command.ToLower().StartsWith("say")) // format: say *message*
             {
@@ -217,7 +218,7 @@ namespace TCPGameServer.Control.Input
                 // invalid command
                 if (splittedString.Length < 2) return;
 
-                player.AddImmediateCommand(new String[] { "SAY", splittedString[1] });
+                player.AddImmediateCommand(new SayPlayerCommand(player, model, splittedString[1], false));
             }
             else if (command.ToLower().StartsWith("whisper") || command.ToLower().StartsWith("tell")) // format: whisper *recipient* *message*
             {
@@ -227,7 +228,7 @@ namespace TCPGameServer.Control.Input
                 // invalid command
                 if (splittedString.Length < 3) return;
 
-                player.AddImmediateCommand(new String[] { "WHISPER", splittedString[1], splittedString[2] });
+                player.AddImmediateCommand(new WhisperPlayerCommand(player, splittedString[1], model, splittedString[2]));
             }
             else if (command.ToLower().Equals("tiledata"))
             {
@@ -250,8 +251,14 @@ namespace TCPGameServer.Control.Input
             {
                 string[] splittedString = command.Split(' ');
 
-                if (splittedString.Length == 2) player.AddBlockingCommand(new String[] { "TELEPORT", player.GetBody().GetPosition().GetArea().GetName(), splittedString[1] });
-                if (splittedString.Length == 3) player.AddBlockingCommand(new String[] { "TELEPORT", splittedString[1], splittedString[2] });
+                if (splittedString.Length == 2)
+                {
+                    player.AddBlockingCommand(new TeleportPlayerCommand(player, model, player.GetBody().GetPosition().GetArea().GetName(), int.Parse(splittedString[1])));
+                }
+                if (splittedString.Length == 3)
+                {
+                    player.AddBlockingCommand(new TeleportPlayerCommand(player, model, splittedString[1], int.Parse(splittedString[2])));
+                }
             }
         }
     }

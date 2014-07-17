@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 using System.Diagnostics;
 
-using TCPGameServer.World.ActionHandling;
 using TCPGameServer.World.Players;
+using TCPGameServer.World.Players.Commands;
 using TCPGameServer.World.Map;
 using TCPGameServer.World.Map.IO.MapFile;
 using TCPGameServer.World.Map.Generation;
@@ -24,19 +24,14 @@ namespace TCPGameServer.World
         // the list of player objects
         private List<Player> players;
 
-        // handles actions by players
-        private ActionHandler actionHandler;
-
         // commands (mostly messages) originating from the model
-        private Queue<String[]> modelCommands;
+        private Queue<PlayerCommand> modelCommands;
 
         // constructor initializes fields and creates the world
         public Model() {
             players = new List<Player>();
 
-            modelCommands = new Queue<String[]>();
-
-            actionHandler = new ActionHandler(this);
+            modelCommands = new Queue<PlayerCommand>();
 
             createWorld();
         }
@@ -77,7 +72,7 @@ namespace TCPGameServer.World
                 {
                     Log.Print(player.GetName() + " has disconnected");
 
-                    AddModelCommand(new String[] { "SAY", player.GetName() + " has disconnected" });
+                    AddModelCommand(new SayPlayerCommand(player, this, "has disconnected", true));
 
                     disconnectedPlayers.Add(player);
                 }
@@ -100,9 +95,7 @@ namespace TCPGameServer.World
                 // handle one blocking command per tick
                 if (player.HasNextBlockingCommand())
                 {
-                    String [] cmdAndParameters = player.GetNextBlockingCommand();
-
-                    actionHandler.Handle(player, cmdAndParameters, tick);
+                    player.GetNextBlockingCommand().Handle(tick);
                 }
             }
         }
@@ -116,9 +109,7 @@ namespace TCPGameServer.World
                 // handle all immediate commands
                 while (player.HasImmediateCommands())
                 {
-                    String [] command = player.GetNextImmediateCommand();
-                    
-                    actionHandler.Handle(player, command, tick);
+                    player.GetNextImmediateCommand().Handle(tick);
                 }
             }
         }
@@ -129,9 +120,7 @@ namespace TCPGameServer.World
         {
             while (modelCommands.Count > 0)
             {
-                String[] cmdAndParameters = modelCommands.Dequeue();
-
-                actionHandler.Handle(null, cmdAndParameters, tick);
+                modelCommands.Dequeue().Handle(tick);
             }
         }
 
@@ -163,7 +152,7 @@ namespace TCPGameServer.World
         }
 
         // add a model command
-        public void AddModelCommand(String[] command)
+        public void AddModelCommand(PlayerCommand command)
         {
             modelCommands.Enqueue(command);
         }

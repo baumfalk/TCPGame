@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandTypes.cs" />
     <Compile Include="CrossPlatformRandom.cs" />
     <Compile Include="FileLocations.cs" />
     <Compile Include="Representations.cs" />

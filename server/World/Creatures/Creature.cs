@@ -60,6 +60,11 @@ namespace TCPGameServer.World.Creatures
             vision.HandleVisionEvents(this, tick);
         }
 
+        public int GetVisionRange()
+        {
+            return vision.GetVisionRange();
+        }
+
         public void VisionDeregister(RegisterMode registerMode)
         {
             switch (registerMode)

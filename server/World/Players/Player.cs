@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using TCPGameServer.Control;
 using TCPGameServer.World.Creatures;
+using TCPGameServer.World.Players.Commands;
 using TCPGameServer.Control.Output;
 
 using TCPGameServer.World.Players.PlayerFiles;
@@ -25,13 +26,13 @@ namespace TCPGameServer.World.Players
 
         // a queue of blocking commands (like walking, we don't want players to move infinite
         // distances in zero time if they just send enough commands at once.)
-        private Queue<String[]> blockingCommands;
+        private Queue<PlayerCommand> blockingCommands;
 
         // a queue of immediate commands (like getting inventory information, which can be
         // done at any time, even when blocking commands are queued). You may want to limit
         // the number of immediate commands that will be handled in a tick, but in theory
         // they should just be handled and the results returned on the next tick.
-        private Queue<String[]> immediateCommands;
+        private Queue<PlayerCommand> immediateCommands;
 
         // flag to show a player is disconnected
         private bool disconnected = false;
@@ -51,8 +52,8 @@ namespace TCPGameServer.World.Players
 
             body.SetPlayer(this);
 
-            blockingCommands = new Queue<String[]>();
-            immediateCommands = new Queue<String[]>();
+            blockingCommands = new Queue<PlayerCommand>();
+            immediateCommands = new Queue<PlayerCommand>();
         }
 
         // remove the player from the world
@@ -111,18 +112,18 @@ namespace TCPGameServer.World.Players
             // blockdelay is positive, or both
             return blockingCommands.Count + blockDelay > 0;
         }
-        public void AddBlockingCommand(String[] cmdAndParameters)
+        public void AddBlockingCommand(PlayerCommand command)
         {
             // put the command in the queue
-            blockingCommands.Enqueue(cmdAndParameters);
+            blockingCommands.Enqueue(command);
         }
-        public String[] GetNextBlockingCommand()
+        public PlayerCommand GetNextBlockingCommand()
         {
             // if the blockDelay is positive, return a delay command
             if (blockDelay > 0)
             {
                 blockDelay--;
-                return new String[] { "DELAY" };
+                return new DelayCommand();
             }
 
             // otherwise return the next command in the queue. Return null if no such
@@ -145,12 +146,12 @@ namespace TCPGameServer.World.Players
             // simply check if there are items in the queue
             return (immediateCommands.Count > 0);
         }
-        public void AddImmediateCommand(String [] cmdAndParameters)
+        public void AddImmediateCommand(PlayerCommand command)
         {
             // add the command from the queue
-            immediateCommands.Enqueue(cmdAndParameters);
+            immediateCommands.Enqueue(command);
         }
-        public String[] GetNextImmediateCommand()
+        public PlayerCommand GetNextImmediateCommand()
         {
             // return the next command in the queue. Return null if no such
             // command exists, although it should never happen

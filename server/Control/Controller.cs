@@ -115,9 +115,11 @@ namespace TCPGameServer.Control
             return model.getCopyOfPlayerList();
         }
 
-        // add a new user. Won't alter the new user list while it's being worked on.
-        public void AddUser(User newUser)
+        // create and add a new user. Won't alter the new user list while it's being worked on.
+        public void CreateUser(NetClient newNetClient)
         {
+            User newUser = new User(this, model, newNetClient);
+
             while (newuser_block)
             {
                 Thread.Sleep(1);

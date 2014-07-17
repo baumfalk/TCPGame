@@ -11,6 +11,6 @@ namespace TCPGameServer.Control.Input
         public byte[] salt;
         public string name;
         public string areaName;
-        public string tileIndex;
+        public int tileIndex;
     }
 }

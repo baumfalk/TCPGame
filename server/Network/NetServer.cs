@@ -90,10 +90,7 @@ namespace TCPGameServer.Network
 
             // create a user which will facilitate communication between the
             // different parts of the program with the netclient
-            User newUser = new User(control, newNetClient);
-
-            // add the user to the controller.
-            control.AddUser(newUser);
+            control.CreateUser(newNetClient);
 
             // if running, start listening for the next client. Otherwise, stop the server.
             if (server_running)

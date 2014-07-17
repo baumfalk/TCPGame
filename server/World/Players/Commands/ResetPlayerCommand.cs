@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using TCPGameServer.World.Players;
-
-namespace TCPGameServer.World.ActionHandling
+namespace TCPGameServer.World.Players.Commands
 {
-    class ResetActionHandler
+    class ResetPlayerCommand : PlayerCommand
     {
         private Model model;
 
-        public ResetActionHandler(Model model)
+        public ResetPlayerCommand(Model model)
         {
             this.model = model;
         }
 
-        public void Handle(Player player, String[] splitCommand, int tick)
+        public void Handle(int tick)
         {
             model.ResetMap();
         }

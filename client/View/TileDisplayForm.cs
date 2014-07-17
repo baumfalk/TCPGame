@@ -198,10 +198,11 @@ namespace TCPGameClient.View
             canDraw = true;
         }
 
-        private void DrawStrings(List<String> stringList, Graphics g, int corner,int maxNumberOfMessages = 10)
+        private void DrawStrings(List<String> stringList, Graphics g, int corner, int maxNumberOfMessages = 10)
         {
             List<string> localCopy = new List<string>();
-            foreach(string str in stringList) {
+            foreach (string str in stringList)
+            {
                 string newstr = string.Copy(str);
                 localCopy.Add(newstr);
             }
@@ -218,7 +219,7 @@ namespace TCPGameClient.View
                 SizeF stringSize = new SizeF();
                 stringSize = g.MeasureString(localCopy[i], drawFont);
                 totalStringSize.Height += stringSize.Height + 2;
-                totalStringSize.Width =  Math.Max(stringSize.Width,totalStringSize.Width);
+                totalStringSize.Width = Math.Max(stringSize.Width, totalStringSize.Width);
             }
             int x = 0, y = 0, width = 0, height = 0;
             switch (corner)
@@ -246,7 +247,7 @@ namespace TCPGameClient.View
                 default:
                     break;
             }
-            
+
             g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(x, y, width, height));
 
             int curHeight = y;
@@ -255,7 +256,7 @@ namespace TCPGameClient.View
                 SizeF stringSize = new SizeF();
                 stringSize = g.MeasureString(localCopy[i], drawFont);
                 g.DrawString(localCopy[i], drawFont, drawBrush, 0, curHeight, drawFormat);
-                curHeight += (int)stringSize.Height + 2;             
+                curHeight += (int)stringSize.Height + 2;
             }
             drawFont.Dispose();
             drawBrush.Dispose();

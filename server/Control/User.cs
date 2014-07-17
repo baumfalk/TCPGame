@@ -6,6 +6,7 @@ using System.Text;
 using TCPGameServer.Network;
 using TCPGameServer.World;
 using TCPGameServer.World.Players;
+using TCPGameServer.World.Players.Commands;
 using TCPGameServer.World.Creatures;
 using TCPGameServer.Control.Output;
 using TCPGameServer.Control.Input;
@@ -16,6 +17,8 @@ namespace TCPGameServer.Control
 {
     public class User
     {
+        // the model this user's player is in
+        private Model model;
         // the player in the model this user represents
         private Player player;
         // the client on the network this user is using to connect
@@ -32,10 +35,11 @@ namespace TCPGameServer.Control
         public enum LoginState { NotStarted, Name, Password, Finished };
 
         // creates a creature for the player to control and starts the login process
-        public User(Controller control, NetClient client)
+        public User(Controller control, Model model, NetClient client)
         {
             // fill fields
             this.control = control;
+            this.model = model;
             this.client = client;
 
             // start the login procedure
@@ -79,13 +83,15 @@ namespace TCPGameServer.Control
             // place the player in the world if he hasn't taken over an existing body
             if (player.GetBody().GetPosition() == null)
             {
-                player.AddImmediateCommand(new String[] { "TELEPORT", loginInfo.areaName, loginInfo.tileIndex });
+                player.AddImmediateCommand(new TeleportPlayerCommand(player, model, loginInfo.areaName, loginInfo.tileIndex));
             }
             else
             {
-                player.AddImmediateCommand(new String[] { "LOOK", "TILES_INCLUDED", "PLAYER_INCLUDED", "UPDATE_ALL" });
+                player.AddImmediateCommand(new LookPlayerCommand(player, LookPlayerCommand.IncludePlayerLocation.Yes, LookPlayerCommand.UpdateMode.All));
             }
-            player.AddImmediateCommand(new String[] { "LOGIN", "COMPLETE" });
+
+            player.AddMessage("MESSAGE,LOGIN,welcome " + loginInfo.name + "!", int.MinValue);
+            model.AddModelCommand(new SayPlayerCommand(player, model, "has logged in", true));
             
             // we're done with the login process
             loginState = LoginState.Finished;
@@ -157,7 +163,7 @@ namespace TCPGameServer.Control
             if (inputList.Count == 0) return;
 
             // send the updates to the input handler
-            InputHandler.Handle(inputList, player, this);
+            InputHandler.Handle(inputList, model, player, this);
         }
     }
 }
