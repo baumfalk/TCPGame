@@ -25,6 +25,12 @@ namespace TCPGameClient.Model
         // display grid
         private Field[, ,] map;
 
+        // list of players online and their locations
+        private PlayerList playerList;
+
+        // list of messages received
+        private List<String> receivedMessages;
+
         // constructor allows the controller to give a grid size, which is
         // the area that will be "remembered"
         public LocalModel(int gridSizeX, int gridSizeY, int gridSizeZ)
@@ -34,6 +40,28 @@ namespace TCPGameClient.Model
             this.gridSizeZ = gridSizeZ;
 
             map = new Field[gridSizeX, gridSizeY, gridSizeZ];
+
+            receivedMessages = new List<string>();
+            playerList = new PlayerList();
+        }
+
+        // add and retrieve messages received from the server
+        public void AddReceivedMessage(string receivedMessage)
+        {
+            receivedMessages.Add(receivedMessage);
+        }
+        public List<String> GetReceivedMessages()
+        {
+            return receivedMessages;
+        }
+
+        public void updatePlayerList(string playerName, string area, string stateChange)
+        {
+            playerList.updatePlayerList(playerName, area, stateChange);
+        }
+        public List<String> GetPlayerList()
+        {
+            return playerList.GetList();
         }
 
         public void AddTile(int xPos, int yPos, int zPos, TileRepresentation representation, CreatureRepresentation creature)

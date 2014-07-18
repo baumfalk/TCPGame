@@ -99,14 +99,9 @@ namespace TCPGameClient.Control
 
         public void AddMessage(String message)
         {
-            tdView.AddReceivedMessage(message);
-            tdView.DrawMessages();
+            worldModel.AddReceivedMessage(message);
+            tdView.DrawMessages(worldModel);
             System.Threading.Thread.Sleep(10);
-        }
-
-        public void UpdatePlayerLoc(String playerName, String playerLocation)
-        {
-            tdView.UpdatePlayerLoc(playerName, playerLocation);
         }
     }
 }

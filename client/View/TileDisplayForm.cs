@@ -26,10 +26,6 @@ namespace TCPGameClient.View
         // controller running everything
         private Controller control;
 
-        // current online list
-        private Dictionary<String,String> playersOnline;
-        private List<String> receivedMessages;
-
         // image buffer containing preloaded images
         private ImageBuffer imageBuffer;
 
@@ -39,6 +35,7 @@ namespace TCPGameClient.View
         // to close the form safely
         private delegate void CloseCallback();
 
+        // constants to determine corner to draw strings in
         public const int LEFTUP     = 0;
         public const int RIGHTUP    = 1;
         public const int LEFTDOWN   = 2;
@@ -48,11 +45,6 @@ namespace TCPGameClient.View
         public TileDisplayForm()
         {
             InitializeComponent();
-        }
-
-        public void AddReceivedMessage(string receivedMessage)
-        {
-            receivedMessages.Add(receivedMessage);
         }
 
         // image buffer and controller are created on launch
@@ -67,8 +59,6 @@ namespace TCPGameClient.View
 
             // controller is created, this "starts the program"
             control = new Controller(this);
-            receivedMessages = new List<string>();
-            playersOnline = new Dictionary<string,string>();
         }
 
 
@@ -150,8 +140,11 @@ namespace TCPGameClient.View
                 }
             }
 
+            List<String> receivedMessages = theModel.GetReceivedMessages();
+            List<String> playerList = theModel.GetPlayerList();
+
             DrawStrings(receivedMessages, g,LEFTDOWN);
-            DrawStrings(GetPlayerLocList(), g, LEFTUP);
+            DrawStrings(playerList, g, LEFTUP);
 
             // dispose of the graphics object
             g.Dispose();
@@ -162,7 +155,7 @@ namespace TCPGameClient.View
             canDraw = true;
         }
 
-        public void DrawMessages()
+        public void DrawMessages(LocalModel theModel)
         {
             if (WindowState == FormWindowState.Minimized) return;
 
@@ -189,6 +182,8 @@ namespace TCPGameClient.View
                 // create graphics object for buffer
                 g = Graphics.FromImage(drawBuffer);
             }
+
+            List<String> receivedMessages = theModel.GetReceivedMessages();
 
             DrawStrings(receivedMessages, g,LEFTDOWN);
             pictureBox1.Image = drawBuffer;
@@ -262,19 +257,6 @@ namespace TCPGameClient.View
             drawBrush.Dispose();
         }
 
-        public void UpdatePlayerLoc(string playerName, string playerLoc)
-        {
-            playersOnline[playerName] = playerLoc;
-        }
-
-        private List<string> GetPlayerLocList()
-        {
-            List<string> lst = new List<string>();
-            foreach(var tuple in playersOnline) {
-                lst.Add(",,"+tuple.Key + "," + tuple.Value);
-            }
-            return lst;
-        }
         // checks if input in the textbox is a full line and adds it to the list of inputs
         private void textBox1_TextChanged(object sender, EventArgs e)
         {

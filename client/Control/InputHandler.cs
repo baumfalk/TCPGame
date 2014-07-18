@@ -114,7 +114,7 @@ namespace TCPGameClient.Control
                         DoRedraw = true;
                         break;
                     case "WHOLIST":
-                        SplitPersonList(inputPart);
+                        UpdateWholist(inputPart);
                         DoRedraw = true;
                         break;
                     default:
@@ -126,15 +126,14 @@ namespace TCPGameClient.Control
             return DoRedraw;
         }
 
-        private void SplitPersonList(String [] inputPart)
+        // handles wholist updates
+        private void UpdateWholist(String[] inputPart)
         {
-            Console.WriteLine(inputPart[1]);
-            for (int i = 2; i < inputPart.Length; i++)
-            {
-                String[] nameAndLoc = inputPart[i].Split(':');
-                control.UpdatePlayerLoc(nameAndLoc[0], nameAndLoc[1]);
-            }
+            String playerName = inputPart[2];
+            String areaName = inputPart[3];
+            String stateChange = inputPart[4];
 
+            model.updatePlayerList(playerName, areaName, stateChange);
         }
 
         // handles player-type updates. Only "position" update exists at the moment.
