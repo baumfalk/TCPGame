@@ -127,6 +127,7 @@
     <Compile Include="World\Map\World.cs" />
     <Compile Include="World\Players\Commands\TeleportPlayerCommand.cs" />
     <Compile Include="World\Players\Commands\WhisperPlayerCommand.cs" />
+    <Compile Include="World\Players\Commands\WholistUpdateCommand.cs" />
     <Compile Include="World\Players\Player.cs" />
     <Compile Include="World\Map\Tile.cs" />
     <Compile Include="World\Model.cs" />

@@ -204,7 +204,7 @@ namespace TCPGameServer.Control.Input
                 int direction = Directions.FromShortString(command);
                 if (direction == -1) direction = Directions.FromString(command);
 
-                player.AddBlockingCommand(new MovePlayerCommand(player, direction));
+                player.AddBlockingCommand(new MovePlayerCommand(model, player, direction));
             } // look if the command is to look
             else if (command.ToLower().Equals("l") || command.ToLower().Equals("look"))
             {

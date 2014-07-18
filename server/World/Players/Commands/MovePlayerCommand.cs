@@ -10,11 +10,13 @@ namespace TCPGameServer.World.Players.Commands
 {
     class MovePlayerCommand : PlayerCommand
     {
+        private Model model;
         private Player player;
         private Tile targetTile;
 
-        public MovePlayerCommand(Player player, int direction)
+        public MovePlayerCommand(Model model, Player player, int direction)
         {
+            this.model = model;
             this.player = player;
 
             // the player's position
@@ -32,6 +34,12 @@ namespace TCPGameServer.World.Players.Commands
             {
                 Creature playerBody = player.GetBody();
                 Tile playerPosition = playerBody.GetPosition();
+
+                // if the player changes areas, send a wholist update
+                if (playerPosition.GetArea() != targetTile.GetArea())
+                {
+                    player.AddImmediateCommand(new WholistUpdateCommand(model, player, WholistUpdateCommand.StateChange.Changed_Area));
+                }
 
                 // deregister from the outer layer of tiles the creature can currently see
                 playerBody.VisionDeregister(Creature.RegisterMode.Outer);
