@@ -92,6 +92,7 @@ namespace TCPGameServer.Control
 
             player.AddMessage("MESSAGE,LOGIN,welcome " + loginInfo.name + "!", int.MinValue);
             model.AddModelCommand(new SayPlayerCommand(player, model, "has logged in", true));
+            model.AddModelCommand(new WholistUpdateCommand(model, player, WholistUpdateCommand.StateChange.Logged_In));
             
             // we're done with the login process
             loginState = LoginState.Finished;

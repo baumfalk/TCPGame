@@ -18,7 +18,9 @@ namespace TCPGameServer.World.Players.Commands
         {
             this.model = model;
             this.playerName = player.GetName();
-            this.areaName = player.GetBody().GetPosition().GetArea().GetName();
+
+            if (stateChange == StateChange.Changed_Area) this.areaName = player.GetBody().GetPosition().GetArea().GetName();
+            else this.areaName = "Limbo";
 
             this.stateChange = StateChangeToString(stateChange);
         }

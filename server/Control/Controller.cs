@@ -205,27 +205,11 @@ namespace TCPGameServer.Control
             model.doUpdate(tick);
         }
 
-        private string GetPlayerList()
-        {
-            string playerlist = "";
-            foreach(Player player in this.model.getCopyOfPlayerList())
-            {
-                playerlist += player.GetName() + ":" + player.GetBody().GetPosition().GetArea().GetName()+",";
-            }
-            if (playerlist == "") playerlist = " ";
-            return playerlist.Substring(0,playerlist.Length-1);
-        }
-
         // send output, and return which players are disconnected
         private List<User> DoUserOutputAndReturnDisconnects()
         {
             // a list of disconnected users. 
             List<User> disconnectedUsers = new List<User>();
-            String playerListMessage = null;
-            if ((tick % 10) == 0)
-            {
-                playerListMessage = GetPlayerList();
-            }
             foreach (User user in users)
             {
                 if (user.IsConnected())
@@ -236,10 +220,6 @@ namespace TCPGameServer.Control
                     {
                         user.AddMessage("PING", tick);
                         
-                    }
-                    if ((tick % 10) == 0 && playerListMessage != "")
-                    {
-                        user.AddMessage("WHOLIST," + playerListMessage, tick);
                     }
                     user.SendMessages(tick);
                 }

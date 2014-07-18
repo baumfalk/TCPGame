@@ -19,7 +19,7 @@ namespace TCPGameServer.World.Players.Commands
             // an emote is of the form "<name> has logged in", and shows as a server message
             if (isEmote)
             {
-                message = player.GetName() + " " + message;
+                this.message = player.GetName() + " " + message;
             }
             else this.player = player;
         }

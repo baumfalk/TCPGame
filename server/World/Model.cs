@@ -73,6 +73,7 @@ namespace TCPGameServer.World
                     Log.Print(player.GetName() + " has disconnected");
 
                     AddModelCommand(new SayPlayerCommand(player, this, "has disconnected", true));
+                    AddModelCommand(new WholistUpdateCommand(this, player, WholistUpdateCommand.StateChange.Logged_Out));
 
                     disconnectedPlayers.Add(player);
                 }

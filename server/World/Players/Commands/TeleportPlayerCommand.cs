@@ -72,6 +72,9 @@ namespace TCPGameServer.World.Players.Commands
 
                 // make the player look at the nearby tiles
                 player.AddImmediateCommand(new LookPlayerCommand(player, LookPlayerCommand.IncludePlayerLocation.Yes, LookPlayerCommand.UpdateMode.All));
+
+                // send a wholist update
+                model.AddModelCommand(new WholistUpdateCommand(model, player, WholistUpdateCommand.StateChange.Changed_Area));
             }
         }
     }
