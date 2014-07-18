@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
-using TCPGameClient.View;
+using TCPGameClient.Control;
 
 namespace TCPGameClient
 {
@@ -16,9 +15,7 @@ namespace TCPGameClient
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TileDisplayForm());
+            new Controller();
         }
     }
 }

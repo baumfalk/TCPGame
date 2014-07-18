@@ -10,19 +10,21 @@ namespace TCPGameServer.World.Players.Commands
         public enum StateChange { Logged_In, Changed_Area, Logged_Out };
 
         private Model model;
+        private Player player;
         private String playerName;
         private String areaName;
-        private String stateChange;
+        private StateChange stateChange;
 
         public WholistUpdateCommand(Model model, Player player, StateChange stateChange)
         {
             this.model = model;
+            this.player = player;
             this.playerName = player.GetName();
 
             if (stateChange == StateChange.Changed_Area) this.areaName = player.GetBody().GetPosition().GetArea().GetName();
             else this.areaName = "Limbo";
 
-            this.stateChange = StateChangeToString(stateChange);
+            this.stateChange = stateChange;
         }
 
         private String StateChangeToString(StateChange stateChange)
@@ -40,9 +42,16 @@ namespace TCPGameServer.World.Players.Commands
         {
             List<Player> playerList = model.getCopyOfPlayerList();
 
-            foreach (Player player in playerList)
+            String stateString = StateChangeToString(stateChange);
+
+            foreach (Player otherPlayer in playerList)
             {
-                player.AddMessage("WHOLIST," + playerName + "," + areaName + "," + stateChange, tick);
+                if (stateChange == StateChange.Logged_In)
+                {
+                    player.AddMessage("WHOLIST," + otherPlayer.GetName() + "," + otherPlayer.GetBody().GetPosition().GetArea().GetName() + "," + "PASSIVE_IN", tick);
+                }
+
+                otherPlayer.AddMessage("WHOLIST," + playerName + "," + areaName + "," + stateChange, tick);
             }
         }
     }

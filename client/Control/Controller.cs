@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 using System.Drawing;
 using System.Diagnostics;
@@ -27,18 +29,27 @@ namespace TCPGameClient.Control
         private String IP = "145.97.240.63";
         private int port = 8888;
 
-        public Controller(TileDisplayForm tdView)
+        public Controller()
         {
-            // the view will be passed to the controller
-            this.tdView = tdView;
-
             // we need to locally model the world to display it
             worldModel = new LocalModel(51, 51, 3);
 
             inputHandler = new InputHandler(this, worldModel);
 
-            // connect to the world-server
+            // create the network connector
             connection = new NetConnector(this);
+
+            // create the display form on it's own thread
+            new Thread(CreateDisplayForm).Start();
+        }
+
+        private void CreateDisplayForm()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            tdView = new TileDisplayForm(this, worldModel);
+            Application.Run(tdView);
         }
 
         // connect to the server
@@ -94,14 +105,13 @@ namespace TCPGameClient.Control
         // redraw the view
         public void Redraw()
         {
-            tdView.DrawModel(worldModel);
+            tdView.DrawModel();
         }
 
         public void AddMessage(String message)
         {
             worldModel.AddReceivedMessage(message);
-            tdView.DrawMessages(worldModel);
-            System.Threading.Thread.Sleep(10);
+            tdView.DrawMessages();
         }
     }
 }

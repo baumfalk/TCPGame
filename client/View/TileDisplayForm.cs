@@ -25,6 +25,8 @@ namespace TCPGameClient.View
 
         // controller running everything
         private Controller control;
+        // model to be drawn
+        private LocalModel theModel;
 
         // image buffer containing preloaded images
         private ImageBuffer imageBuffer;
@@ -42,8 +44,11 @@ namespace TCPGameClient.View
         public const int RIGHTDOWN  = 3;
 
         // automatic code by Visual Studio
-        public TileDisplayForm()
+        public TileDisplayForm(Controller control, LocalModel theModel)
         {
+            this.control = control;
+            this.theModel = theModel;
+
             InitializeComponent();
         }
 
@@ -56,11 +61,7 @@ namespace TCPGameClient.View
 
             // imagebuffer loads images with default size 64x64
             imageBuffer = new ImageBuffer(sizeX, sizeY);
-
-            // controller is created, this "starts the program"
-            control = new Controller(this);
         }
-
 
         public void SetZoom(int zoomLevelX, int zoomLevelY)
         {
@@ -71,7 +72,7 @@ namespace TCPGameClient.View
         }
 
         // draws the model onto the form
-        public void DrawModel(LocalModel theModel)
+        public void DrawModel()
         {       
             if (WindowState == FormWindowState.Minimized) return;
 
@@ -155,8 +156,10 @@ namespace TCPGameClient.View
             canDraw = true;
         }
 
-        public void DrawMessages(LocalModel theModel)
+        public void DrawMessages()
         {
+            return;
+
             if (WindowState == FormWindowState.Minimized) return;
 
             // check if we can draw. If we can, noone else can until we're done 

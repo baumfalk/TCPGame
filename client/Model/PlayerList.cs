@@ -30,6 +30,10 @@ namespace TCPGameClient.Model
                 case "OUT":
                     RemovePlayer(playerName);
                     break;
+                case "PASSIVE_IN":
+                    AddPlayer(playerName);
+                    UpdatePlayerLoc(playerName, areaName);
+                    break;
                 default:
                     Debug.Print("unknown state change for update player list");
                     break;
