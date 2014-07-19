@@ -10,7 +10,7 @@ namespace TCPGameServer
 {
     static class Server
     {
-        public static String version = "mijlsteen een 4/5";
+        public static String version = "mijlsteen een 4/5, woo woo, polymorfe players";
 
         /// <summary>
         /// The main entry point for the application.
