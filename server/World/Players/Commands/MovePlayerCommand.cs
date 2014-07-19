@@ -14,24 +14,23 @@ namespace TCPGameServer.World.Players.Commands
     {
         private Model model;
         private Player player;
-        private Tile targetTile;
+        private int direction;
 
         public MovePlayerCommand(Model model, Player player, int direction)
         {
             this.model = model;
             this.player = player;
-
-            // the player's position
-            Tile position = player.GetBody().GetPosition();
-
-            if (position.HasNeighbor(direction))
-            {
-                targetTile = position.GetNeighbor(direction);
-            }
+            this.direction = direction;
         }
 
         public void Handle(int tick)
         {
+            // the player's position
+            Tile position = player.GetBody().GetPosition();
+            
+            // the tile to move to
+            Tile targetTile = position.GetNeighbor(direction);
+
             if (targetTile != null && targetTile.IsPassable() && !targetTile.HasOccupant())
             {
                 Creature playerBody = player.GetBody();
