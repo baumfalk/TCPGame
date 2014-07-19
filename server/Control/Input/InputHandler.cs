@@ -242,7 +242,8 @@ namespace TCPGameServer.Control.Input
                                      tile.GetLinkText(Directions.SOUTH) + ", " +
                                      tile.GetLinkText(Directions.WEST) + ", " +
                                      tile.GetLinkText(Directions.DOWN) + "\r\n" +
-                    "tile location: " + tile.GetLocation();
+                    "tile location: " + tile.GetLocation() + "\r\n" + 
+                    "area name: " + tile.GetArea().GetName();
 
 
                 player.AddMessage(output.Replace(";", ":"), int.MinValue);

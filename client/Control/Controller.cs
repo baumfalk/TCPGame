@@ -107,11 +107,5 @@ namespace TCPGameClient.Control
         {
             tdView.DrawModel();
         }
-
-        public void AddMessage(String message)
-        {
-            worldModel.AddReceivedMessage(message);
-            tdView.DrawMessages();
-        }
     }
 }

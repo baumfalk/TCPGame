@@ -74,7 +74,7 @@ namespace TCPGameServer.World.Players.Commands
                 player.AddImmediateCommand(new LookPlayerCommand(player, LookPlayerCommand.IncludePlayerLocation.Yes, LookPlayerCommand.UpdateMode.All));
 
                 // send a wholist update
-                model.AddModelCommand(new WholistUpdateCommand(model, player, WholistUpdateCommand.StateChange.Changed_Area));
+                player.AddImmediateCommand(new WholistUpdateCommand(model, player, WholistUpdateCommand.StateChange.Changed_Area));
             }
         }
     }

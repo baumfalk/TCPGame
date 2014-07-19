@@ -83,7 +83,7 @@ namespace TCPGameClient.Control
         // how to act on the input. Returns true if the view should be redrawn.
         public bool HandleServerInput(List<String> inputData)
         {
-            bool DoRedraw = false;
+            bool doRedraw = false;
 
             // loop through all strings we received
             foreach (String input in inputData)
@@ -100,22 +100,23 @@ namespace TCPGameClient.Control
                         control.Stop();
                         break;
                     case "MESSAGE":
-                        control.AddMessage(input);
+                        model.AddReceivedMessage(input);
+                        doRedraw = true;
                         break;
                     case "LOGIN":
                         ParseLoginCommand(inputPart);
                         break;
                     case "PLAYER":
                         ParsePlayerCommand(inputPart);
-                        DoRedraw = true;
+                        doRedraw = true;
                         break;
                     case "TILE":
                         UpdateTile(inputPart);
-                        DoRedraw = true;
+                        doRedraw = true;
                         break;
                     case "WHOLIST":
                         UpdateWholist(inputPart);
-                        DoRedraw = true;
+                        doRedraw = true;
                         break;
                     default:
                         System.Diagnostics.Debug.Print("NOT HANDLED: " + input);
@@ -123,7 +124,7 @@ namespace TCPGameClient.Control
                 }
             }
 
-            return DoRedraw;
+            return doRedraw;
         }
 
         // handles wholist updates

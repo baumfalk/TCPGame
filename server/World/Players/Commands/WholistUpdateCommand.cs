@@ -40,18 +40,31 @@ namespace TCPGameServer.World.Players.Commands
 
         public void Handle(int tick)
         {
-            List<Player> playerList = model.getCopyOfPlayerList();
+            if (stateChange == StateChange.Logged_In) InitWholist(tick);
+            else
+            {
+                List<Player> playerList = model.getCopyOfPlayerList();
 
-            String stateString = StateChangeToString(stateChange);
+                String stateString = StateChangeToString(stateChange);
+
+                foreach (Player otherPlayer in playerList)
+                {
+                    otherPlayer.AddMessage("WHOLIST," + playerName + "," + areaName + "," + stateString, tick);
+                }
+            }
+        }
+
+        private void InitWholist(int tick)
+        {
+            List<Player> playerList = model.getCopyOfPlayerList();
 
             foreach (Player otherPlayer in playerList)
             {
-                if (stateChange == StateChange.Logged_In)
-                {
-                    player.AddMessage("WHOLIST," + otherPlayer.GetName() + "," + otherPlayer.GetBody().GetPosition().GetArea().GetName() + "," + "PASSIVE_IN", tick);
-                }
+                String otherArea = "Limbo";
 
-                otherPlayer.AddMessage("WHOLIST," + playerName + "," + areaName + "," + stateChange, tick);
+                if (otherPlayer.GetBody().GetPosition() != null) otherArea = otherPlayer.GetBody().GetPosition().GetArea().GetName();
+
+                player.AddMessage("WHOLIST," + otherPlayer.GetName() + "," + otherArea + ",IN", tick);
             }
         }
     }

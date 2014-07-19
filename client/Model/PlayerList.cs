@@ -19,30 +19,21 @@ namespace TCPGameClient.Model
 
         public void updatePlayerList(String playerName, String areaName, String stateChange)
         {
+            Debug.Print("state change " + stateChange + " for update player list (" + playerName + ", " + areaName + ")");
+
             switch (stateChange)
             {
                 case "IN":
-                    AddPlayer(playerName);
-                    break;
                 case "AREA":
                     UpdatePlayerLoc(playerName, areaName);
                     break;
                 case "OUT":
                     RemovePlayer(playerName);
                     break;
-                case "PASSIVE_IN":
-                    AddPlayer(playerName);
-                    UpdatePlayerLoc(playerName, areaName);
-                    break;
                 default:
-                    Debug.Print("unknown state change for update player list");
+                    Debug.Print("unknown");
                     break;
             }
-        }
-
-        private void AddPlayer(string playerName)
-        {
-            playersOnline.Add(playerName, "");
         }
 
         private void UpdatePlayerLoc(string playerName, string playerLoc)

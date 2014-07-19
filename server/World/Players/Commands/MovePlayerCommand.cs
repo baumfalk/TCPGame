@@ -6,6 +6,8 @@ using System.Text;
 using TCPGameServer.World.Map;
 using TCPGameServer.World.Creatures;
 
+using TCPGameServer.Control.Output;
+
 namespace TCPGameServer.World.Players.Commands
 {
     class MovePlayerCommand : PlayerCommand
@@ -30,16 +32,10 @@ namespace TCPGameServer.World.Players.Commands
 
         public void Handle(int tick)
         {
-            if (targetTile.IsPassable() && !targetTile.HasOccupant())
+            if (targetTile != null && targetTile.IsPassable() && !targetTile.HasOccupant())
             {
                 Creature playerBody = player.GetBody();
                 Tile playerPosition = playerBody.GetPosition();
-
-                // if the player changes areas, send a wholist update
-                if (playerPosition.GetArea() != targetTile.GetArea())
-                {
-                    player.AddImmediateCommand(new WholistUpdateCommand(model, player, WholistUpdateCommand.StateChange.Changed_Area));
-                }
 
                 // deregister from the outer layer of tiles the creature can currently see
                 playerBody.VisionDeregister(Creature.RegisterMode.Outer);
@@ -53,6 +49,12 @@ namespace TCPGameServer.World.Players.Commands
 
                 // make the player look at his new location
                 player.AddImmediateCommand(new LookPlayerCommand(player, LookPlayerCommand.IncludePlayerLocation.Yes, LookPlayerCommand.UpdateMode.Outer));
+
+                // if the player changes areas, send a wholist update
+                if (playerPosition.GetArea() != targetTile.GetArea())
+                {
+                    player.AddImmediateCommand(new WholistUpdateCommand(model, player, WholistUpdateCommand.StateChange.Changed_Area));
+                }
             }
         }
     }
