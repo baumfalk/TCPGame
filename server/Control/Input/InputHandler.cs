@@ -19,9 +19,6 @@ namespace TCPGameServer.Control.Input
     {
         public static void Handle(List<String> commands, Model model, Player player, User user)
         {
-            // if there are no commands to handle, don't handle commands
-            if (commands.Count == 0) return;
-
             // loop through all the commands that need to be handled
             foreach (String command in commands)
             {
