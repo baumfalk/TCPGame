@@ -40,7 +40,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandTypes.cs" />
+    <Compile Include="Commands\CommandTypes.cs" />
+    <Compile Include="Commands\ServerActionCommands\SayServerActionData.cs" />
+    <Compile Include="Commands\ServerActionCommands\LookServerActionCommand.cs" />
+    <Compile Include="Commands\ServerActionCommands\MoveServerActionCommand.cs" />
+    <Compile Include="Commands\ServerActionCommands\TeleportServerActionData.cs" />
+    <Compile Include="Commands\ServerActionCommands\TileDataServerActionData.cs" />
+    <Compile Include="Commands\ServerActionCommands\WhisperServerActionData.cs" />
+    <Compile Include="Commands\ServerCommandData.cs" />
+    <Compile Include="Commands\ServerControlCommands\LogServerControlData.cs" />
+    <Compile Include="Commands\ServerControlCommands\QuitServerControlData.cs" />
+    <Compile Include="Commands\ServerControlCommands\ResetServerControlData.cs" />
+    <Compile Include="Commands\ServerControlCommands\ShutdownServerControlData.cs" />
+    <Compile Include="Commands\ServerLoginCommands\NameServerLoginData.cs" />
+    <Compile Include="Commands\ServerLoginCommands\PasswordServerLoginData.cs" />
     <Compile Include="CrossPlatformRandom.cs" />
     <Compile Include="FileLocations.cs" />
     <Compile Include="Representations.cs" />
