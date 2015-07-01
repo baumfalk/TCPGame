@@ -12,24 +12,21 @@ using TCPGameSharedInfo;
 namespace TCPGameServer.World.Creatures
 {
     // a creature is any mobile object, including players and such which may extend it
-    public class Creature
+    public class Creature : TCPGameSharedInfo.Creatures.Creature
     {
         private Player player;
 
-        // image key
-        private CreatureRepresentation representation;
         // position in the world
         private Tile position;
 
         private VisionSystem vision;
-        public enum RegisterMode { None, Outer, All };
-        
-        // created with it's representation
-        public Creature(CreatureRepresentation representation)
-        {
-            this.representation = representation;
 
-            vision = new NPCVisionSystem();
+        public enum RegisterMode { None, Outer, All };
+
+        public Creature(CreatureRepresentation representation) :
+            base(representation)
+        {
+            this.vision = new NPCVisionSystem();
         }
 
         // a creature can be a player. Methods to check if this is the case, and make
@@ -118,16 +115,6 @@ namespace TCPGameServer.World.Creatures
         public Tile GetPosition()
         {
             return position;
-        }
-
-        // image key can be requested and changed freely
-        public void SetRepresentation(CreatureRepresentation representation)
-        {
-            this.representation = representation;
-        }
-        public CreatureRepresentation GetRepresentation()
-        {
-            return representation;
         }
     }
 }

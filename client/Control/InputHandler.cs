@@ -176,15 +176,14 @@ namespace TCPGameClient.Control
                 int yPos = int.Parse(inputPart[4]);
                 int zPos = int.Parse(inputPart[5]);
                 String tileRepresentationString = inputPart[6];
-                String creatureRepresentationString = inputPart[7];
+                String creatureString = inputPart[7];
 
                 TileRepresentation tileRepresentation =
                     (TileRepresentation)Enum.Parse(typeof(TileRepresentation), tileRepresentationString);
 
-                CreatureRepresentation creatureRepresentation =
-                    (CreatureRepresentation)Enum.Parse(typeof(CreatureRepresentation), creatureRepresentationString);
+                Creature creature = Creature.parse(creatureString);
 
-                model.AddTile(xPos, yPos, zPos, tileRepresentation, creatureRepresentation);
+                model.AddTile(xPos, yPos, zPos, tileRepresentation, creature);
             }
         }
     }

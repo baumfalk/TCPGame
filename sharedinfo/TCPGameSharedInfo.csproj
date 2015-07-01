@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandTypes.cs" />
+    <Compile Include="Creatures\Creature.cs" />
     <Compile Include="CrossPlatformRandom.cs" />
     <Compile Include="FileLocations.cs" />
     <Compile Include="Representations.cs" />

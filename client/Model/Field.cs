@@ -13,10 +13,10 @@ namespace TCPGameClient.Model
     {
         // the image key for this tile
         private TileRepresentation representation;
-        private CreatureRepresentation creature;
+        private Creature creature;
 
         // field is created with the image key
-        public Field(TileRepresentation representation, CreatureRepresentation creature)
+        public Field(TileRepresentation representation, Creature creature)
         {
             this.representation = representation;
             this.creature = creature;
@@ -28,7 +28,7 @@ namespace TCPGameClient.Model
             return representation;
         }
 
-        public CreatureRepresentation GetCreature()
+        public Creature GetCreature()
         {
             return creature;
         }

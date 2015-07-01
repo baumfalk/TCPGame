@@ -36,16 +36,15 @@ namespace TCPGameServer.World.Creatures
             {
                 Location tileLocation = changedTile.GetLocation();
 
-                CreatureRepresentation occupantRepresentation = CreatureRepresentation.None;
-
-                if (changedTile.HasOccupant()) occupantRepresentation = changedTile.GetOccupant().GetRepresentation();
-
+                String occupantString = "";
+                if (changedTile.HasOccupant()) occupantString = changedTile.GetOccupant().getCreatureString();
+                
                 player.AddMessage("TILE,CHANGED," +
                     tileLocation.x + "," +
                     tileLocation.y + "," +
                     tileLocation.z + "," +
                     changedTile.GetRepresentation() + "," +
-                    occupantRepresentation,
+                    occupantString,
                     tick);
             }
 

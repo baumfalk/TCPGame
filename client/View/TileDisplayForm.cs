@@ -127,16 +127,11 @@ namespace TCPGameClient.View
                         // draw the image onto the bitmap
                         g.DrawImage(imToDraw, centerX + x * sizeX - (sizeX / 2), centerY - y * sizeY + sizeY / 2, sizeX, sizeY);
 
-                        // get the representation of the creature on the field
-                        CreatureRepresentation creatureRepresentation = fieldToDraw.GetCreature();
+                        // draw a creature if it's on the field
+                        Image creatureImage = drawCreature(fieldToDraw);
 
-                        if (creatureRepresentation != CreatureRepresentation.None)
-                        {
-                            // get the image from the image buffer
-                            Image creatureImage = imageBuffer.GetImage(creatureRepresentation);
-
+                        if (creatureImage != null) 
                             g.DrawImage(creatureImage, centerX + x * sizeX - sizeX / 4, centerY - y * sizeY + sizeY / 4 * 3, sizeX / 2, sizeY / 2);
-                        }
                     }
                 }
             }
@@ -258,6 +253,39 @@ namespace TCPGameClient.View
             }
             drawFont.Dispose();
             drawBrush.Dispose();
+        }
+
+        private Image drawCreature(Field fieldToDraw)
+        {
+            Creature creature = fieldToDraw.GetCreature();
+
+            // get the representation of the creature on the field
+            CreatureRepresentation creatureRepresentation = creature.representation;
+
+            if (creatureRepresentation != CreatureRepresentation.None)
+            {
+                // get the image from the image buffer
+                Image baseImage = imageBuffer.GetImage(creatureRepresentation);
+
+                // draw the image onto a bitmap
+                Bitmap bmpImage = new Bitmap(sizeX, sizeY);
+
+                Graphics g = Graphics.FromImage(bmpImage);
+
+                g.DrawImage(baseImage, 1, 1, sizeX, sizeY);
+
+                // draw hitpoint and mana bars
+                double hpRatio = creature.currentHitpoints / (double)creature.maxHitpoints;
+                int hpWidth = (int) (hpRatio * sizeX);
+                double manaRatio = creature.currentMana / (double)creature.maxMana;
+                int manaWidth = (int) (manaRatio * sizeX);
+
+                g.DrawRectangle(new Pen(new SolidBrush(Color.LightBlue)), new Rectangle(1, sizeY - 4, manaWidth, 2));
+                g.DrawRectangle(new Pen(new SolidBrush(Color.Red)), new Rectangle(1, sizeY - 6, hpWidth, 2));
+
+                return (Image)bmpImage;
+            }
+            else return null;
         }
 
         // checks if input in the textbox is a full line and adds it to the list of inputs

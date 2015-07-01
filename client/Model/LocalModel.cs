@@ -64,7 +64,7 @@ namespace TCPGameClient.Model
             return playerList.GetList();
         }
 
-        public void AddTile(int xPos, int yPos, int zPos, TileRepresentation representation, CreatureRepresentation creature)
+        public void AddTile(int xPos, int yPos, int zPos, TileRepresentation representation, Creature creature)
         {
             // calculate position relative to the center of the map
             int mapPosX = gridSizeX / 2 + (xPos - currentX);
