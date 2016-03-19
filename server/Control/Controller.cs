@@ -41,7 +41,7 @@ namespace TCPGameServer.Control
         // number of ticks that have passed since game start
         private int tick;
 
-        public Controller(bool headless_mode)
+        public Controller(bool headless_mode, int port)
         {
             Thread.CurrentThread.Name = "Main Thread";
             Thread UIThread = null;
@@ -66,7 +66,7 @@ namespace TCPGameServer.Control
             model = new Model();
 
             // create the server
-            server = new NetServer(this, 8888);
+            server = new NetServer(this, port);
 
             // start listening for clients
             server.Start();
