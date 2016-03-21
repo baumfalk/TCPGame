@@ -41,7 +41,7 @@ namespace TCPGameServer
             {
                 if (args[n].Equals(key))
                 {
-                    for (int i = 0; i < numParameters; i++)
+                    for (int i = 1; i <= numParameters; i++)
                     {
                         if ((n + i) < args.Length)
                             values.Add(args[n + i]);
