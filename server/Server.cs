@@ -23,7 +23,8 @@ namespace TCPGameServer
             // if one of the arguments is --headless, we run in headless mode. Otherwise we're using the window
             bool headless = ParseArgumentExists(args, "--headless");
             // if a port is passed, use it instead of the default from App.config
-            port = int.Parse(ParseArgumentParameters(args, "--port", 1)[0]);
+            if (ParseArgumentExists(args, "--port"))
+                port = int.Parse(ParseArgumentParameters(args, "--port", 1)[0]);
 
             new Controller(headless, port);
         }
